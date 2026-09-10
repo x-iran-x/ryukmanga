@@ -13,13 +13,16 @@
   <!-- استایل اصلی از ریشه سایت -->
   <link rel="stylesheet" href="../style.css">
 
-  <style>
-    /* استایل‌های اختصاصی بخش موسیقی و موزیک‌پلیر دارک */
+    <style>
+    /* استایل‌های اختصاصی بخش موسیقی (چیدمان تک‌ستونه و شیک) */
     .music-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: 1fr; /* تک‌ستونه شدن کارت‌ها */
       gap: 20px;
       margin-top: 25px;
+      max-width: 800px; /* جلوگیری از کش اومدن بیش از حد در مانیتور */
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .track-card {
