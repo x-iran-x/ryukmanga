@@ -385,3 +385,98 @@ body {
     text-decoration: none;
     font-weight: bold;
 }
+/* کانتینر اصلی وسط‌چین با عرض استاندارد */
+.content-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+  width: 100%;
+}
+
+/* استایل بنر هدر */
+.banner {
+  background: linear-gradient(135deg, #1f1f2e, #141419);
+  border: 1px solid #2a2a35;
+  padding: 35px 25px;
+  border-radius: 16px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.banner h2 {
+  font-size: 1.8rem;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.banner p {
+  color: #a0a0b0;
+  font-size: 0.95rem;
+}
+
+/* لیست عمودی کارت‌ها */
+.card-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* استایل کارت عریض شبیه پلیرهای موزیک */
+.card-news {
+  background: #121217;
+  border: 1px solid #23232e;
+  border-radius: 14px;
+  padding: 20px 24px;
+  transition: all 0.25s ease;
+}
+
+.card-news:hover {
+  border-color: #e50914;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(229, 9, 20, 0.1);
+}
+
+.card-news-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.card-news-header h3 {
+  font-size: 1.15rem;
+  color: #f0f0f5;
+  font-weight: 700;
+}
+
+.badge-icon {
+  font-size: 1.3rem;
+  background: #1c1c24;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.card-news-desc {
+  color: #888899;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.card-news-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.read-more {
+  color: #ff4d5a;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+
+.read-more:hover {
+  color: #fff;
+}
