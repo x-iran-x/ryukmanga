@@ -2,23 +2,19 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>صفحه پیدا نشد | RyukManga</title>
-  <link rel="stylesheet" href="style.css">
+  <title>صفحه پیدا نشد</title>
   <style>
-    body { display: flex; align-items: center; justify-content: center; height: 100vh; background: #0f1015; flex-direction: column; text-align: center; }
-    .status-container { max-width: 500px; padding: 20px; }
-    .status-img { width: 100%; max-width: 300px; margin-bottom: 20px; }
-    h1 { color: #fff; }
-    .back-btn { display: inline-block; margin-top: 20px; padding: 10px 25px; background: #ff334b; color: white; text-decoration: none; border-radius: 8px; }
+    body { margin: 0; background: #0f1015; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    img { max-width: 80%; height: auto; max-height: 400px; }
+    a { color: #8f94a6; text-decoration: none; font-family: 'Vazirmatn', sans-serif; opacity: 0.7; transition: 0.3s; }
+    a:hover { opacity: 1; color: #ff334b; }
   </style>
 </head>
 <body>
-  <div class="status-container">
-    <!-- عکس خطای خودت رو اینجا بزار -->
-    <img src="eror.jpg" alt="خطا" class="status-img">
-    <h1>اوخ! اینجا خبری نیست...</h1>
-    <p style="color: #8f94a6;">این صفحه وجود نداره یا جابجا شده.</p>
-    <a href="/" class="back-btn">برگشت به خانه</a>
+  <div class="wrapper">
+    <img src="eror.jpg" alt="404">
+    <a href="/">بازگشت به خانه</a>
   </div>
 </body>
 </html>
