@@ -99,8 +99,9 @@ body {
 .nav-links a {
   color: #aaa;
   text-decoration: none;
-  margin: 0 15px;
+  margin: 0 10px;
   font-weight: 700;
+  font-size: 0.95rem;
   transition: color 0.3s;
 }
 
