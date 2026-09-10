@@ -178,13 +178,16 @@ body {
   gap: 20px;
 }
 
-.manga-card {
-  background: #16161e;
-  border-radius: 12px;
-  padding: 12px;
-  border: 1px solid #252530;
-  transition: transform 0.3s, border-color 0.3s;
-  cursor: pointer;
+.card-grid {
+    display: grid;
+    /* این خط جادوییه: به جای ستون‌های متعدد، فقط یک ستون می‌سازه */
+    grid-template-columns: 1fr; 
+    
+    /* یکم عرضش رو محدود می‌کنیم که توی مانیتورهای بزرگ، متن‌ها زیادی کشیده نشن */
+    max-width: 800px; 
+    margin: 0 auto; /* این کد کارت‌ها رو وسط‌چین می‌کنه */
+    gap: 20px;
+    padding: 20px;
 }
 
 .manga-card:hover {
