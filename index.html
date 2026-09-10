@@ -1,35 +1,87 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-<head>ٍ
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>RyukManga | دنیای انیمه و مانگا</title>
-    <link rel="stylesheet" href="style.css">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RyukManga | دنیای انیمه و مانگا</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<!-- صفحه لودینگ -->
-<div id="loader">
-  <img src="RyukManga.jpg" alt="RyukManga" class="loader-logo">
-  <h1 class="loader-text">RYUKMANGA</h1>
-  <div class="loader-bar"><div class="loader-fill"></div></div>
-</div>    
-<div class="hero">
-    <video autoplay muted loop playsinline class="background-video">
-        <source src="hero.mp4" type="video/mp4">
+  <!-- ۱. اینترو سینمایی (پرده لودینگ ویدئویی) -->
+  <div id="intro-screen">
+    <video autoplay muted playsinline id="intro-video">
+      <source src="hero.mp4" type="video/mp4">
     </video>
-    
-    <div class="hero-content">
-        <h1>RYUKMANGA</h1>
-        <p>به دنیای انیمه و مانگا خوش آمدی</p>
+    <div class="intro-overlay">
+      <h1 class="glitch-text">RYUKMANGA</h1>
+      <p>دنیای تاریک و هیجان‌انگیز انیمه و مانگا</p>
     </div>
-</div>
+  </div>
 
-    <script src="script.js"></script>
-    <script>
-  setTimeout(() => {
-    document.getElementById('loader').classList.add('hidden');
-  }, 5000);
-</script>
+  <!-- ۲. بدنه و محتوای اصلی سایت -->
+  <div id="main-content">
+    <!-- نوبار بالا -->
+    <header class="navbar">
+      <div class="logo">RYUK<span>MANGA</span></div>
+      <nav class="nav-links">
+        <a href="#" class="active">خانه</a>
+        <a href="#">مانگاها</a>
+        <a href="#">انیمه‌ها</a>
+        <a href="#">برترین‌ها</a>
+      </nav>
+      <div class="nav-actions">
+        <input type="text" placeholder="جستجوی مانگا..." class="search-input">
+        <button class="btn-login">ورود / ثبت‌نام</button>
+      </div>
+    </header>
+
+    <!-- بخش اصلی معرفی و محتوا -->
+    <main class="content-container">
+      <section class="banner">
+        <h2>🔥 داغ‌ترین مانگاهای این هفته</h2>
+        <p>جدیدترین چپترها را با بالاترین کیفیت و ترجمه اختصاصی بخوانید.</p>
+      </section>
+
+      <!-- نمونه کارت‌های مانگا -->
+      <section class="manga-grid">
+        <div class="manga-card">
+          <div class="manga-cover cover-1"></div>
+          <h3>Death Note</h3>
+          <span>چپتر ۱۰۸ (پایان)</span>
+        </div>
+        <div class="manga-card">
+          <div class="manga-cover cover-2"></div>
+          <h3>Attack on Titan</h3>
+          <span>چپتر ۱۳۹</span>
+        </div>
+        <div class="manga-card">
+          <div class="manga-cover cover-3"></div>
+          <h3>Chainsaw Man</h3>
+          <span>چپتر ۱۶۰</span>
+        </div>
+        <div class="manga-card">
+          <div class="manga-cover cover-4"></div>
+          <h3>Jujutsu Kaisen</h3>
+          <span>چپتر ۲۶۰</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- اسکریپت کنترل اینترو -->
+  <script>
+    window.addEventListener('load', () => {
+      // بعد از ۵ ثانیه اینترو محو میشه و سایت باز میشه
+      setTimeout(() => {
+        const intro = document.getElementById('intro-screen');
+        intro.classList.add('fade-out');
+        setTimeout(() => {
+          intro.style.display = 'none';
+        }, 1000); // زمان پایان کامل ترنزیشن
+      }, 5000);
+    });
+  </script>
 </body>
 </html>
