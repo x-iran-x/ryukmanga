@@ -1,98 +1,301 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RyukManga | دنیای انیمه</title>
-    <!-- استایل‌های اصلی تو -->
-    <link rel="stylesheet" href="style.css">
-    <style>
-        /* تنظیمات ضروری برای نمایش اینترو */
-        #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background: #000; display: flex; align-items: center; justify-content: center; transition: opacity 1s ease; }
-        #intro-video { width: 100%; height: 100%; object-fit: cover; }
-        .fade-out { opacity: 0; pointer-events: none; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RyukManga | دنیای انیمه و مانگا</title>
+
+  <!-- فونت وزیرمتن گوگل -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <!-- فایل استایل شما -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ۱. اینترو سینمایی -->
-    <div id="intro-screen">
-        <video id="intro-video" autoplay muted playsinline>
-            <source src="hero.mp4" type="video/mp4">
-        </video>
-    </div>
+  <!-- ۱. بخش اینترو سینمایی با متن و ویدیو -->
+  <div id="intro-screen">
+    <video id="intro-video" autoplay muted playsinline preload="auto">
+      <source src="hero.mp4" type="video/mp4">
+    </video>
 
-    <!-- ۲. محتوای سایت -->
-    <div id="main-content">
-        <header class="navbar">
-            <div class="logo">RYUK<span>MANGA</span></div>
-            <nav class="nav-links">
-                <a href="#">خانه</a>
-                <a href="#">مانگاها</a>
-            </nav>
-            <button id="openAuthBtn" class="btn-primary">ورود / ثبت‌نام</button>
-        </header>
-        
-        <main>
-            <h1>به دنیای ریوک خوش آمدی!</h1>
-            <p>چپترهای جدید منتظر تو هستند.</p>
-        </main>
+    <div class="intro-overlay">
+      <h1>RYUKMANGA</h1>
+      <p>دنیای تاریک و هیجان‌انگیز انیمه و مانگا</p>
     </div>
+  </div>
 
-    <!-- ۳. مدال لاگین/ثبت‌نام -->
-    <div id="authModal" style="display:none; position:fixed; top:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000;">
-        <div class="auth-modal">
-            <button id="closeAuthBtn">بستن</button>
-            <form id="authForm">
-                <input type="email" id="email" placeholder="ایمیل" required>
-                <input type="password" id="password" placeholder="رمز عبور" required>
-                <button type="submit">تأیید</button>
-            </form>
+  <!-- ۲. ساختار اصلی سایت -->
+  <div id="main-content">
+    <header class="navbar">
+      <div class="logo">RYUK<span>MANGA</span></div>
+      
+      <nav class="nav-links">
+        <a href="#" class="active">خانه</a>
+        <a href="#">مانگاها</a>
+        <a href="#">انیمه‌ها</a>
+        <a href="#">برترین‌ها</a>
+        <a href="#">تالارها</a>
+        <a href="#">موسیقی</a>
+      </nav>
+
+      <div class="nav-actions">
+        <input type="text" placeholder="جستجوی مانگا..." class="search-input">
+        <button type="button" class="btn-primary" id="openAuthBtn">ورود / ثبت‌نام</button>
+      </div>
+    </header>
+
+    <main class="content-container">
+      <section class="banner">
+        <h2>🔥 داغ‌ترین مانگاهای این هفته</h2>
+        <p>جدیدترین چپترها را با بالاترین کیفیت و ترجمه اختصاصی بخوانید.</p>
+      </section>
+
+      <section class="manga-grid">
+        <div class="manga-card">
+          <div class="manga-cover cover-1"></div>
+          <h3>Death Note</h3>
+          <span>چپتر ۱۰۸ (پایان)</span>
         </div>
+        <div class="manga-card">
+          <div class="manga-cover cover-2"></div>
+          <h3>Berserk</h3>
+          <span>چپتر ۳۷۵ (در حال پخش)</span>
+        </div>
+        <div class="manga-card">
+          <div class="manga-cover cover-3"></div>
+          <h3>Chainsaw Man</h3>
+          <span>چپتر ۱۵۰</span>
+        </div>
+        <div class="manga-card">
+          <div class="manga-cover cover-4"></div>
+          <h3>Monster</h3>
+          <span>چپتر ۱۶۲ (پایان)</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ۳. پنجره پاپ‌آپ ورود و ثبت‌نام -->
+  <div class="auth-modal-overlay" id="authModal">
+    <div class="auth-modal">
+      <button type="button" class="modal-close" id="closeAuthBtn" aria-label="بستن">&times;</button>
+
+      <div class="auth-tabs">
+        <button type="button" class="tab-btn active" id="loginTab">ورود</button>
+        <button type="button" class="tab-btn" id="registerTab">ثبت‌نام</button>
+      </div>
+
+      <!-- فرم ورود -->
+      <form class="auth-form active" id="loginForm">
+        <div class="input-group">
+          <label for="loginEmail">ایمیل</label>
+          <input id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email" required>
+        </div>
+
+        <div class="input-group">
+          <label for="loginPassword">رمز عبور</label>
+          <input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" minlength="6" required>
+        </div>
+
+        <button type="submit" class="auth-submit-btn">ورود به قلمرو</button>
+      </form>
+
+      <!-- فرم ثبت‌نام -->
+      <form class="auth-form" id="registerForm">
+        <div class="input-group">
+          <label for="registerUsername">نام کاربری</label>
+          <input id="registerUsername" type="text" placeholder="نام مستعار شما" autocomplete="username" minlength="3" required>
+        </div>
+
+        <div class="input-group">
+          <label for="registerEmail">ایمیل</label>
+          <input id="registerEmail" type="email" placeholder="you@example.com" autocomplete="email" required>
+        </div>
+
+        <div class="input-group">
+          <label for="registerPassword">رمز عبور</label>
+          <input id="registerPassword" type="password" placeholder="حداقل ۶ کاراکتر" autocomplete="new-password" minlength="6" required>
+        </div>
+
+        <button type="submit" class="auth-submit-btn">پیوستن به RyukManga</button>
+      </form>
     </div>
+  </div>
 
-    <!-- ۴. اسکریپت اصلی و یکپارچه -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        // --- تنظیمات Supabase ---
-        const SUPABASE_URL = 'https://rskhmhjhpmopasjexraw.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_DpeDtLgdVA587x3_9SU4DQ_7mGHqClk';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('اتصال برقرار شد 🍎');
+  <!-- ۴. لود کتابخانه Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        // --- منطق اینترو (دقیقاً ۵ ثانیه) ---
-        const introScreen = document.getElementById('intro-screen');
-        const startTime = Date.now();
-        const MIN_TIME = 5000;
+  <!-- ۵. جاوااسکریپت سایت -->
+  <script>
+    // ==========================================
+    // ۱. مدیریت قطعی اینترو (دقیقاً ۵ ثانیه تضمین‌شده)
+    // ==========================================
+    const introScreen = document.getElementById('intro-screen');
+    let introEnded = false;
 
-        function finishIntro() {
-            const elapsed = Date.now() - startTime;
-            const delay = Math.max(0, MIN_TIME - elapsed);
-            
-            setTimeout(() => {
-                introScreen.classList.add('fade-out');
-                setTimeout(() => introScreen.style.display = 'none', 1000);
-            }, delay);
+    function triggerFadeOut() {
+      if (introEnded || !introScreen) return;
+      introEnded = true;
+
+      introScreen.classList.add('fade-out');
+      setTimeout(() => {
+        introScreen.style.display = 'none';
+      }, 1000); // زمان هماهنگ با انیمیشن محو شدن
+    }
+
+    // تایمر ۵ ثانیه دقیق: سر ۵ ثانیه تحت هر شرایطی فید میشه و محو میشه
+    setTimeout(triggerFadeOut, 5000);
+
+    // ==========================================
+    // ۲. اتصال به Supabase
+    // ==========================================
+    const SUPABASE_URL = 'https://rskhmhjhpmopasjexraw.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_DpeDtLgdVA587x3_9SU4DQ_7mGHqClk';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('ریوک مانگا به سوپابیس وصل شد! 🍎');
+
+    // ==========================================
+    // ۳. مدیریت مدال ورود / ثبت‌نام
+    // ==========================================
+    const authModal = document.getElementById('authModal');
+    const openAuthBtn = document.getElementById('openAuthBtn');
+    const closeAuthBtn = document.getElementById('closeAuthBtn');
+    const loginTab = document.getElementById('loginTab');
+    const registerTab = document.getElementById('registerTab');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+
+    if (openAuthBtn && authModal) {
+      openAuthBtn.addEventListener('click', () => authModal.classList.add('active'));
+    }
+
+    if (closeAuthBtn && authModal) {
+      closeAuthBtn.addEventListener('click', () => authModal.classList.remove('active'));
+    }
+
+    window.addEventListener('click', (e) => {
+      if (e.target === authModal) authModal.classList.remove('active');
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && authModal) authModal.classList.remove('active');
+    });
+
+    if (loginTab && registerTab && loginForm && registerForm) {
+      loginTab.addEventListener('click', () => {
+        loginTab.classList.add('active');
+        registerTab.classList.remove('active');
+        loginForm.classList.add('active');
+        registerForm.classList.remove('active');
+      });
+
+      registerTab.addEventListener('click', () => {
+        registerTab.classList.add('active');
+        loginTab.classList.remove('active');
+        registerForm.classList.add('active');
+        loginForm.classList.remove('active');
+      });
+    }
+
+    // ==========================================
+    // ۴. ثبت‌نام کاربر
+    // ==========================================
+    if (registerForm) {
+      registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('registerUsername').value.trim();
+        const email = document.getElementById('registerEmail').value.trim();
+        const password = document.getElementById('registerPassword').value;
+        const submitBtn = registerForm.querySelector('button[type="submit"]');
+
+        if (password.length < 6) {
+          alert('رمز عبور باید حداقل ۶ کاراکتر باشد دادا!');
+          return;
         }
 
-        // رویدادهای خروج از اینترو
-        window.addEventListener('load', finishIntro);
-        document.getElementById('intro-video').addEventListener('ended', finishIntro);
-        setTimeout(finishIntro, 8000); // Fail-safe (اگر تا ۸ ثانیه لود نشد، بزور ببند)
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'در حال ثبت‌نام...';
 
-        // --- منطق ساده ورود ---
-        const modal = document.getElementById('authModal');
-        document.getElementById('openAuthBtn').onclick = () => modal.style.display = 'block';
-        document.getElementById('closeAuthBtn').onclick = () => modal.style.display = 'none';
+        try {
+          const { data, error } = await supabaseClient.auth.signUp({
+            email: email,
+            password: password,
+            options: { data: { username: username } }
+          });
 
-        document.getElementById('authForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
-            const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
-            if(error) alert('خطا: ' + error.message);
-            else { alert('خوش برگشتی دادا!'); modal.style.display = 'none'; }
-        };
-    </script>
+          if (error) throw error;
+
+          if (data.session) {
+            alert('ثبت‌نام شدی دادا!');
+            authModal.classList.remove('active');
+          } else {
+            alert('ثبت‌نام انجام شد! لطفاً ایمیلت رو چک کن.');
+          }
+          registerForm.reset();
+        } catch (err) {
+          alert('خطا در ثبت‌نام: ' + err.message);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'پیوستن به RyukManga';
+        }
+      });
+    }
+
+    // ==========================================
+    // ۵. ورود کاربر
+    // ==========================================
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'در حال ورود...';
+
+        try {
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
+
+          if (error) throw error;
+
+          alert('خوش اومدی دادا!');
+          loginForm.reset();
+          authModal.classList.remove('active');
+
+          if (data.user && openAuthBtn) {
+            openAuthBtn.textContent = data.user.user_metadata?.username || data.user.email || 'پروفایل';
+          }
+        } catch (err) {
+          alert('خطا در ورود: ' + err.message);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'ورود به قلمرو';
+        }
+      });
+    }
+
+    // ==========================================
+    // ۶. بازیابی نشست قبلی
+    // ==========================================
+    async function restoreSession() {
+      try {
+        const { data } = await supabaseClient.auth.getSession();
+        const user = data?.session?.user;
+        if (user && openAuthBtn) {
+          openAuthBtn.textContent = user.user_metadata?.username || user.email || 'پروفایل';
+        }
+      } catch (e) {
+        console.warn('Session error:', e);
+      }
+    }
+    restoreSession();
+  </script>
 </body>
 </html>
