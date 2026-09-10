@@ -3,38 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>RyukManga | دنیای انیمه و مانگا</title>
 
-  <link rel="stylesheet" href="style.css">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap"
-    rel="stylesheet"
-  >
-</head>
+  <!-- فونت وزیرمتن گوگل -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
 
+  <!-- فایل استایل شما -->
+  <link rel="stylesheet" href="style.css">
+</head>
 <body>
 
-  <!-- ۱. اینترو سینمایی -->
+  <!-- ۱. بخش اینترو سینمایی -->
   <div id="intro-screen">
-    <video autoplay muted playsinline id="intro-video">
+    <video id="intro-video" autoplay muted playsinline preload="auto">
       <source src="hero.mp4" type="video/mp4">
     </video>
 
     <div class="intro-overlay">
-      <h1 class="glitch-text">RYUKMANGA</h1>
+      <h1>RYUKMANGA</h1>
       <p>دنیای تاریک و هیجان‌انگیز انیمه و مانگا</p>
     </div>
   </div>
 
-  <!-- ۲. محتوای اصلی سایت -->
+  <!-- ۲. ساختار اصلی سایت -->
   <div id="main-content">
-
     <header class="navbar">
-      <div class="logo">
-        RYUK<span>MANGA</span>
-      </div>
-
+      <div class="logo">RYUK<span>MANGA</span></div>
+      
       <nav class="nav-links">
         <a href="#" class="active">خانه</a>
         <a href="#">مانگاها</a>
@@ -45,29 +42,15 @@
       </nav>
 
       <div class="nav-actions">
-        <input
-          type="text"
-          placeholder="جستجوی مانگا..."
-          class="search-input"
-        >
-
-        <button
-          type="button"
-          class="btn-primary"
-          id="openAuthBtn"
-        >
-          ورود / ثبت‌نام
-        </button>
+        <input type="text" placeholder="جستجوی مانگا..." class="search-input">
+        <button type="button" class="btn-primary" id="openAuthBtn">ورود / ثبت‌نام</button>
       </div>
     </header>
 
     <main class="content-container">
-
       <section class="banner">
         <h2>🔥 داغ‌ترین مانگاهای این هفته</h2>
-        <p>
-          جدیدترین چپترها را با بالاترین کیفیت و ترجمه اختصاصی بخوانید.
-        </p>
+        <p>جدیدترین چپترها را با بالاترین کیفیت و ترجمه اختصاصی بخوانید.</p>
       </section>
 
       <section class="manga-grid">
@@ -76,234 +59,168 @@
           <h3>Death Note</h3>
           <span>چپتر ۱۰۸ (پایان)</span>
         </div>
+        <div class="manga-card">
+          <div class="manga-cover cover-2"></div>
+          <h3>Berserk</h3>
+          <span>چپتر ۳۷۵ (در حال پخش)</span>
+        </div>
+        <div class="manga-card">
+          <div class="manga-cover cover-3"></div>
+          <h3>Chainsaw Man</h3>
+          <span>چپتر ۱۵۰</span>
+        </div>
+        <div class="manga-card">
+          <div class="manga-cover cover-4"></div>
+          <h3>Monster</h3>
+          <span>چپتر ۱۶۲ (پایان)</span>
+        </div>
       </section>
-
     </main>
   </div>
 
-  <!-- ۳. پنجره ورود و ثبت‌نام -->
+  <!-- ۳. پنجره پاپ‌آپ ورود و ثبت‌نام -->
   <div class="auth-modal-overlay" id="authModal">
-
     <div class="auth-modal">
-      <button
-        type="button"
-        class="modal-close"
-        id="closeAuthBtn"
-        aria-label="بستن"
-      >
-        &times;
-      </button>
+      <button type="button" class="modal-close" id="closeAuthBtn" aria-label="بستن">&times;</button>
 
       <div class="auth-tabs">
-        <button
-          type="button"
-          class="tab-btn active"
-          id="loginTab"
-        >
-          ورود
-        </button>
-
-        <button
-          type="button"
-          class="tab-btn"
-          id="registerTab"
-        >
-          ثبت‌نام
-        </button>
+        <button type="button" class="tab-btn active" id="loginTab">ورود</button>
+        <button type="button" class="tab-btn" id="registerTab">ثبت‌نام</button>
       </div>
 
       <!-- فرم ورود -->
       <form class="auth-form active" id="loginForm">
-
         <div class="input-group">
           <label for="loginEmail">ایمیل</label>
-          <input
-            id="loginEmail"
-            type="email"
-            placeholder="you@example.com"
-            autocomplete="email"
-            required
-          >
+          <input id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email" required>
         </div>
 
         <div class="input-group">
           <label for="loginPassword">رمز عبور</label>
-          <input
-            id="loginPassword"
-            type="password"
-            placeholder="••••••••"
-            autocomplete="current-password"
-            minlength="6"
-            required
-          >
+          <input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" minlength="6" required>
         </div>
 
-        <button type="submit" class="auth-submit-btn">
-          ورود به قلمرو
-        </button>
+        <button type="submit" class="auth-submit-btn">ورود به قلمرو</button>
       </form>
 
       <!-- فرم ثبت‌نام -->
       <form class="auth-form" id="registerForm">
-
         <div class="input-group">
           <label for="registerUsername">نام کاربری</label>
-          <input
-            id="registerUsername"
-            type="text"
-            placeholder="نام کاربری شما"
-            autocomplete="username"
-            minlength="3"
-            required
-          >
+          <input id="registerUsername" type="text" placeholder="نام مستعار شما" autocomplete="username" minlength="3" required>
         </div>
 
         <div class="input-group">
           <label for="registerEmail">ایمیل</label>
-          <input
-            id="registerEmail"
-            type="email"
-            placeholder="you@example.com"
-            autocomplete="email"
-            required
-          >
+          <input id="registerEmail" type="email" placeholder="you@example.com" autocomplete="email" required>
         </div>
 
         <div class="input-group">
           <label for="registerPassword">رمز عبور</label>
-          <input
-            id="registerPassword"
-            type="password"
-            placeholder="حداقل ۶ کاراکتر"
-            autocomplete="new-password"
-            minlength="6"
-            required
-          >
+          <input id="registerPassword" type="password" placeholder="حداقل ۶ کاراکتر" autocomplete="new-password" minlength="6" required>
         </div>
 
-        <button type="submit" class="auth-submit-btn">
-          پیوستن به RyukManga
-        </button>
+        <button type="submit" class="auth-submit-btn">پیوستن به RyukManga</button>
       </form>
-
     </div>
   </div>
 
-  <!-- ۴. کتابخانه رسمی Supabase؛ فقط یک بار -->
+  <!-- ۴. لود پکیج رسمی جاوااسکریپت Supabase (فقط یک‌بار) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- ۵. تمام کدهای جاوااسکریپت سایت در یک بلوک -->
+  <!-- ۵. جاوااسکریپت اختصاصی سایت -->
   <script>
-    // -----------------------------
-    // اتصال به Supabase
-    // -----------------------------
+    // ==========================================
+    // ۱. مقداردهی Supabase
+    // ==========================================
+    const SUPABASE_URL = 'https://rskhmhjhpmopasjexraw.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_DpeDtLgdVA587x3_9SU4DQ_7mGHqClk';
 
-    const SUPABASE_URL =
-      'https://rskhmhjhpmopasjexraw.supabase.co';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('ریوک مانگا با موفقیت به سوپابیس وصل شد! 🍎');
 
-    const SUPABASE_ANON_KEY =
-      'sb_publishable_DpeDtLgdVA587x3_9SU4DQ_7mGHqClk';
-
-    const supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY
-    );
-
-    console.log('ریوک مانگا آنلاین شد');
-
-
-    // -----------------------------
-    // گرفتن عناصر صفحه
-    // -----------------------------
-
+    // ==========================================
+    // ۲. مدیریت اینترو سینمایی (با استراتژی ۴گانه)
+    // ==========================================
     const introScreen = document.getElementById('intro-screen');
     const introVideo = document.getElementById('intro-video');
+    let introClosed = false;
 
-    const authModal = document.getElementById('authModal');
-    const openAuthBtn = document.getElementById('openAuthBtn');
-    const closeAuthBtn = document.getElementById('closeAuthBtn');
+    function closeIntro(triggerSource = 'unknown') {
+      if (!introScreen || introClosed) return;
+      introClosed = true;
 
-    const loginTab = document.getElementById('loginTab');
-    const registerTab = document.getElementById('registerTab');
-
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-
-
-    // -----------------------------
-    // کنترل اینترو
-    // -----------------------------
-
-    function closeIntro() {
-      if (!introScreen || introScreen.dataset.closed === 'true') {
-        return;
-      }
-
-      introScreen.dataset.closed = 'true';
+      console.log('اینترو بسته شد توسط:', triggerSource);
       introScreen.classList.add('fade-out');
 
       setTimeout(() => {
         introScreen.style.display = 'none';
-      }, 1000);
+      }, 1000); // همگام با زمان transition در CSS شما
     }
 
-    // این تایمر منتظر window.load نمی‌ماند؛
-    // بنابراین حتی اگر ویدیو مشکل داشته باشد، صفحه گیر نمی‌کند.
-    setTimeout(closeIntro, 5000);
-
-    // اگر ویدیو زودتر تمام شد، اینترو بسته می‌شود.
+    // شرط ۱: اگر ویدیو تموم شد
     if (introVideo) {
-      introVideo.addEventListener('ended', closeIntro);
+      introVideo.addEventListener('ended', () => closeIntro('اتمام ویدیو'));
       introVideo.addEventListener('error', () => {
-        console.warn('ویدیوی اینترو بارگذاری نشد.');
-        closeIntro();
+        console.warn('پخش ویدیو با خطا مواجه شد.');
+        closeIntro('ارور ویدیو');
       });
     }
 
+    // شرط ۲: وقتی تمام منابع لود شدند (window.load)
+    window.addEventListener('load', () => {
+      closeIntro('window.load');
+    });
 
-    // -----------------------------
-    // باز و بسته کردن پنجره ورود
-    // -----------------------------
+    // شرط ۳: زمان اضطراری (حداکثر ۵ ثانیه) تا کاربر معطل نشود
+    setTimeout(() => {
+      closeIntro('تایمر اضطراری ۵ ثانیه‌ای');
+    }, 5000);
 
+    // ==========================================
+    // ۳. لاجیک پنجره مدال ورود / ثبت‌نام
+    // ==========================================
+    const authModal = document.getElementById('authModal');
+    const openAuthBtn = document.getElementById('openAuthBtn');
+    const closeAuthBtn = document.getElementById('closeAuthBtn');
+    const loginTab = document.getElementById('loginTab');
+    const registerTab = document.getElementById('registerTab');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+
+    // باز کردن مدال
     if (openAuthBtn && authModal) {
       openAuthBtn.addEventListener('click', () => {
         authModal.classList.add('active');
       });
     }
 
+    // بستن مدال با دکمه ضربدر
     if (closeAuthBtn && authModal) {
       closeAuthBtn.addEventListener('click', () => {
         authModal.classList.remove('active');
       });
     }
 
-    window.addEventListener('click', (event) => {
-      if (event.target === authModal) {
+    // بستن با کلیک روی بک‌گراند تیره
+    window.addEventListener('click', (e) => {
+      if (e.target === authModal) {
         authModal.classList.remove('active');
       }
     });
 
-    window.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && authModal) {
+    // بستن با دکمه Escape کیبورد
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && authModal) {
         authModal.classList.remove('active');
       }
     });
 
-
-    // -----------------------------
-    // جابه‌جایی بین ورود و ثبت‌نام
-    // -----------------------------
-
-    if (
-      loginTab &&
-      registerTab &&
-      loginForm &&
-      registerForm
-    ) {
+    // تغییر تب‌ها بین ورود و ثبت‌نام
+    if (loginTab && registerTab && loginForm && registerForm) {
       loginTab.addEventListener('click', () => {
         loginTab.classList.add('active');
         registerTab.classList.remove('active');
-
         loginForm.classList.add('active');
         registerForm.classList.remove('active');
       });
@@ -311,165 +228,119 @@
       registerTab.addEventListener('click', () => {
         registerTab.classList.add('active');
         loginTab.classList.remove('active');
-
         registerForm.classList.add('active');
         loginForm.classList.remove('active');
       });
     }
 
-
-    // -----------------------------
-    // ثبت‌نام با Supabase
-    // -----------------------------
-
+    // ==========================================
+    // ۴. ارسال فرم ثبت‌نام به Supabase
+    // ==========================================
     if (registerForm) {
-      registerForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+      registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-        const username =
-          document.getElementById('registerUsername').value.trim();
-
-        const email =
-          document.getElementById('registerEmail').value.trim();
-
-        const password =
-          document.getElementById('registerPassword').value;
-
-        const submitButton =
-          registerForm.querySelector('button[type="submit"]');
+        const username = document.getElementById('registerUsername').value.trim();
+        const email = document.getElementById('registerEmail').value.trim();
+        const password = document.getElementById('registerPassword').value;
+        const submitBtn = registerForm.querySelector('button[type="submit"]');
 
         if (password.length < 6) {
-          alert('رمز عبور باید حداقل ۶ کاراکتر داشته باشد.');
+          alert('رمز عبور باید حداقل ۶ کاراکتر باشد دادا!');
           return;
         }
 
-        submitButton.disabled = true;
-        submitButton.textContent = 'در حال ثبت‌نام...';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'در حال ثبت‌نام...';
 
         try {
-          const { data, error } =
-            await supabaseClient.auth.signUp({
-              email: email,
-              password: password,
-              options: {
-                data: {
-                  username: username
-                }
-              }
-            });
+          const { data, error } = await supabaseClient.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+              data: { username: username }
+            }
+          });
 
-          if (error) {
-            throw error;
-          }
-
-          console.log('نتیجه ثبت‌نام:', data);
+          if (error) throw error;
 
           if (data.session) {
-            alert('ثبت‌نام با موفقیت انجام شد و وارد شدید.');
+            alert('تبریک دادا! ثبت‌نام شدی و مستقیماً وارد حساب شدی.');
             authModal.classList.remove('active');
           } else {
-            alert(
-              'ثبت‌نام انجام شد. ایمیل خود را برای تأیید حساب بررسی کنید.'
-            );
+            alert('ثبت‌نام انجام شد! لطفاً ایمیلت را برای لینک تأیید چک کن.');
           }
 
           registerForm.reset();
-
-        } catch (error) {
-          console.error('خطای ثبت‌نام:', error);
-          alert('ثبت‌نام انجام نشد: ' + error.message);
-
+        } catch (err) {
+          console.error('Signup Error:', err);
+          alert('خطا در ثبت‌نام: ' + err.message);
         } finally {
-          submitButton.disabled = false;
-          submitButton.textContent = 'پیوستن به RyukManga';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'پیوستن به RyukManga';
         }
       });
     }
 
-
-    // -----------------------------
-    // ورود با Supabase
-    // -----------------------------
-
+    // ==========================================
+    // ۵. ارسال فرم ورود به Supabase
+    // ==========================================
     if (loginForm) {
-      loginForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-        const email =
-          document.getElementById('loginEmail').value.trim();
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
 
-        const password =
-          document.getElementById('loginPassword').value;
-
-        const submitButton =
-          loginForm.querySelector('button[type="submit"]');
-
-        submitButton.disabled = true;
-        submitButton.textContent = 'در حال ورود...';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'در حال ورود...';
 
         try {
-          const { data, error } =
-            await supabaseClient.auth.signInWithPassword({
-              email: email,
-              password: password
-            });
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
 
-          if (error) {
-            throw error;
-          }
+          if (error) throw error;
 
-          console.log('کاربر وارد شد:', data.user);
-
-          alert('با موفقیت وارد قلمرو RyukManga شدی.');
-
+          alert('خوش برگشتی دادا! وارد شدی.');
           loginForm.reset();
           authModal.classList.remove('active');
 
           if (data.user && openAuthBtn) {
-            const username =
-              data.user.user_metadata?.username;
-
-            openAuthBtn.textContent =
-              username || data.user.email || 'حساب کاربری';
+            const userNickname = data.user.user_metadata?.username;
+            openAuthBtn.textContent = userNickname || data.user.email || 'حساب من';
           }
-
-        } catch (error) {
-          console.error('خطای ورود:', error);
-          alert('ورود انجام نشد: ' + error.message);
-
+        } catch (err) {
+          console.error('Login Error:', err);
+          alert('خطا در ورود: ' + err.message);
         } finally {
-          submitButton.disabled = false;
-          submitButton.textContent = 'ورود به قلمرو';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'ورود به قلمرو';
         }
       });
     }
 
+    // ==========================================
+    // ۶. بازیابی سشن کاربر (اگر از قبل لاگین بود)
+    // ==========================================
+    async function restoreSession() {
+      try {
+        const { data, error } = await supabaseClient.auth.getSession();
+        if (error) return;
 
-    // -----------------------------
-    // بررسی نشست قبلی کاربر
-    // -----------------------------
-
-    async function restoreUserSession() {
-      const { data, error } =
-        await supabaseClient.auth.getSession();
-
-      if (error) {
-        console.error('خطای بررسی نشست:', error);
-        return;
-      }
-
-      const user = data.session?.user;
-
-      if (user && openAuthBtn) {
-        const username = user.user_metadata?.username;
-
-        openAuthBtn.textContent =
-          username || user.email || 'حساب کاربری';
+        const user = data.session?.user;
+        if (user && openAuthBtn) {
+          const userNickname = user.user_metadata?.username;
+          openAuthBtn.textContent = userNickname || user.email || 'حساب من';
+        }
+      } catch (e) {
+        console.warn('ناتوان در بازیابی سشن:', e);
       }
     }
 
-    restoreUserSession();
+    restoreSession();
   </script>
-
 </body>
 </html>
