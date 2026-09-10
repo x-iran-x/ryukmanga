@@ -1,0 +1,67 @@
+/* استایلِ کلی برای سایت */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #000; /* رنگِ کاملاً سیاه */
+    color: #fff;            /* متن سفید */
+    font-family: 'Tahoma', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.hero {
+    text-align: center;
+}
+
+h1 {
+    font-size: 3rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+}
+.hero {
+    position: relative;
+    width: 100%;
+    height: 100vh; /* کلِ ارتفاعِ صفحه */
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.background-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* ویدیو رو جوری می‌کشه که کل صفحه پر بشه */
+    z-index: -1; /* میره پشتِ نوشته‌ها */
+}
+
+.hero-content {
+    text-align: center;
+    color: white; /* رنگِ نوشته‌ها */
+    z-index: 1;
+}
+/* یه لایه‌یِ تاریک رویِ ویدیو */
+.hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* 50 درصد تاریکی — عددش رو می‌تونی کم و زیاد کنی */
+    z-index: 0;
+}
+
+.background-video {
+    z1: -1;
+}
+
+.hero-content {
+    z-index: 1;
+}
+
