@@ -142,13 +142,23 @@
       }
     });
 
-    // جایگذاری مقادیر کلیدی
-const SUPABASE_URL = 'https://rskhmhjhpmopasjexraw.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_secret_HuOV-
-xy4iKzknmmqoX3ynw_fhuC1w48'; // اون کلیدی که توی عکس ۴۰ دیدیم رو اینجا کپی کن
+<!-- اول کتابخونه سوپابیس رو فراخوانی می‌کنیم -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-// راه‌اندازی ارتباط
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<!-- حالا کدهای خودت رو اینجا اضافه کن -->
+<script>
+    // URL همون که داشتی
+    const SUPABASE_URL = 'https://rskhmhjhpmopasjexraw.supabase.co';
+    
+    // !!! فقط کلید Anon/Public رو اینجا بذار (همون که طولانیه و امنه) !!!
+    const SUPABASE_ANON_KEY = 'کلید_PUB_اینجا_بدون_اینتر'; 
+
+    // فقط همین یه خط کافیه، نیازی به تکرار نیست!
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // برای اینکه مطمئن شیم کار می‌کنه
+    console.log("رایوک‌مانگا آنلاین شد! 😎");
+</script>
 
     // سوییچ بین ورود و ثبت نام
     if(loginTab && registerTab) {
