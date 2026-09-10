@@ -69,6 +69,53 @@
       }, 5000);
     });
   </script>
+      <script>
+  const authModal = document.getElementById('authModal');
+  const openAuthBtn = document.getElementById('openAuthBtn');
+  const closeAuthBtn = document.getElementById('closeAuthBtn');
+  const loginTab = document.getElementById('loginTab');
+  const registerTab = document.getElementById('registerTab');
+  const loginForm = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+
+  // باز کردن مدال
+  if(openAuthBtn) {
+    openAuthBtn.addEventListener('click', () => {
+      authModal.classList.add('active');
+    });
+  }
+
+  // بستن مدال با دکمه ضربدر
+  if(closeAuthBtn) {
+    closeAuthBtn.addEventListener('click', () => {
+      authModal.classList.remove('active');
+    });
+  }
+
+  // بستن مدال وقتی کاربر بیرون پنجره کلیک می‌کنه
+  window.addEventListener('click', (e) => {
+    if (e.target === authModal) {
+      authModal.classList.remove('active');
+    }
+  });
+
+  // سوییچ به تب ورود
+  loginTab.addEventListener('click', () => {
+    loginTab.classList.add('active');
+    registerTab.classList.remove('active');
+    loginForm.classList.add('active');
+    registerForm.classList.remove('active');
+  });
+
+  // سوییچ به تب ثبت‌نام
+  registerTab.addEventListener('click', () => {
+    registerTab.classList.add('active');
+    loginTab.classList.remove('active');
+    registerForm.classList.add('active');
+    loginForm.classList.remove('active');
+  });
+</script>
+
         <!-- پاپ‌آپ شیک ورود و ثبت‌نام -->
   <div class="auth-modal-overlay" id="authModal">
     <div class="auth-modal">
