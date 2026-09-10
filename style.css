@@ -64,4 +64,54 @@ h1 {
 .hero-content {
     z-index: 1;
 }
+/* صفحه لودینگ */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  transition: opacity 0.8s ease;
+}
 
+#loader.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loader-logo {
+  width: 140px;
+  border-radius: 12px;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+.loader-text {
+  color: #fff;
+  letter-spacing: 8px;
+  font-size: 28px;
+}
+
+.loader-bar {
+  width: 200px;
+  height: 4px;
+  background: #222;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.loader-fill {
+  width: 0;
+  height: 100%;
+  background: #fff;
+  animation: load 5s linear forwards;
+}
+
+@keyframes load { to { width: 100%; } }
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.96); }
+}
