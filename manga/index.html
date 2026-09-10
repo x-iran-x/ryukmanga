@@ -1,59 +1,148 @@
-<style>
-  /* گرید ۲ ستونه برای مانگاها */
-  .manga-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* دو ستون */
-    gap: 20px;
-    margin-top: 25px;
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
-  }
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مانگاها | RyukManga</title>
 
-  /* ریسپانسیو برای موبایل: تک ستونه */
-  @media (max-width: 600px) {
+  <!-- فونت وزیرمتن -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <!-- استایل اصلی سایت -->
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- استایل‌های اختصاصی صفحه مانگاها (۲ ستونه) -->
+  <style>
     .manga-grid {
-      grid-template-columns: 1fr;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 25px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
     }
-  }
 
-  .manga-card {
-    background: #16181f;
-    border: 1px solid #282b36;
-    border-radius: 12px;
-    padding: 12px;
-    display: flex;
-    gap: 15px;
-    transition: transform 0.2s, border-color 0.2s;
-  }
+    @media (max-width: 600px) {
+      .manga-grid {
+        grid-template-columns: 1fr;
+      }
+    }
 
-  .manga-card:hover {
-    transform: translateY(-5px);
-    border-color: #ff334b;
-  }
+    .manga-card {
+      background: #16181f;
+      border: 1px solid #282b36;
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      gap: 15px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
 
-  /* جایگاه عکس (بعداً عکس‌ها رو اینجا میذاری) */
-  .manga-poster {
-    width: 100px;
-    height: 140px;
-    background: #0f1015;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    flex-shrink: 0;
-  }
+    .manga-card:hover {
+      transform: translateY(-5px);
+      border-color: #ff334b;
+    }
 
-  .manga-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-  }
+    .manga-poster {
+      width: 100px;
+      height: 140px;
+      background: #0f1015;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
 
-  .manga-info h3 { margin: 0; color: #fff; font-size: 1.1rem; }
-  .manga-info h4 { margin: 0; color: #ff334b; font-size: 0.9rem; } /* اسم فارسی */
-  .manga-info p { margin: 0; color: #8f94a6; font-size: 0.85rem; }
-</style>
+    .manga-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
 
+    .manga-info h3 { margin: 0; color: #fff; font-size: 1.1rem; }
+    .manga-info h4 { margin: 0; color: #ff334b; font-size: 0.9rem; }
+    .manga-info p { margin: 0; color: #8f94a6; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+
+  <div id="main-content">
+    <!-- نوار ناوبری -->
+    <header class="navbar">
+      <div class="logo"><a href="../" style="text-decoration: none; color: inherit;">RYUK<span>MANGA</span></a></div>
+      
+      <nav class="nav-links">
+        <a href="../">خانه</a>
+        <a href="./" class="active">مانگاها</a>
+        <a href="../anime/">انیمه‌ها</a>
+        <a href="../top/">برترین‌ها</a>
+        <a href="../forums/">تالارها</a>
+        <a href="../music/">موسیقی</a>
+      </nav>
+
+      <div class="nav-actions">
+        <input type="text" placeholder="جستجوی مانگا..." class="search-input">
+      </div>
+    </header>
+
+    <main class="content-container">
+      <section class="banner">
+        <h2>📚 آرشیو مانگاها</h2>
+        <p>مجموعه کامل مانگاها با ترجمه اختصاصی و بالاترین کیفیت.</p>
+      </section>
+
+      <!-- گرید ۲ ستونه مانگاها -->
+      <section class="manga-grid">
+        
+        <!-- مانگا ۱ -->
+        <div class="manga-card">
+          <div class="manga-poster">📓</div>
+          <div class="manga-info">
+            <h3>Death Note</h3>
+            <h4>دفترچه مرگ</h4>
+            <p>تعداد چپتر: ۱۰۸</p>
+          </div>
+        </div>
+
+        <!-- مانگا ۲ -->
+        <div class="manga-card">
+          <div class="manga-poster">⚔️</div>
+          <div class="manga-info">
+            <h3>Berserk</h3>
+            <h4>برزرک</h4>
+            <p>تعداد چپتر: ۳۷۵</p>
+          </div>
+        </div>
+
+        <!-- مانگا ۳ -->
+        <div class="manga-card">
+          <div class="manga-poster">⛓️</div>
+          <div class="manga-info">
+            <h3>Chainsaw Man</h3>
+            <h4>مرد اره‌ای</h4>
+            <p>تعداد چپتر: ۱60</p>
+          </div>
+        </div>
+
+        <!-- مانگا ۴ -->
+        <div class="manga-card">
+          <div class="manga-poster">👁️</div>
+          <div class="manga-info">
+            <h3>Jujutsu Kaisen</h3>
+            <h4>جوجوتسو کایسن</h4>
+            <p>تعداد چپتر: ۲۷۱</p>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+</body>
+</html>
