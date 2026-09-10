@@ -130,6 +130,7 @@ body {
   border-color: #e50914;
 }
 
+.btn-primary,
 .btn-login {
   background: #e50914;
   color: #fff;
@@ -141,8 +142,10 @@ body {
   transition: 0.3s;
 }
 
+.btn-primary:hover,
 .btn-login:hover {
   background: #b20710;
+  transform: translateY(-2px);
 }
 
 /* بدنه و مانگاها */
