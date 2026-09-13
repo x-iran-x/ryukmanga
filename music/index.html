@@ -12,71 +12,8 @@
 
   <!-- استایل اصلی از ریشه سایت -->
   <link rel="stylesheet" href="../style.css">
-
-    <style>
-    /* استایل‌های اختصاصی بخش موسیقی (چیدمان تک‌ستونه و شیک) */
-    .music-grid {
-      display: grid;
-      grid-template-columns: 1fr; /* تک‌ستونه شدن کارت‌ها */
-      gap: 20px;
-      margin-top: 25px;
-      max-width: 800px; /* جلوگیری از کش اومدن بیش از حد در مانیتور */
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .track-card {
-      background: #16181f;
-      border: 1px solid #282b36;
-      border-radius: 12px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      transition: transform 0.2s ease, border-color 0.2s ease;
-    }
-
-    .track-card:hover {
-      transform: translateY(-4px);
-      border-color: #ff334b;
-    }
-
-    .track-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .track-badge {
-      width: 45px;
-      height: 45px;
-      background: #0f1015;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      border: 1px solid #333;
-    }
-
-    .track-details h4 {
-      margin: 0;
-      color: #fff;
-      font-size: 1rem;
-    }
-
-    .track-details span {
-      font-size: 0.8rem;
-      color: #8f94a6;
-    }
-
-    .audio-player {
-      width: 100%;
-      height: 36px;
-      border-radius: 6px;
-      outline: none;
-    }
-  </style>
+  <!-- استایل اختصاصی صفحه موسیقی -->
+  <link rel="stylesheet" href="music.css">
 </head>
 <body>
 
@@ -84,7 +21,7 @@
     <!-- نوار ناوبری -->
     <header class="navbar">
       <div class="logo"><a href="../" style="text-decoration: none; color: inherit;">RYUK<span>MANGA</span></a></div>
-      
+
       <nav class="nav-links">
         <a href="../">خانه</a>
         <a href="../manga/">مانگاها</a>
@@ -105,58 +42,82 @@
         <p>مجموعه ناب‌ترین و اتمسفریک‌ترین موسیقی‌های متن انیمه‌ها و مانگاها با پخش آنلاین.</p>
       </section>
 
-      <!-- گرید ترک‌های موسیقی -->
-      <section class="music-grid">
-        
-        <!-- ترک اول -->
-        <div class="track-card">
-          <div class="track-info">
-            <div class="track-badge">🍎</div>
-            <div class="track-details">
-              <h4>L's Theme</h4>
-              <span>Death Note OST</span>
-            </div>
-          </div>
-          <audio class="audio-player" controls>
-            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-            مرورگر شما از پخش‌کننده صوتی پشتیبانی نمی‌کند.
-          </audio>
-        </div>
+      <!-- نوار فیلتر نوع (با جاوااسکریپت پر می‌شود) -->
+      <div class="filter-bar" id="filterBar"></div>
 
-        <!-- ترک دوم -->
-        <div class="track-card">
-          <div class="track-info">
-            <div class="track-badge">⚔️</div>
-            <div class="track-details">
-              <h4>Guts' Theme</h4>
-              <span>Berserk OST</span>
-            </div>
-          </div>
-          <audio class="audio-player" controls>
-            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
-            مرورگر شما از پخش‌کننده صوتی پشتیبانی نمی‌کند.
-          </audio>
-        </div>
-
-        <!-- ترک سوم -->
-        <div class="track-card">
-          <div class="track-info">
-            <div class="track-badge">🩸</div>
-            <div class="track-details">
-              <h4>Kick Back (Chainsaw)</h4>
-              <span>Chainsaw Man Opening</span>
-            </div>
-          </div>
-          <audio class="audio-player" controls>
-            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" type="audio/mpeg">
-            مرورگر شما از پخش‌کننده صوتی پشتیبانی نمی‌کند.
-          </audio>
-        </div>
-
-      </section>
+      <!-- گرید ترک‌های موسیقی (با جاوااسکریپت پر می‌شود) -->
+      <section class="music-grid" id="musicGrid"></section>
     </main>
   </div>
-<script defer src="/_vercel/insights/script.js"></script>
+
+  <!-- داده‌های موسیقی -->
+  <script src="music-data.js"></script>
+
+  <!-- منطق رندر و فیلتر -->
+  <script>
+    const musicGrid = document.getElementById('musicGrid');
+    const filterBar = document.getElementById('filterBar');
+
+    let activeType = 'همه';
+
+    function getAllTypes(list) {
+      const types = new Set(list.map(item => item.type));
+      return ['همه', ...types];
+    }
+
+    function renderFilters() {
+      const types = getAllTypes(musicList);
+
+      filterBar.innerHTML = types.map(type => `
+        <button
+          type="button"
+          class="filter-btn ${type === activeType ? 'active' : ''}"
+          data-type="${type}"
+        >
+          ${type}
+        </button>
+      `).join('');
+
+      filterBar.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeType = btn.dataset.type;
+          renderFilters();
+          renderCards();
+        });
+      });
+    }
+
+    function renderCards() {
+      const filtered = activeType === 'همه'
+        ? musicList
+        : musicList.filter(item => item.type === activeType);
+
+      if (filtered.length === 0) {
+        musicGrid.innerHTML = `<div class="empty-state">موردی از این نوع پیدا نشد.</div>`;
+        return;
+      }
+
+      musicGrid.innerHTML = filtered.map(item => `
+        <div class="track-card">
+          <div class="track-info">
+            <div class="track-badge">${item.icon}</div>
+            <div class="track-details">
+              <h4>${item.title}</h4>
+              <span>${item.source}</span>
+            </div>
+          </div>
+          <audio class="audio-player" controls>
+            <source src="${item.audioUrl}" type="audio/mpeg">
+            مرورگر شما از پخش‌کننده صوتی پشتیبانی نمی‌کند.
+          </audio>
+        </div>
+      `).join('');
+    }
+
+    renderFilters();
+    renderCards();
+  </script>
+
+  <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
-
