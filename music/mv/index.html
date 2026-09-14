@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>موزیک ویدیوها | RyukManga</title>
+
+  <!-- فونت وزیرمتن -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <!-- استایل اصلی سایت -->
+  <link rel="stylesheet" href="../../style.css">
+  <!-- استایل اختصاصی صفحه موزیک ویدیو -->
+  <link rel="stylesheet" href="mv.css">
+</head>
+<body>
+
+  <div id="main-content">
+    <!-- نوار ناوبری -->
+    <header class="navbar">
+      <div class="logo"><a href="../../" style="text-decoration: none; color: inherit;">RYUK<span>MANGA</span></a></div>
+
+      <nav class="nav-links">
+        <a href="../../">خانه</a>
+        <a href="../../manga/">مانگاها</a>
+        <a href="../../anime/">انیمه‌ها</a>
+        <a href="../../top/">برترین‌ها</a>
+        <a href="../../forums/">تالارها</a>
+        <a href="../" class="active">موسیقی</a>
+      </nav>
+    </header>
+
+    <main class="content-container">
+      <section class="banner">
+        <h2>🎬 موزیک ویدیوها</h2>
+        <p>کلیپ‌ها و موزیک ویدیوهای اوپنینگ و اندینگ انیمه‌ها.</p>
+      </section>
+
+      <a href="../" class="back-link">→ بازگشت به بخش موسیقی</a>
+
+      <!-- نوار فیلتر نوع (با جاوااسکریپت پر می‌شود) -->
+      <div class="filter-track" id="filterBar"></div>
+
+      <!-- گرید موزیک ویدیوها (با جاوااسکریپت پر می‌شود) -->
+      <section class="mv-grid" id="mvGrid"></section>
+    </main>
+  </div>
+
+  <!-- داده‌های موزیک ویدیو -->
+  <script src="mv-data.js"></script>
+
+  <!-- منطق رندر و فیلتر -->
+  <script>
+    const mvGrid = document.getElementById('mvGrid');
+    const filterBar = document.getElementById('filterBar');
+
+    let activeType = 'همه';
+
+    function getAllTypes(list) {
+      const types = new Set(list.map(item => item.type));
+      return ['همه', ...types];
+    }
+
+    function renderFilters() {
+      const types = getAllTypes(mvList);
+
+      filterBar.innerHTML = `<div class="filter-indicator" id="filterIndicator"></div>` +
+        types.map(type => `
+          <button
+            type="button"
+            class="filter-btn ${type === activeType ? 'active' : ''}"
+            data-type="${type}"
+          >
+            ${type}
+          </button>
+        `).join('');
+
+      filterBar.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeType = btn.dataset.type;
+          renderFilters();
+          renderCards();
+        });
+      });
+
+      requestAnimationFrame(updateIndicator);
+    }
+
+    function updateIndicator() {
+      const activeBtn = filterBar.querySelector('.filter-btn.active');
+      const indicator = document.getElementById('filterIndicator');
+      if (activeBtn && indicator) {
+        indicator.style.width = activeBtn.offsetWidth + 'px';
+        indicator.style.left = activeBtn.offsetLeft + 'px';
+      }
+    }
+
+    window.addEventListener('resize', updateIndicator);
+
+    function renderCards() {
+      const filtered = activeType === 'همه'
+        ? mvList
+        : mvList.filter(item => item.type === activeType);
+
+      if (filtered.length === 0) {
+        mvGrid.innerHTML = `<div class="empty-state">موردی از این نوع پیدا نشد.</div>`;
+        return;
+      }
+
+      mvGrid.innerHTML = filtered.map(item => `
+        <div class="mv-card">
+          <div class="mv-video-wrap">
+            <video controls preload="metadata">
+              <source src="${item.videoUrl}" type="video/mp4">
+              مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
+            </video>
+          </div>
+          <div class="mv-info">
+            <div class="mv-badge">${item.icon}</div>
+            <div class="mv-details">
+              <h4>${item.title}</h4>
+              <span>${item.source}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    renderFilters();
+    renderCards();
+  </script>
+
+  <script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
