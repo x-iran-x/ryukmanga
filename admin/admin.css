@@ -1,0 +1,233 @@
+/* ==========================================
+   بخش ورود ادمین
+========================================== */
+
+.admin-gate {
+  max-width: 380px;
+  margin: 80px auto;
+  padding: 30px 25px;
+
+  background: rgba(20, 20, 24, 0.95);
+  border: 1px solid #232630;
+  border-radius: 16px;
+}
+
+.admin-gate h2 {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #fff;
+}
+
+.admin-gate .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  text-align: right;
+}
+
+.admin-gate label {
+  color: #bbb;
+  font-size: 0.85rem;
+}
+
+.admin-gate input {
+  padding: 12px 14px;
+  background: #111115;
+  border: 1px solid #33333d;
+  border-radius: 8px;
+  outline: none;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.admin-gate input:focus {
+  border-color: #e50914;
+}
+
+.admin-error {
+  margin-top: 10px;
+  color: #ff5a68;
+  font-size: 0.85rem;
+  text-align: center;
+  display: none;
+}
+
+/* ==========================================
+   بدنه اصلی پنل مدیریت
+========================================== */
+
+.admin-wrapper {
+  display: none;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.admin-header h2 {
+  color: #fff;
+}
+
+.logout-btn {
+  padding: 8px 16px;
+  background: #1c1c24;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #aaa;
+  cursor: pointer;
+  font-family: 'Vazirmatn', sans-serif;
+  font-size: 0.85rem;
+}
+
+.logout-btn:hover {
+  color: #fff;
+  border-color: #ff334b;
+}
+
+/* فرم افزودن مانگا */
+
+.admin-form {
+  background: #121318;
+  border: 1px solid #232630;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 30px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-form h3 {
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: right;
+}
+
+.form-row label {
+  color: #bbb;
+  font-size: 0.85rem;
+}
+
+.form-row input {
+  padding: 10px 14px;
+  background: #111115;
+  border: 1px solid #33333d;
+  border-radius: 8px;
+  outline: none;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.form-row input:focus {
+  border-color: #e50914;
+}
+
+.form-row small {
+  color: #6d7285;
+  font-size: 0.75rem;
+}
+
+.admin-submit-btn {
+  margin-top: 6px;
+  padding: 12px;
+  background: linear-gradient(135deg, #e50914, #99000a);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.admin-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-status {
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.form-status.success { color: #4ade80; }
+.form-status.error { color: #ff5a68; }
+
+/* لیست مانگاهای موجود */
+
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  background: #121318;
+  border: 1px solid #232630;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.admin-list-cover {
+  width: 40px;
+  height: 56px;
+  border-radius: 4px;
+  background: #2a2224;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.admin-list-info {
+  flex: 1;
+}
+
+.admin-list-info h4 {
+  margin: 0;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.admin-list-info span {
+  color: #7a8093;
+  font-size: 0.8rem;
+}
+
+.admin-delete-btn {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid #ff334b;
+  border-radius: 6px;
+  color: #ff334b;
+  cursor: pointer;
+  font-family: 'Vazirmatn', sans-serif;
+  font-size: 0.8rem;
+}
+
+.admin-delete-btn:hover {
+  background: #ff334b;
+  color: #fff;
+}
+
+.admin-empty {
+  text-align: center;
+  color: #6d7285;
+  padding: 20px;
+}
