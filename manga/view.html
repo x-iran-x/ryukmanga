@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مانگا | RyukManga</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="view.css">
+</head>
+<body>
+
+  <div id="main-content">
+    <header class="navbar">
+      <div class="logo"><a href="../" style="text-decoration: none; color: inherit;">RYUK<span>MANGA</span></a></div>
+
+      <nav class="nav-links">
+        <a href="../">خانه</a>
+        <a href="./" class="active">مانگاها</a>
+        <a href="../anime/">انیمه‌ها</a>
+        <a href="../top/">برترین‌ها</a>
+        <a href="../forums/">تالارها</a>
+        <a href="../music/">موسیقی</a>
+      </nav>
+    </header>
+
+    <main class="content-container" id="pageContent">
+      <p class="loading-state">در حال بارگذاری...</p>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://fzmrodjukzixfwuitxvr.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6bXJvZGp1a3ppeGZ3dWl0eHZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzNzc0NjIsImV4cCI6MjEwNDk1MzQ2Mn0.SAK-a5yecdJLYZTUApk32PdFrSpo0p_8Pv1aVzNBA9Y';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const pageContent = document.getElementById('pageContent');
+
+    // خواندن شناسه مانگا از آدرس صفحه (مثلاً view.html?id=xxxx)
+    const params = new URLSearchParams(window.location.search);
+    const mangaId = params.get('id');
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str ?? '';
+      return div.innerHTML;
+    }
+
+    async function loadManga() {
+      if (!mangaId) {
+        pageContent.innerHTML = `<p class="loading-state">شناسه مانگا مشخص نیست.</p>`;
+        return;
+      }
+
+      const { data: manga, error: mangaError } = await supabaseClient
+        .from('manga')
+        .select('*')
+        .eq('id', mangaId)
+        .maybeSingle();
+
+      if (mangaError || !manga) {
+        pageContent.innerHTML = `<p class="loading-state">این مانگا پیدا نشد.</p>`;
+        return;
+      }
+
+      const { data: chapters, error: chaptersError } = await supabaseClient
+        .from('manga_chapters')
+        .select('*')
+        .eq('manga_id', mangaId)
+        .order('chapter_number', { ascending: false });
+
+      renderPage(manga, chaptersError ? [] : (chapters || []));
+    }
+
+    function renderPage(manga, chapters) {
+      const genresHtml = (manga.genres || []).map(g => `<span class="genre-tag">${escapeHtml(g)}</span>`).join('');
+
+      const chaptersHtml = chapters.length
+        ? chapters.map(ch => `
+            <div class="chapter-row">
+              <div class="chapter-info">
+                <h4>چپتر ${escapeHtml(ch.chapter_number)}${ch.title ? ' — ' + escapeHtml(ch.title) : ''}</h4>
+              </div>
+              <div class="chapter-actions">
+                ${ch.reader_url ? `<a href="${escapeHtml(ch.reader_url)}" target="_blank" rel="noopener" class="chapter-btn read">مطالعه آنلاین</a>` : ''}
+                ${ch.download_url ? `<a href="${escapeHtml(ch.download_url)}" target="_blank" rel="noopener" class="chapter-btn download">دانلود</a>` : ''}
+              </div>
+            </div>
+          `).join('')
+        : `<p class="empty-state">هنوز چپتری برای این مانگا اضافه نشده.</p>`;
+
+      pageContent.innerHTML = `
+        <section class="manga-header">
+          <div class="manga-header-cover">
+            ${manga.cover_url ? `<img src="${escapeHtml(manga.cover_url)}" alt="${escapeHtml(manga.title)}">` : '📓'}
+          </div>
+          <div class="manga-header-info">
+            <h1>${escapeHtml(manga.title)}</h1>
+            ${manga.title_fa ? `<h2>${escapeHtml(manga.title_fa)}</h2>` : ''}
+            <div class="genre-tags">${genresHtml}</div>
+            <p class="chapter-count">${manga.chapters || chapters.length || 0} چپتر</p>
+          </div>
+        </section>
+
+        <section class="chapters-section">
+          <h3>لیست چپترها</h3>
+          <div class="chapters-list">
+            ${chaptersHtml}
+          </div>
+        </section>
+      `;
+    }
+
+    loadManga();
+  </script>
+
+  <script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
