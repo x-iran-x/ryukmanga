@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>پنل مدیریت | RyukManga</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <div id="main-content">
+    <header class="navbar">
+      <div class="logo"><a href="../" style="text-decoration: none; color: inherit;">RYUK<span>MANGA</span></a></div>
+    </header>
+
+    <main class="content-container">
+
+      <!-- دروازه ورود: تا وقتی لاگین نکردی این بخش دیده می‌شه -->
+      <div class="admin-gate" id="adminGate">
+        <h2>ورود به پنل مدیریت</h2>
+
+        <form id="adminLoginForm">
+          <div class="input-group">
+            <label for="adminEmail">ایمیل</label>
+            <input id="adminEmail" type="email" required autocomplete="email">
+          </div>
+          <div class="input-group">
+            <label for="adminPassword">رمز عبور</label>
+            <input id="adminPassword" type="password" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="auth-submit-btn" style="width: 100%;">ورود</button>
+        </form>
+
+        <p class="admin-error" id="adminError">دسترسی غیرمجاز یا اطلاعات ورود اشتباه است.</p>
+      </div>
+
+      <!-- بدنه اصلی پنل: فقط برای ادمین لاگین‌شده نمایش داده می‌شه -->
+      <div class="admin-wrapper" id="adminWrapper">
+
+        <div class="admin-header">
+          <h2>مدیریت مانگاها</h2>
+          <button type="button" class="logout-btn" id="logoutBtn">خروج</button>
+        </div>
+
+        <!-- بخش مدیریت ادمین‌ها -->
+        <form class="admin-form" id="addAdminForm">
+          <h3>افزودن ادمین جدید</h3>
+          <div class="form-row">
+            <label for="newAdminEmail">ایمیل کاربر</label>
+            <input id="newAdminEmail" type="email" required placeholder="user@example.com">
+            <small>کاربر باید قبلاً تو سایت ثبت‌نام کرده باشه</small>
+          </div>
+          <button type="submit" class="admin-submit-btn" id="addAdminBtn">افزودن ادمین</button>
+          <p class="form-status" id="addAdminStatus"></p>
+        </form>
+
+        <h3 style="color:#fff; margin-bottom: 14px;">ادمین‌های فعلی</h3>
+        <div class="admin-list" id="adminsList" style="margin-bottom: 30px;"></div>
+
+        <!-- فرم افزودن مانگای جدید -->
+        <form class="admin-form" id="mangaForm">
+          <h3>افزودن مانگای جدید</h3>
+
+          <div class="form-row">
+            <label for="mTitle">عنوان (انگلیسی)</label>
+            <input id="mTitle" type="text" required placeholder="Chainsaw Man">
+          </div>
+
+          <div class="form-row">
+            <label for="mTitleFa">عنوان (فارسی)</label>
+            <input id="mTitleFa" type="text" placeholder="مرد اره‌ای">
+          </div>
+
+          <div class="form-row">
+            <label for="mChapters">تعداد چپتر</label>
+            <input id="mChapters" type="number" min="0" value="0">
+          </div>
+
+          <div class="form-row">
+            <label for="mGenres">ژانرها</label>
+            <input id="mGenres" type="text" placeholder="اکشن, وحشت">
+            <small>ژانرها رو با ویرگول (,) از هم جدا کن</small>
+          </div>
+
+          <div class="form-row">
+            <label for="mCover">تصویر جلد (اختیاری)</label>
+            <input id="mCover" type="file" accept="image/*">
+          </div>
+
+          <button type="submit" class="admin-submit-btn" id="mangaSubmitBtn">افزودن مانگا</button>
+          <p class="form-status" id="formStatus"></p>
+        </form>
+
+        <!-- بخش مدیریت چپترها -->
+        <div class="admin-form" id="chapterManager">
+          <h3>مدیریت چپترها</h3>
+
+          <div class="form-row">
+            <label for="chapterMangaSelect">انتخاب مانگا</label>
+            <select id="chapterMangaSelect"></select>
+          </div>
+
+          <form id="chapterForm">
+            <div class="form-row">
+              <label for="chNumber">شماره چپتر</label>
+              <input id="chNumber" type="number" step="0.1" min="0" required>
+            </div>
+            <div class="form-row">
+              <label for="chTitle">عنوان چپتر (اختیاری)</label>
+              <input id="chTitle" type="text" placeholder="مثلاً: شروع دوباره">
+            </div>
+            <div class="form-row">
+              <label for="chReaderUrl">لینک مطالعه آنلاین (اختیاری)</label>
+              <input id="chReaderUrl" type="url" placeholder="https://...">
+            </div>
+            <div class="form-row">
+              <label for="chDownloadUrl">لینک دانلود (اختیاری)</label>
+              <input id="chDownloadUrl" type="url" placeholder="https://...">
+              <small>حداقل یکی از دو لینک بالا رو پر کن</small>
+            </div>
+            <button type="submit" class="admin-submit-btn" id="chapterSubmitBtn">افزودن چپتر</button>
+            <p class="form-status" id="chapterStatus"></p>
+          </form>
+
+          <h4 style="color:#fff; margin: 16px 0 10px;">چپترهای این مانگا</h4>
+          <div class="admin-list" id="chaptersList"></div>
+        </div>
+
+        <!-- لیست مانگاهای موجود -->
+        <h3 style="color:#fff; margin-bottom: 14px;">مانگاهای موجود</h3>
+        <div class="admin-list" id="mangaList"></div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // ==========================================
+    // اتصال به Supabase
+    // ==========================================
+    const SUPABASE_URL = 'https://fzmrodjukzixfwuitxvr.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6bXJvZGp1a3ppeGZ3dWl0eHZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzNzc0NjIsImV4cCI6MjEwNDk1MzQ2Mn0.SAK-a5yecdJLYZTUApk32PdFrSpo0p_8Pv1aVzNBA9Y';
+
+    // فقط کسانی که تو جدول admins ثبت شدن به پنل دسترسی دارن
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const adminGate = document.getElementById('adminGate');
+    const adminWrapper = document.getElementById('adminWrapper');
+    const adminError = document.getElementById('adminError');
+    const adminLoginForm = document.getElementById('adminLoginForm');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    async function isCurrentUserAdmin() {
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      const user = sessionData?.session?.user;
+      if (!user) return false;
+
+      const { data, error } = await supabaseClient
+        .from('admins')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      return !error && !!data;
+    }
+
+    // ==========================================
+    // بررسی اینکه آیا کاربر لاگین‌شده ادمینه یا نه
+    // ==========================================
+    async function checkAdminAccess() {
+      const admin = await isCurrentUserAdmin();
+
+      if (admin) {
+        adminGate.style.display = 'none';
+        adminWrapper.style.display = 'block';
+        loadMangaList();
+        loadAdminsList();
+        loadMangaDropdown();
+      } else {
+        adminGate.style.display = 'block';
+        adminWrapper.style.display = 'none';
+      }
+    }
+
+    // ==========================================
+    // فرم ورود ادمین
+    // ==========================================
+    adminLoginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      adminError.style.display = 'none';
+
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value;
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        adminError.textContent = 'خطا در ورود: ' + error.message;
+        adminError.style.display = 'block';
+        return;
+      }
+
+      const admin = await isCurrentUserAdmin();
+      if (!admin) {
+        adminError.textContent = 'این حساب دسترسی ادمین نداره.';
+        adminError.style.display = 'block';
+        await supabaseClient.auth.signOut();
+        return;
+      }
+
+      checkAdminAccess();
+    });
+
+    logoutBtn.addEventListener('click', async () => {
+      await supabaseClient.auth.signOut();
+      checkAdminAccess();
+    });
+
+    // ==========================================
+    // افزودن مانگای جدید
+    // ==========================================
+    const mangaForm = document.getElementById('mangaForm');
+    const formStatus = document.getElementById('formStatus');
+    const mangaSubmitBtn = document.getElementById('mangaSubmitBtn');
+
+    mangaForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      formStatus.textContent = '';
+      formStatus.className = 'form-status';
+      mangaSubmitBtn.disabled = true;
+      mangaSubmitBtn.textContent = 'در حال افزودن...';
+
+      try {
+        const title = document.getElementById('mTitle').value.trim();
+        const titleFa = document.getElementById('mTitleFa').value.trim();
+        const chapters = parseInt(document.getElementById('mChapters').value, 10) || 0;
+        const genresRaw = document.getElementById('mGenres').value.trim();
+        const genres = genresRaw ? genresRaw.split(',').map(g => g.trim()).filter(Boolean) : [];
+        const coverFile = document.getElementById('mCover').files[0];
+
+        let coverUrl = null;
+
+        // اگر عکس انتخاب شده، اول اون رو آپلود کن
+        if (coverFile) {
+          const fileExt = coverFile.name.split('.').pop();
+          const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+
+          const { error: uploadError } = await supabaseClient
+            .storage
+            .from('covers')
+            .upload(fileName, coverFile);
+
+          if (uploadError) throw uploadError;
+
+          const { data: publicUrlData } = supabaseClient
+            .storage
+            .from('covers')
+            .getPublicUrl(fileName);
+
+          coverUrl = publicUrlData.publicUrl;
+        }
+
+        const { error: insertError } = await supabaseClient
+          .from('manga')
+          .insert({
+            title,
+            title_fa: titleFa,
+            chapters,
+            genres,
+            cover_url: coverUrl
+          });
+
+        if (insertError) throw insertError;
+
+        formStatus.textContent = 'مانگا با موفقیت اضافه شد ✅';
+        formStatus.classList.add('success');
+        mangaForm.reset();
+        loadMangaList();
+        loadMangaDropdown();
+
+      } catch (error) {
+        formStatus.textContent = 'خطا: ' + error.message;
+        formStatus.classList.add('error');
+      } finally {
+        mangaSubmitBtn.disabled = false;
+        mangaSubmitBtn.textContent = 'افزودن مانگا';
+      }
+    });
+
+    // ==========================================
+    // مدیریت چپترها
+    // ==========================================
+    const chapterMangaSelect = document.getElementById('chapterMangaSelect');
+    const chapterForm = document.getElementById('chapterForm');
+    const chapterStatus = document.getElementById('chapterStatus');
+    const chapterSubmitBtn = document.getElementById('chapterSubmitBtn');
+    const chaptersList = document.getElementById('chaptersList');
+
+    async function loadMangaDropdown() {
+      const { data, error } = await supabaseClient
+        .from('manga')
+        .select('id, title')
+        .order('title', { ascending: true });
+
+      if (error || !data || data.length === 0) {
+        chapterMangaSelect.innerHTML = `<option value="">هنوز مانگایی اضافه نشده</option>`;
+        chaptersList.innerHTML = '';
+        return;
+      }
+
+      chapterMangaSelect.innerHTML = data.map(m => `<option value="${m.id}">${m.title}</option>`).join('');
+      loadChaptersForSelectedManga();
+    }
+
+    chapterMangaSelect.addEventListener('change', loadChaptersForSelectedManga);
+
+    async function loadChaptersForSelectedManga() {
+      const mangaId = chapterMangaSelect.value;
+      if (!mangaId) {
+        chaptersList.innerHTML = '';
+        return;
+      }
+
+      const { data, error } = await supabaseClient
+        .from('manga_chapters')
+        .select('*')
+        .eq('manga_id', mangaId)
+        .order('chapter_number', { ascending: true });
+
+      if (error) {
+        chaptersList.innerHTML = `<p class="admin-empty">خطا: ${error.message}</p>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        chaptersList.innerHTML = `<p class="admin-empty">هنوز چپتری اضافه نشده.</p>`;
+        return;
+      }
+
+      chaptersList.innerHTML = data.map(ch => `
+        <div class="admin-list-item">
+          <div class="admin-list-info">
+            <h4>چپتر ${ch.chapter_number}${ch.title ? ' — ' + ch.title : ''}</h4>
+            <span>${ch.reader_url ? 'مطالعه آنلاین ✓' : ''} ${ch.download_url ? '· دانلود ✓' : ''}</span>
+          </div>
+          <button type="button" class="admin-delete-btn" data-id="${ch.id}">حذف</button>
+        </div>
+      `).join('');
+
+      chaptersList.querySelectorAll('.admin-delete-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('مطمئنی می‌خوای این چپتر رو حذف کنی؟')) return;
+
+          const { error } = await supabaseClient.from('manga_chapters').delete().eq('id', btn.dataset.id);
+          if (error) {
+            alert('خطا در حذف: ' + error.message);
+            return;
+          }
+          loadChaptersForSelectedManga();
+        });
+      });
+    }
+
+    chapterForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const mangaId = chapterMangaSelect.value;
+      if (!mangaId) {
+        alert('اول یه مانگا انتخاب کن.');
+        return;
+      }
+
+      const chapterNumber = parseFloat(document.getElementById('chNumber').value);
+      const title = document.getElementById('chTitle').value.trim();
+      const readerUrl = document.getElementById('chReaderUrl').value.trim();
+      const downloadUrl = document.getElementById('chDownloadUrl').value.trim();
+
+      if (!readerUrl && !downloadUrl) {
+        chapterStatus.textContent = 'حداقل یکی از لینک‌های مطالعه یا دانلود رو وارد کن.';
+        chapterStatus.className = 'form-status error';
+        return;
+      }
+
+      chapterStatus.textContent = '';
+      chapterStatus.className = 'form-status';
+      chapterSubmitBtn.disabled = true;
+      chapterSubmitBtn.textContent = 'در حال افزودن...';
+
+      try {
+        const { error } = await supabaseClient.from('manga_chapters').insert({
+          manga_id: mangaId,
+          chapter_number: chapterNumber,
+          title: title || null,
+          reader_url: readerUrl || null,
+          download_url: downloadUrl || null
+        });
+
+        if (error) throw error;
+
+        chapterStatus.textContent = 'چپتر با موفقیت اضافه شد ✅';
+        chapterStatus.classList.add('success');
+        chapterForm.reset();
+        loadChaptersForSelectedManga();
+
+      } catch (error) {
+        chapterStatus.textContent = 'خطا: ' + error.message;
+        chapterStatus.classList.add('error');
+      } finally {
+        chapterSubmitBtn.disabled = false;
+        chapterSubmitBtn.textContent = 'افزودن چپتر';
+      }
+    });
+
+    // ==========================================
+    // نمایش لیست مانگاهای موجود + حذف
+    // ==========================================
+    const mangaList = document.getElementById('mangaList');
+
+    async function loadMangaList() {
+      const { data, error } = await supabaseClient
+        .from('manga')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        mangaList.innerHTML = `<p class="admin-empty">خطا در بارگذاری لیست: ${error.message}</p>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        mangaList.innerHTML = `<p class="admin-empty">هنوز مانگایی اضافه نشده.</p>`;
+        return;
+      }
+
+      mangaList.innerHTML = data.map(item => `
+        <div class="admin-list-item" data-id="${item.id}">
+          <div class="admin-list-cover" style="${item.cover_url ? `background-image:url('${item.cover_url}')` : ''}"></div>
+          <div class="admin-list-info">
+            <h4>${item.title}${item.title_fa ? ' — ' + item.title_fa : ''}</h4>
+            <span>${item.chapters} چپتر ${item.genres && item.genres.length ? '· ' + item.genres.join('، ') : ''}</span>
+          </div>
+          <button type="button" class="admin-delete-btn" data-id="${item.id}">حذف</button>
+        </div>
+      `).join('');
+
+      mangaList.querySelectorAll('.admin-delete-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.id;
+          if (!confirm('مطمئنی می‌خوای این مانگا رو حذف کنی؟')) return;
+
+          const { error } = await supabaseClient.from('manga').delete().eq('id', id);
+          if (error) {
+            alert('خطا در حذف: ' + error.message);
+            return;
+          }
+          loadMangaList();
+        });
+      });
+    }
+
+    // ==========================================
+    // افزودن ادمین جدید
+    // ==========================================
+    const addAdminForm = document.getElementById('addAdminForm');
+    const addAdminStatus = document.getElementById('addAdminStatus');
+    const addAdminBtn = document.getElementById('addAdminBtn');
+
+    addAdminForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      addAdminStatus.textContent = '';
+      addAdminStatus.className = 'form-status';
+      addAdminBtn.disabled = true;
+      addAdminBtn.textContent = 'در حال افزودن...';
+
+      const newEmail = document.getElementById('newAdminEmail').value.trim();
+
+      try {
+        const { error } = await supabaseClient.rpc('add_admin', { new_admin_email: newEmail });
+        if (error) throw error;
+
+        addAdminStatus.textContent = 'ادمین جدید با موفقیت اضافه شد ✅';
+        addAdminStatus.classList.add('success');
+        addAdminForm.reset();
+        loadAdminsList();
+
+      } catch (error) {
+        addAdminStatus.textContent = 'خطا: ' + error.message;
+        addAdminStatus.classList.add('error');
+      } finally {
+        addAdminBtn.disabled = false;
+        addAdminBtn.textContent = 'افزودن ادمین';
+      }
+    });
+
+    // ==========================================
+    // نمایش لیست ادمین‌ها + حذف
+    // ==========================================
+    const adminsList = document.getElementById('adminsList');
+
+    async function loadAdminsList() {
+      const { data, error } = await supabaseClient
+        .from('admins')
+        .select('*')
+        .order('added_at', { ascending: true });
+
+      if (error) {
+        adminsList.innerHTML = `<p class="admin-empty">خطا در بارگذاری: ${error.message}</p>`;
+        return;
+      }
+
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      const currentUserId = sessionData?.session?.user?.id;
+
+      adminsList.innerHTML = data.map(item => `
+        <div class="admin-list-item">
+          <div class="admin-list-info">
+            <h4>${item.email}${item.user_id === currentUserId ? ' (خودت)' : ''}</h4>
+          </div>
+          ${
+            item.user_id !== currentUserId
+              ? `<button type="button" class="admin-delete-btn" data-userid="${item.user_id}">حذف</button>`
+              : ''
+          }
+        </div>
+      `).join('');
+
+      adminsList.querySelectorAll('.admin-delete-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('مطمئنی می‌خوای این ادمین رو حذف کنی؟')) return;
+
+          const { error } = await supabaseClient
+            .from('admins')
+            .delete()
+            .eq('user_id', btn.dataset.userid);
+
+          if (error) {
+            alert('خطا در حذف: ' + error.message);
+            return;
+          }
+          loadAdminsList();
+        });
+      });
+    }
+
+    checkAdminAccess();
+  </script>
+
+</body>
+</html>
