@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512">
+  <rect width="64" height="64" rx="12" fill="#0d0d10"/>
+  <polygon points="32,5 55.5,18.5 55.5,45.5 32,59 8.5,45.5 8.5,18.5" fill="#16161b" stroke="#e11d2e" stroke-width="4.5" stroke-linejoin="miter"/>
+  <g transform="translate(32,33) scale(0.2) translate(-163.5,-162.5)">
+    <path d="M109 94 H179 Q219 94 219 136 Q219 169 187 179 L226 239 H186 L152 182 H144 V239 H109 Z M144 122 V156 H176 Q186 156 186 139 Q186 122 176 122 Z" fill="#e11d2e" fill-rule="evenodd" transform="translate(6,6)"/>
+    <path d="M105 90 H175 Q215 90 215 132 Q215 165 183 175 L222 235 H182 L148 178 H140 V235 H105 Z M140 118 V152 H172 Q182 152 182 135 Q182 118 172 118 Z" fill="#f5f5f7" fill-rule="evenodd"/>
+  </g>
+</svg>
