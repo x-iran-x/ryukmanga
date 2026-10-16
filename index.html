@@ -115,26 +115,52 @@
         </button>
       </div>
 
-      <!-- ورود امن از طریق صفحه‌ی Auth0 -->
+      <!-- فرم‌های ورود و ثبت‌نام Appwrite -->
       <form class="auth-form active" id="loginForm">
-        <p class="auth-description">برای ورود، در صفحه‌ی امن Auth0 ایمیل و رمز عبورت رو وارد کن.</p>
-        <button type="submit" class="auth-submit-btn">ورود با Auth0</button>
+        <p class="auth-description">برای ورود به حساب RyukManga، ایمیل و رمز عبورت رو وارد کن.</p>
+        <div class="input-group">
+          <label for="loginEmail">ایمیل</label>
+          <input id="loginEmail" name="email" type="email" autocomplete="email" required>
+        </div>
+        <div class="input-group">
+          <label for="loginPassword">رمز عبور</label>
+          <input id="loginPassword" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="auth-submit-btn">ورود</button>
       </form>
 
-      <!-- ثبت‌نام امن از طریق صفحه‌ی Auth0 -->
       <form class="auth-form" id="registerForm">
-        <p class="auth-description">حساب کاربری رو در صفحه‌ی امن Auth0 بساز. رمز عبورت مستقیماً به Auth0 ارسال می‌شه.</p>
-        <button type="submit" class="auth-submit-btn">ثبت‌نام با Auth0</button>
+        <p class="auth-description">برای ساخت حساب جدید، اطلاعات زیر رو وارد کن.</p>
+        <div class="input-group">
+          <label for="registerName">نام نمایشی</label>
+          <input id="registerName" name="name" type="text" autocomplete="name" maxlength="100" required>
+        </div>
+        <div class="input-group">
+          <label for="registerEmail">ایمیل</label>
+          <input id="registerEmail" name="email" type="email" autocomplete="email" required>
+        </div>
+        <div class="input-group">
+          <label for="registerPassword">رمز عبور (حداقل ۸ نویسه)</label>
+          <input id="registerPassword" name="password" type="password" autocomplete="new-password" minlength="8" required>
+        </div>
+        <button type="submit" class="auth-submit-btn">ساخت حساب</button>
       </form>
-
+      <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
     </div>
   </div>
 
-  <!-- Auth0 SPA SDK -->
-  <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+  <!-- Appwrite Web SDK; only public project configuration is used in the browser. -->
+  <script type="module">
+    import { Account, Client, ID } from 'https://cdn.jsdelivr.net/npm/appwrite@28.3.0/+esm';
 
-  <!-- ۶. منطق سایت و اتصال Auth0 -->
-  <script>
+    const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
+    const APPWRITE_PROJECT_ID = '6ad28bbc0023dee367ab';
+
+    const client = new Client()
+      .setEndpoint(APPWRITE_ENDPOINT)
+      .setProject(APPWRITE_PROJECT_ID);
+    const account = new Account(client);
+
     const introScreen = document.getElementById('intro-screen');
     let introEnded = false;
     function triggerFadeOut() {
@@ -145,10 +171,6 @@
     }
     setTimeout(triggerFadeOut, 5000);
 
-    // Public SPA settings. Never put an Auth0 Client Secret in frontend code.
-    const AUTH0_DOMAIN = 'dev-r0iw5213bey6mfu0.us.auth0.com';
-    const AUTH0_CLIENT_ID = 'eeGtEmep2zkeoi0SK2aWvYbyFLM6idQQ';
-
     const authModal = document.getElementById('authModal');
     const openAuthBtn = document.getElementById('openAuthBtn');
     const closeAuthBtn = document.getElementById('closeAuthBtn');
@@ -156,6 +178,13 @@
     const registerTab = document.getElementById('registerTab');
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
+    const authMessage = document.getElementById('authMessage');
+
+    function setMessage(message = '', success = false) {
+      if (!authMessage) return;
+      authMessage.textContent = message;
+      authMessage.classList.toggle('success', success);
+    }
 
     function showAuthTab(tab) {
       const registering = tab === 'register';
@@ -163,97 +192,127 @@
       registerTab?.classList.toggle('active', registering);
       loginForm?.classList.toggle('active', !registering);
       registerForm?.classList.toggle('active', registering);
+      setMessage('');
+    }
+
+    function setBusy(form, busy, label) {
+      const button = form?.querySelector('button[type="submit"]');
+      if (!button) return;
+      if (!button.dataset.originalLabel) button.dataset.originalLabel = button.textContent;
+      button.disabled = busy;
+      button.textContent = busy ? label : button.dataset.originalLabel;
+    }
+
+    function friendlyError(error) {
+      const code = error?.type || error?.code || '';
+      if (code.includes('user_already_exists')) return 'این ایمیل قبلاً ثبت‌نام کرده است؛ وارد حساب شو.';
+      if (code.includes('invalid_credentials') || code.includes('user_invalid_credentials')) return 'ایمیل یا رمز عبور درست نیست.';
+      if (code.includes('password')) return 'رمز عبور باید حداقل ۸ نویسه داشته باشد.';
+      if (code.includes('rate_limit')) return 'درخواست‌ها زیاد شده؛ کمی بعد دوباره تلاش کن.';
+      if (error?.message?.includes('Failed to fetch')) return 'اتصال به Appwrite برقرار نشد؛ اینترنت و تنظیمات دامنه پروژه را بررسی کن.';
+      return error?.message || 'عملیات انجام نشد. دوباره تلاش کن.';
+    }
+
+    async function refreshAuthState() {
+      try {
+        const user = await account.get();
+        window.ryukAppwriteUser = user;
+        if (openAuthBtn) openAuthBtn.textContent = user.name || user.email || 'حساب کاربری';
+        return user;
+      } catch {
+        window.ryukAppwriteUser = null;
+        if (openAuthBtn) openAuthBtn.textContent = 'ورود / ثبت‌نام';
+        return null;
+      }
     }
 
     if (openAuthBtn && authModal) {
       openAuthBtn.addEventListener('click', async () => {
-        if (window.ryukAuth0User) {
-          const user = window.ryukAuth0User;
-          const action = window.confirm(
-            'وارد حساب هستی: ' + (user.email || 'کاربر') + '\\nبرای خروج از حساب، OK را بزن.'
-          );
-          if (action && window.ryukAuth0Client) {
-            await window.ryukAuth0Client.logout({
-              logoutParams: { returnTo: window.location.origin + window.location.pathname }
-            });
+        if (window.ryukAppwriteUser) {
+          const user = window.ryukAppwriteUser;
+          if (window.confirm('وارد حساب هستی: ' + (user.email || user.name || 'کاربر') + '\nبرای خروج از حساب، تأیید کن.')) {
+            try {
+              await account.deleteSession({ sessionId: 'current' });
+              window.ryukAppwriteUser = null;
+              openAuthBtn.textContent = 'ورود / ثبت‌نام';
+              setMessage('');
+              authModal.classList.remove('active');
+              return;
+            } catch (error) {
+              setMessage(friendlyError(error));
+              authModal.classList.add('active');
+              return;
+            }
+          } else {
+            return;
           }
-          return;
         }
         authModal.classList.add('active');
+        showAuthTab('login');
       });
     }
-    if (closeAuthBtn && authModal) {
-      closeAuthBtn.addEventListener('click', () => authModal.classList.remove('active'));
-    }
-    window.addEventListener('click', (event) => {
+
+    closeAuthBtn?.addEventListener('click', () => authModal?.classList.remove('active'));
+    window.addEventListener('click', event => {
       if (event.target === authModal) authModal.classList.remove('active');
     });
-    window.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && authModal) authModal.classList.remove('active');
+    window.addEventListener('keydown', event => {
+      if (event.key === 'Escape') authModal?.classList.remove('active');
     });
 
     loginTab?.addEventListener('click', () => showAuthTab('login'));
     registerTab?.addEventListener('click', () => showAuthTab('register'));
 
-    async function startAuthFlow(isSignup) {
-      const button = (isSignup ? registerForm : loginForm)?.querySelector('button[type="submit"]');
-      if (button) {
-        button.disabled = true;
-        button.textContent = 'در حال انتقال به Auth0...';
-      }
+    loginForm?.addEventListener('submit', async event => {
+      event.preventDefault();
+      setMessage('');
+      setBusy(loginForm, true, 'در حال ورود...');
+      const email = document.getElementById('loginEmail')?.value.trim();
+      const password = document.getElementById('loginPassword')?.value;
       try {
-        if (!window.ryukAuth0Client) {
-          throw new Error('کتابخانه Auth0 بارگذاری نشده. اتصال اینترنت یا مسدود بودن دامنه را بررسی کن.');
-        }
-        await window.ryukAuth0Client.loginWithRedirect({
-          authorizationParams: isSignup ? { screen_hint: 'signup' } : {}
-        });
+        await account.createEmailPasswordSession({ email, password });
+        const user = await refreshAuthState();
+        authModal?.classList.remove('active');
+        loginForm.reset();
+        setMessage('');
+        if (user) console.info('Signed in to RyukManga with Appwrite.');
       } catch (error) {
-        alert('ورود به Auth0 انجام نشد: ' + (error?.message || error));
-        if (button) {
-          button.disabled = false;
-          button.textContent = isSignup ? 'ثبت‌نام با Auth0' : 'ورود با Auth0';
-        }
+        setMessage(friendlyError(error));
+      } finally {
+        setBusy(loginForm, false);
       }
-    }
-    loginForm?.addEventListener('submit', (event) => {
-      event.preventDefault();
-      startAuthFlow(false);
-    });
-    registerForm?.addEventListener('submit', (event) => {
-      event.preventDefault();
-      startAuthFlow(true);
     });
 
-    async function initRyukAuth() {
+    registerForm?.addEventListener('submit', async event => {
+      event.preventDefault();
+      setMessage('');
+      setBusy(registerForm, true, 'در حال ساخت حساب...');
+      const name = document.getElementById('registerName')?.value.trim();
+      const email = document.getElementById('registerEmail')?.value.trim();
+      const password = document.getElementById('registerPassword')?.value;
       try {
-        if (!window.auth0 || typeof window.auth0.createAuth0Client !== 'function') {
-          throw new Error('Auth0 SDK لود نشده است.');
-        }
-        const client = await window.auth0.createAuth0Client({
-          domain: AUTH0_DOMAIN,
-          clientId: AUTH0_CLIENT_ID,
-          cacheLocation: 'localstorage',
-          authorizationParams: {
-            redirect_uri: window.location.origin + window.location.pathname
-          }
-        });
-        window.ryukAuth0Client = client;
-
-        if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
-          await client.handleRedirectCallback();
-          window.history.replaceState({}, document.title, window.location.pathname);
-        }
-
-        const isAuthenticated = await client.isAuthenticated();
-        const user = isAuthenticated ? await client.getUser() : null;
-        window.ryukAuth0User = user || null;
-        if (user && openAuthBtn) openAuthBtn.textContent = user.email || 'حساب کاربری';
+        await account.create({ userId: ID.unique(), email, password, name });
+        await account.createEmailPasswordSession({ email, password });
+        await refreshAuthState();
+        authModal?.classList.remove('active');
+        registerForm.reset();
+        setMessage('');
       } catch (error) {
-        console.error('Auth0 initialization error:', error);
+        setMessage(friendlyError(error));
+      } finally {
+        setBusy(registerForm, false);
       }
+    });
+
+    // Verify the project endpoint and restore an existing session when the page opens.
+    if (typeof client.ping === 'function') {
+      client.ping().then(() => console.info('Appwrite connection OK.')).catch(error => {
+        console.error('Appwrite connection failed:', error);
+      });
+    } else {
+      console.info('Appwrite SDK loaded; ping() is not exposed by this SDK build.');
     }
-    initRyukAuth();
+    await refreshAuthState();
   </script>
 
   <script defer src="/_vercel/insights/script.js"></script>

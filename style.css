@@ -768,3 +768,24 @@ audio {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* Appwrite authentication feedback */
+.auth-description {
+  color: #aaa;
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+.auth-message {
+  margin-top: 14px;
+  color: #ff9aa2;
+  font-size: 0.88rem;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.auth-message:empty {
+  display: none;
+}
+.auth-message.success {
+  color: #86efac;
+}
