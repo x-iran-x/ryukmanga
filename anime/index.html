@@ -50,19 +50,32 @@
     </main>
   </div>
 
-  <!-- داده‌های انیمه‌ها -->
-  <script src="anime-data.js"></script>
+  <script src="../media-config.js"></script>
 
   <!-- منطق رندر و فیلتر -->
   <script>
     const animeGrid = document.getElementById('animeGrid');
     const filterBar = document.getElementById('filterBar');
+    const searchInput = document.querySelector('.search-input');
 
+    let animeList = [];
     let activeGenre = 'همه';
+    let searchText = '';
+
+    async function init() {
+      try {
+        animeList = await loadAnime();
+      } catch (err) {
+        animeGrid.innerHTML = `<div class="empty-state">خطا در بارگذاری لیست انیمه‌ها (${escapeHtml(err.message)})</div>`;
+        return;
+      }
+      renderFilters();
+      renderCards();
+    }
 
     function getAllGenres(list) {
       const genres = new Set();
-      list.forEach(item => item.genres.forEach(g => genres.add(g)));
+      list.forEach(item => (item.genres || []).forEach(g => genres.add(g)));
       return ['همه', ...genres];
     }
 
@@ -73,9 +86,9 @@
         <button
           type="button"
           class="filter-btn ${genre === activeGenre ? 'active' : ''}"
-          data-genre="${genre}"
+          data-genre="${escapeHtml(genre)}"
         >
-          ${genre}
+          ${escapeHtml(genre)}
         </button>
       `).join('');
 
@@ -88,31 +101,44 @@
       });
     }
 
+    searchInput.addEventListener('input', () => {
+      searchText = searchInput.value.trim().toLowerCase();
+      renderCards();
+    });
+
     function renderCards() {
-      const filtered = activeGenre === 'همه'
-        ? animeList
-        : animeList.filter(item => item.genres.includes(activeGenre));
+      if (animeList.length === 0) {
+        animeGrid.innerHTML = `<div class="empty-state">هنوز انیمه‌ای اضافه نشده.</div>`;
+        return;
+      }
+
+      const filtered = animeList.filter(item => {
+        const genreOk = activeGenre === 'همه' || (item.genres || []).includes(activeGenre);
+        const textOk = !searchText ||
+          String(item.title || '').toLowerCase().includes(searchText) ||
+          String(item.title_fa || '').toLowerCase().includes(searchText);
+        return genreOk && textOk;
+      });
 
       if (filtered.length === 0) {
-        animeGrid.innerHTML = `<div class="empty-state">موردی با این ژانر پیدا نشد.</div>`;
+        animeGrid.innerHTML = `<div class="empty-state">موردی پیدا نشد.</div>`;
         return;
       }
 
       animeGrid.innerHTML = filtered.map(item => `
-        <div class="anime-card">
+        <a href="view.html?id=${encodeURIComponent(item.slug)}" class="anime-card">
           <div class="anime-poster">
-            ${item.poster ? `<img src="${item.poster}" alt="${item.title}">` : item.icon}
+            ${item.poster ? `<img src="${escapeHtml(mediaUrl(item.poster))}" alt="${escapeHtml(item.title)}" loading="lazy">` : '📺'}
           </div>
           <div class="anime-info">
-            <h3 class="anime-title">${item.title}</h3>
-            <p class="anime-episodes">قسمت ${item.episodes}</p>
+            <h3 class="anime-title">${escapeHtml(item.title)}</h3>
+            <p class="anime-episodes">${item.title_fa ? escapeHtml(item.title_fa) + ' · ' : ''}قسمت ${escapeHtml(item.episodes_count || item.episodes.length || 0)}</p>
           </div>
-        </div>
+        </a>
       `).join('');
     }
 
-    renderFilters();
-    renderCards();
+    init();
   </script>
 
   <script defer src="/_vercel/insights/script.js"></script>
