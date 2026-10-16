@@ -149,6 +149,37 @@
     </div>
   </div>
 
+
+  <!-- پروفایل کاربر؛ فقط پس از ورود قابل استفاده است -->
+  <div class="profile-modal-overlay" id="profileModal" aria-hidden="true">
+    <section class="profile-modal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+      <button type="button" class="modal-close" id="closeProfileBtn" aria-label="بستن">&times;</button>
+      <div class="profile-heading">
+        <div class="profile-avatar" id="profileAvatar" aria-hidden="true">R</div>
+        <p class="profile-eyebrow">حساب کاربری RyukManga</p>
+        <h2 id="profileTitle">پروفایل من</h2>
+        <p class="profile-subtitle">اطلاعات حساب خودت رو مدیریت کن.</p>
+      </div>
+      <form id="profileForm" class="profile-form">
+        <div class="input-group">
+          <label for="profileName">نام نمایشی</label>
+          <input id="profileName" name="name" type="text" autocomplete="name" maxlength="100" required>
+        </div>
+        <div class="input-group">
+          <label for="profileEmail">ایمیل حساب</label>
+          <input id="profileEmail" name="email" type="email" readonly aria-describedby="profileEmailHelp">
+          <small id="profileEmailHelp" class="profile-help">ایمیل از حساب Appwrite خوانده می‌شود و از اینجا قابل تغییر نیست.</small>
+        </div>
+        <p class="profile-message" id="profileMessage" role="status" aria-live="polite"></p>
+        <button type="submit" class="auth-submit-btn" id="saveProfileBtn">ذخیرهٔ تغییرات</button>
+      </form>
+      <div class="profile-footer">
+        <span class="profile-status"><span class="profile-status-dot"></span> حساب متصل است</span>
+        <button type="button" class="profile-logout-btn" id="profileLogoutBtn">خروج از حساب</button>
+      </div>
+    </section>
+  </div>
+
   <!-- Appwrite Web SDK; only public project configuration is used in the browser. -->
   <script type="module">
     import { Account, Client, ID } from 'https://cdn.jsdelivr.net/npm/appwrite@28.3.0/+esm';
@@ -179,6 +210,15 @@
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
     const authMessage = document.getElementById('authMessage');
+    const profileModal = document.getElementById('profileModal');
+    const closeProfileBtn = document.getElementById('closeProfileBtn');
+    const profileForm = document.getElementById('profileForm');
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const profileAvatar = document.getElementById('profileAvatar');
+    const profileMessage = document.getElementById('profileMessage');
+    const profileLogoutBtn = document.getElementById('profileLogoutBtn');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
 
     function setMessage(message = '', success = false) {
       if (!authMessage) return;
@@ -217,40 +257,110 @@
       try {
         const user = await account.get();
         window.ryukAppwriteUser = user;
-        if (openAuthBtn) openAuthBtn.textContent = user.name || user.email || 'حساب کاربری';
+        if (openAuthBtn) {
+          openAuthBtn.textContent = 'پروفایل من';
+          openAuthBtn.setAttribute('aria-label', 'باز کردن پروفایل کاربری');
+        }
         return user;
       } catch {
         window.ryukAppwriteUser = null;
-        if (openAuthBtn) openAuthBtn.textContent = 'ورود / ثبت‌نام';
+        if (openAuthBtn) {
+          openAuthBtn.textContent = 'ورود / ثبت‌نام';
+          openAuthBtn.setAttribute('aria-label', 'ورود یا ثبت‌نام');
+        }
         return null;
       }
     }
 
+    function setProfileMessage(message = '', success = false) {
+      if (!profileMessage) return;
+      profileMessage.textContent = message;
+      profileMessage.classList.toggle('success', success);
+    }
+
+    function openProfile(user) {
+      if (!user || !profileModal) return;
+      if (profileName) profileName.value = user.name || '';
+      if (profileEmail) profileEmail.value = user.email || '';
+      if (profileAvatar) {
+        const label = (user.name || user.email || 'R').trim();
+        profileAvatar.textContent = Array.from(label)[0]?.toLocaleUpperCase('fa-IR') || 'R';
+      }
+      setProfileMessage('');
+      profileModal.classList.add('active');
+      profileModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeProfile() {
+      profileModal?.classList.remove('active');
+      profileModal?.setAttribute('aria-hidden', 'true');
+    }
+
     if (openAuthBtn && authModal) {
       openAuthBtn.addEventListener('click', async () => {
-        if (window.ryukAppwriteUser) {
-          const user = window.ryukAppwriteUser;
-          if (window.confirm('وارد حساب هستی: ' + (user.email || user.name || 'کاربر') + '\nبرای خروج از حساب، تأیید کن.')) {
-            try {
-              await account.deleteSession({ sessionId: 'current' });
-              window.ryukAppwriteUser = null;
-              openAuthBtn.textContent = 'ورود / ثبت‌نام';
-              setMessage('');
-              authModal.classList.remove('active');
-              return;
-            } catch (error) {
-              setMessage(friendlyError(error));
-              authModal.classList.add('active');
-              return;
-            }
-          } else {
-            return;
-          }
+        const user = window.ryukAppwriteUser || await refreshAuthState();
+        if (user) {
+          openProfile(user);
+          return;
         }
         authModal.classList.add('active');
         showAuthTab('login');
       });
     }
+
+    closeProfileBtn?.addEventListener('click', closeProfile);
+    window.addEventListener('click', event => {
+      if (event.target === profileModal) closeProfile();
+    });
+    window.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closeProfile();
+    });
+
+    profileForm?.addEventListener('submit', async event => {
+      event.preventDefault();
+      const name = profileName?.value.trim() || '';
+      if (!name) {
+        setProfileMessage('لطفاً یک نام نمایشی وارد کن.');
+        profileName?.focus();
+        return;
+      }
+      if (saveProfileBtn) {
+        saveProfileBtn.disabled = true;
+        saveProfileBtn.textContent = 'در حال ذخیره...';
+      }
+      setProfileMessage('');
+      try {
+        await account.updateName({ name });
+        const user = await refreshAuthState();
+        if (user) {
+          openProfile(user);
+          setProfileMessage('نام نمایشی با موفقیت ذخیره شد.', true);
+        }
+      } catch (error) {
+        setProfileMessage(friendlyError(error));
+      } finally {
+        if (saveProfileBtn) {
+          saveProfileBtn.disabled = false;
+          saveProfileBtn.textContent = 'ذخیرهٔ تغییرات';
+        }
+      }
+    });
+
+    profileLogoutBtn?.addEventListener('click', async () => {
+      profileLogoutBtn.disabled = true;
+      profileLogoutBtn.textContent = 'در حال خروج...';
+      try {
+        await account.deleteSession({ sessionId: 'current' });
+        await refreshAuthState();
+        closeProfile();
+        setMessage('');
+      } catch (error) {
+        setProfileMessage(friendlyError(error));
+      } finally {
+        profileLogoutBtn.disabled = false;
+        profileLogoutBtn.textContent = 'خروج از حساب';
+      }
+    });
 
     closeAuthBtn?.addEventListener('click', () => authModal?.classList.remove('active'));
     window.addEventListener('click', event => {
