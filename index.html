@@ -150,32 +150,88 @@
   </div>
 
 
-  <!-- پروفایل کاربر؛ فقط پس از ورود قابل استفاده است -->
+  <!-- پروفایل کاربری؛ طراحی ارتقایافته -->
   <div class="profile-modal-overlay" id="profileModal" aria-hidden="true">
     <section class="profile-modal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
-      <button type="button" class="modal-close" id="closeProfileBtn" aria-label="بستن">&times;</button>
-      <div class="profile-heading">
-        <div class="profile-avatar" id="profileAvatar" aria-hidden="true">R</div>
-        <p class="profile-eyebrow">حساب کاربری RyukManga</p>
-        <h2 id="profileTitle">پروفایل من</h2>
-        <p class="profile-subtitle">اطلاعات حساب خودت رو مدیریت کن.</p>
+      <button type="button" class="modal-close profile-close" id="closeProfileBtn" aria-label="بستن">&times;</button>
+      <div class="profile-cover">
+        <div class="profile-cover-glow"></div>
+        <span class="profile-cover-mark">RYUK<span>MANGA</span></span>
+        <span class="profile-cover-label">MEMBER AREA</span>
       </div>
-      <form id="profileForm" class="profile-form">
-        <div class="input-group">
-          <label for="profileName">نام نمایشی</label>
-          <input id="profileName" name="name" type="text" autocomplete="name" maxlength="100" required>
+      <div class="profile-main">
+        <div class="profile-identity">
+          <div class="profile-avatar-wrap">
+            <div class="profile-avatar" id="profileAvatar" aria-hidden="true">R</div>
+            <span class="profile-avatar-online" title="حساب متصل است"></span>
+          </div>
+          <div class="profile-identity-copy">
+            <p class="profile-eyebrow">حساب کاربری</p>
+            <h2 id="profileTitle">پروفایل من</h2>
+            <p class="profile-subtitle">به گوشهٔ شخصی خودت در دنیای RyukManga خوش اومدی.</p>
+          </div>
+          <span class="profile-member-chip"><span class="profile-status-dot"></span> عضو فعال</span>
         </div>
-        <div class="input-group">
-          <label for="profileEmail">ایمیل حساب</label>
-          <input id="profileEmail" name="email" type="email" readonly aria-describedby="profileEmailHelp">
-          <small id="profileEmailHelp" class="profile-help">ایمیل از حساب Appwrite خوانده می‌شود و از اینجا قابل تغییر نیست.</small>
+
+        <div class="profile-content-grid">
+          <div class="profile-panel profile-details-panel">
+            <div class="profile-panel-heading">
+              <div>
+                <span class="profile-panel-kicker">PERSONAL INFO</span>
+                <h3>اطلاعات حساب</h3>
+              </div>
+              <span class="profile-panel-icon" aria-hidden="true">✦</span>
+            </div>
+            <form id="profileForm" class="profile-form">
+              <div class="input-group">
+                <label for="profileName">نام نمایشی</label>
+                <input id="profileName" name="name" type="text" autocomplete="name" maxlength="100" required placeholder="اسم دلخواهت رو بنویس">
+              </div>
+              <div class="input-group">
+                <label for="profileEmail">ایمیل حساب</label>
+                <input id="profileEmail" name="email" type="email" readonly aria-describedby="profileEmailHelp">
+                <small id="profileEmailHelp" class="profile-help">ایمیل فعلاً از تنظیمات حساب خوانده می‌شه.</small>
+              </div>
+              <p class="profile-message" id="profileMessage" role="status" aria-live="polite"></p>
+              <button type="submit" class="auth-submit-btn profile-save-btn" id="saveProfileBtn"><span>ذخیرهٔ تغییرات</span><span aria-hidden="true">←</span></button>
+            </form>
+          </div>
+
+          <aside class="profile-side-column">
+            <div class="profile-panel profile-account-panel">
+              <div class="profile-panel-heading compact">
+                <div>
+                  <span class="profile-panel-kicker">ACCOUNT</span>
+                  <h3>وضعیت حساب</h3>
+                </div>
+                <span class="profile-panel-icon" aria-hidden="true">⌁</span>
+              </div>
+              <div class="profile-info-row">
+                <span class="profile-info-icon">✓</span>
+                <div><strong>وضعیت ورود</strong><small>حساب متصل است</small></div>
+                <span class="profile-info-value">فعال</span>
+              </div>
+              <div class="profile-info-row">
+                <span class="profile-info-icon">◷</span>
+                <div><strong>عضویت از</strong><small id="profileCreatedAt">در حال بررسی…</small></div>
+              </div>
+              <div class="profile-id-row">
+                <div><span>شناسهٔ کاربری</span><code id="profileUserId">—</code></div>
+                <button type="button" id="copyProfileIdBtn" class="profile-copy-btn" aria-label="کپی شناسه کاربری" title="کپی شناسه">کپی</button>
+              </div>
+              <p class="profile-copy-feedback" id="profileCopyFeedback" role="status" aria-live="polite"></p>
+            </div>
+            <div class="profile-note">
+              <span class="profile-note-icon" aria-hidden="true">✧</span>
+              <div><strong>ماجراجویی ادامه داره</strong><p>این بخش به‌مرور با امکانات شخصی‌سازی بیشتری کامل می‌شه.</p></div>
+            </div>
+          </aside>
         </div>
-        <p class="profile-message" id="profileMessage" role="status" aria-live="polite"></p>
-        <button type="submit" class="auth-submit-btn" id="saveProfileBtn">ذخیرهٔ تغییرات</button>
-      </form>
-      <div class="profile-footer">
-        <span class="profile-status"><span class="profile-status-dot"></span> حساب متصل است</span>
-        <button type="button" class="profile-logout-btn" id="profileLogoutBtn">خروج از حساب</button>
+
+        <div class="profile-footer">
+          <span class="profile-footer-note"><span class="profile-status-dot"></span> نشست امن و فعال</span>
+          <button type="button" class="profile-logout-btn" id="profileLogoutBtn"><span aria-hidden="true">↪</span> خروج از حساب</button>
+        </div>
       </div>
     </section>
   </div>
@@ -219,6 +275,10 @@
     const profileMessage = document.getElementById('profileMessage');
     const profileLogoutBtn = document.getElementById('profileLogoutBtn');
     const saveProfileBtn = document.getElementById('saveProfileBtn');
+    const profileCreatedAt = document.getElementById('profileCreatedAt');
+    const profileUserId = document.getElementById('profileUserId');
+    const copyProfileIdBtn = document.getElementById('copyProfileIdBtn');
+    const profileCopyFeedback = document.getElementById('profileCopyFeedback');
 
     function setMessage(message = '', success = false) {
       if (!authMessage) return;
@@ -286,6 +346,14 @@
         const label = (user.name || user.email || 'R').trim();
         profileAvatar.textContent = Array.from(label)[0]?.toLocaleUpperCase('fa-IR') || 'R';
       }
+      if (profileCreatedAt) {
+        const created = user.$createdAt ? new Date(user.$createdAt) : null;
+        profileCreatedAt.textContent = created && !Number.isNaN(created.getTime())
+          ? new Intl.DateTimeFormat('fa-IR', { year: 'numeric', month: 'long' }).format(created)
+          : 'اطلاعات در دسترس نیست';
+      }
+      if (profileUserId) profileUserId.textContent = user.$id || '—';
+      if (profileCopyFeedback) profileCopyFeedback.textContent = '';
       setProfileMessage('');
       profileModal.classList.add('active');
       profileModal.setAttribute('aria-hidden', 'false');
@@ -307,6 +375,17 @@
         showAuthTab('login');
       });
     }
+
+    copyProfileIdBtn?.addEventListener('click', async () => {
+      const id = profileUserId?.textContent?.trim();
+      if (!id || id === '—') return;
+      try {
+        await navigator.clipboard.writeText(id);
+        if (profileCopyFeedback) profileCopyFeedback.textContent = 'شناسه کپی شد.';
+      } catch {
+        if (profileCopyFeedback) profileCopyFeedback.textContent = 'کپی خودکار در این مرورگر در دسترس نیست.';
+      }
+    });
 
     closeProfileBtn?.addEventListener('click', closeProfile);
     window.addEventListener('click', event => {
