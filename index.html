@@ -151,7 +151,7 @@
 
   <!-- Appwrite Web SDK; only public project configuration is used in the browser. -->
   <script type="module">
-    import { Account, Client, ID } from 'https://cdn.jsdelivr.net/npm/appwrite@17.0.0/+esm';
+    import { Account, Client, ID } from 'https://cdn.jsdelivr.net/npm/appwrite@28.3.0/+esm';
 
     const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
     const APPWRITE_PROJECT_ID = '6ad28bbc0023dee367ab';
@@ -235,7 +235,9 @@
               await account.deleteSession({ sessionId: 'current' });
               window.ryukAppwriteUser = null;
               openAuthBtn.textContent = 'ورود / ثبت‌نام';
-              setMessage('با موفقیت از حساب خارج شد.', true);
+              setMessage('');
+              authModal.classList.remove('active');
+              return;
             } catch (error) {
               setMessage(friendlyError(error));
               authModal.classList.add('active');
@@ -272,7 +274,7 @@
         const user = await refreshAuthState();
         authModal?.classList.remove('active');
         loginForm.reset();
-        setMessage('ورود موفقیت‌آمیز بود.', true);
+        setMessage('');
         if (user) console.info('Signed in to RyukManga with Appwrite.');
       } catch (error) {
         setMessage(friendlyError(error));
@@ -294,7 +296,7 @@
         await refreshAuthState();
         authModal?.classList.remove('active');
         registerForm.reset();
-        setMessage('حساب ساخته شد و وارد شدی.', true);
+        setMessage('');
       } catch (error) {
         setMessage(friendlyError(error));
       } finally {
@@ -303,9 +305,13 @@
     });
 
     // Verify the project endpoint and restore an existing session when the page opens.
-    client.ping().then(() => console.info('Appwrite connection OK.')).catch(error => {
-      console.error('Appwrite connection failed:', error);
-    });
+    if (typeof client.ping === 'function') {
+      client.ping().then(() => console.info('Appwrite connection OK.')).catch(error => {
+        console.error('Appwrite connection failed:', error);
+      });
+    } else {
+      console.info('Appwrite SDK loaded; ping() is not exposed by this SDK build.');
+    }
     await refreshAuthState();
   </script>
 
