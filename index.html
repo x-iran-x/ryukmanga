@@ -162,7 +162,7 @@
       <div class="profile-main">
         <div class="profile-identity">
           <div class="profile-avatar-wrap">
-            <div class="profile-avatar" id="profileAvatar" aria-hidden="true">R</div>
+            <div class="profile-avatar" id="profileAvatar" aria-hidden="true"><img id="profileAvatarImage" alt="" /></div>
             <span class="profile-avatar-online" title="حساب متصل است"></span>
           </div>
           <div class="profile-identity-copy">
@@ -221,9 +221,22 @@
               </div>
               <p class="profile-copy-feedback" id="profileCopyFeedback" role="status" aria-live="polite"></p>
             </div>
+            <section class="profile-panel avatar-picker-panel" aria-labelledby="avatarPickerTitle">
+              <div class="profile-panel-heading compact">
+                <div>
+                  <span class="profile-panel-kicker">MAKE IT YOURS</span>
+                  <h3 id="avatarPickerTitle">آواتار من</h3>
+                </div>
+                <span class="profile-panel-icon" aria-hidden="true">✧</span>
+              </div>
+              <p class="avatar-picker-description">یکی از چهره‌های انیمه‌ای رو انتخاب کن.</p>
+              <div class="avatar-picker-grid" id="avatarPickerGrid" role="group" aria-label="انتخاب آواتار"></div>
+              <p class="avatar-picker-message" id="avatarPickerMessage" role="status" aria-live="polite"></p>
+              <button type="button" class="auth-submit-btn avatar-save-btn" id="saveAvatarBtn">ذخیرهٔ آواتار</button>
+            </section>
             <div class="profile-note">
               <span class="profile-note-icon" aria-hidden="true">✧</span>
-              <div><strong>ماجراجویی ادامه داره</strong><p>این بخش به‌مرور با امکانات شخصی‌سازی بیشتری کامل می‌شه.</p></div>
+              <div><strong>ماجراجویی ادامه داره</strong><p>بعداً می‌تونی امکانات شخصی‌سازی بیشتری هم داشته باشی.</p></div>
             </div>
           </aside>
         </div>
@@ -272,7 +285,24 @@
     const profileName = document.getElementById('profileName');
     const profileEmail = document.getElementById('profileEmail');
     const profileAvatar = document.getElementById('profileAvatar');
+    const profileAvatarImage = document.getElementById('profileAvatarImage');
+    const avatarPickerGrid = document.getElementById('avatarPickerGrid');
+    const avatarPickerMessage = document.getElementById('avatarPickerMessage');
+    const saveAvatarBtn = document.getElementById('saveAvatarBtn');
     const profileMessage = document.getElementById('profileMessage');
+    const AVATAR_PRESETS = [
+      { id: 'ryu', name: 'ریو', seed: 'RyukMangaRyu', background: '24151b' },
+      { id: 'akari', name: 'آکاری', seed: 'RyukMangaAkari', background: '30131b' },
+      { id: 'kaito', name: 'کایتو', seed: 'RyukMangaKaito', background: '171d32' },
+      { id: 'yuki', name: 'یوکی', seed: 'RyukMangaYuki', background: '222033' },
+      { id: 'ren', name: 'رِن', seed: 'RyukMangaRen', background: '2b1719' },
+      { id: 'hina', name: 'هینا', seed: 'RyukMangaHina', background: '2c1b2b' },
+      { id: 'zero', name: 'زِرو', seed: 'RyukMangaZero', background: '171c24' },
+      { id: 'mika', name: 'میکا', seed: 'RyukMangaMika', background: '302018' }
+    ];
+    const DEFAULT_AVATAR_ID = 'ryu';
+    let activeAvatarId = DEFAULT_AVATAR_ID;
+    let selectedAvatarId = DEFAULT_AVATAR_ID;
     const profileLogoutBtn = document.getElementById('profileLogoutBtn');
     const saveProfileBtn = document.getElementById('saveProfileBtn');
     const profileCreatedAt = document.getElementById('profileCreatedAt');
@@ -338,14 +368,54 @@
       profileMessage.classList.toggle('success', success);
     }
 
-    function openProfile(user) {
+    function getAvatarUrl(avatarId) {
+      const avatar = AVATAR_PRESETS.find(item => item.id === avatarId) || AVATAR_PRESETS[0];
+      const seed = encodeURIComponent(avatar.seed);
+      return `https://api.dicebear.com/9.x/adventurer/svg?seed=${seed}&backgroundColor=${avatar.background}&radius=50`;
+    }
+
+    function setProfileAvatar(avatarId) {
+      const avatar = AVATAR_PRESETS.find(item => item.id === avatarId) || AVATAR_PRESETS[0];
+      activeAvatarId = avatar.id;
+      if (profileAvatarImage) {
+        profileAvatarImage.src = getAvatarUrl(avatar.id);
+        profileAvatarImage.alt = `آواتار ${avatar.name}`;
+      }
+      profileAvatar?.classList.remove('is-fallback');
+    }
+
+    function renderAvatarPicker() {
+      if (!avatarPickerGrid) return;
+      avatarPickerGrid.innerHTML = AVATAR_PRESETS.map(avatar => `
+        <button type="button" class="avatar-option${avatar.id === selectedAvatarId ? ' selected' : ''}"
+          data-avatar-id="${avatar.id}" aria-pressed="${avatar.id === selectedAvatarId}"
+          aria-label="انتخاب آواتار ${avatar.name}">
+          <span class="avatar-option-image"><img src="${getAvatarUrl(avatar.id)}" alt="" loading="lazy"></span>
+          <span class="avatar-option-name">${avatar.name}</span>
+          <span class="avatar-option-check" aria-hidden="true">✓</span>
+        </button>
+      `).join('');
+    }
+
+    async function loadAvatarPreference() {
+      try {
+        const prefs = await account.getPrefs();
+        const savedId = prefs?.ryukmangaAvatarId;
+        activeAvatarId = AVATAR_PRESETS.some(item => item.id === savedId) ? savedId : DEFAULT_AVATAR_ID;
+      } catch (error) {
+        console.warn('Could not load RyukManga avatar preference:', error);
+        activeAvatarId = DEFAULT_AVATAR_ID;
+      }
+      selectedAvatarId = activeAvatarId;
+      setProfileAvatar(activeAvatarId);
+      renderAvatarPicker();
+      if (avatarPickerMessage) avatarPickerMessage.textContent = '';
+    }
+
+    async function openProfile(user) {
       if (!user || !profileModal) return;
       if (profileName) profileName.value = user.name || '';
       if (profileEmail) profileEmail.value = user.email || '';
-      if (profileAvatar) {
-        const label = (user.name || user.email || 'R').trim();
-        profileAvatar.textContent = Array.from(label)[0]?.toLocaleUpperCase('fa-IR') || 'R';
-      }
       if (profileCreatedAt) {
         const created = user.$createdAt ? new Date(user.$createdAt) : null;
         profileCreatedAt.textContent = created && !Number.isNaN(created.getTime())
@@ -355,6 +425,7 @@
       if (profileUserId) profileUserId.textContent = user.$id || '—';
       if (profileCopyFeedback) profileCopyFeedback.textContent = '';
       setProfileMessage('');
+      await loadAvatarPreference();
       profileModal.classList.add('active');
       profileModal.setAttribute('aria-hidden', 'false');
     }
@@ -364,11 +435,49 @@
       profileModal?.setAttribute('aria-hidden', 'true');
     }
 
+    avatarPickerGrid?.addEventListener('click', event => {
+      const option = event.target.closest('[data-avatar-id]');
+      if (!option) return;
+      const avatarId = option.dataset.avatarId;
+      if (!AVATAR_PRESETS.some(item => item.id === avatarId)) return;
+      selectedAvatarId = avatarId;
+      setProfileAvatar(selectedAvatarId);
+      renderAvatarPicker();
+      if (avatarPickerMessage) avatarPickerMessage.textContent = 'پیش‌نمایش آواتار انتخاب شد؛ برای ثبت دائمی ذخیره کن.';
+    });
+
+    profileAvatarImage?.addEventListener('error', () => {
+      profileAvatar?.classList.add('is-fallback');
+    });
+
+    saveAvatarBtn?.addEventListener('click', async () => {
+      if (!AVATAR_PRESETS.some(item => item.id === selectedAvatarId)) return;
+      saveAvatarBtn.disabled = true;
+      saveAvatarBtn.textContent = 'در حال ذخیره...';
+      if (avatarPickerMessage) avatarPickerMessage.textContent = '';
+      try {
+        const currentPrefs = await account.getPrefs();
+        await account.updatePrefs({
+          prefs: { ...currentPrefs, ryukmangaAvatarId: selectedAvatarId }
+        });
+        activeAvatarId = selectedAvatarId;
+        if (avatarPickerMessage) avatarPickerMessage.textContent = 'آواتارت با موفقیت ذخیره شد! ✨';
+      } catch (error) {
+        selectedAvatarId = activeAvatarId;
+        setProfileAvatar(activeAvatarId);
+        renderAvatarPicker();
+        if (avatarPickerMessage) avatarPickerMessage.textContent = `ذخیرهٔ آواتار انجام نشد: ${friendlyError(error)}`;
+      } finally {
+        saveAvatarBtn.disabled = false;
+        saveAvatarBtn.textContent = 'ذخیرهٔ آواتار';
+      }
+    });
+
     if (openAuthBtn && authModal) {
       openAuthBtn.addEventListener('click', async () => {
         const user = window.ryukAppwriteUser || await refreshAuthState();
         if (user) {
-          openProfile(user);
+          await openProfile(user);
           return;
         }
         authModal.classList.add('active');
@@ -430,6 +539,8 @@
       profileLogoutBtn.textContent = 'در حال خروج...';
       try {
         await account.deleteSession({ sessionId: 'current' });
+        activeAvatarId = DEFAULT_AVATAR_ID;
+        selectedAvatarId = DEFAULT_AVATAR_ID;
         await refreshAuthState();
         closeProfile();
         setMessage('');
