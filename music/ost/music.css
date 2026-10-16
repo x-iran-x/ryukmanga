@@ -150,3 +150,48 @@
   color: #6d7285;
   font-size: 0.95rem;
 }
+
+
+/* Mobile refinements */
+@media (max-width: 600px) {
+  .back-link {
+    padding-inline: 2px;
+    line-height: 1.8;
+  }
+
+  .filter-track {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filter-btn {
+    padding: 8px 14px;
+    font-size: 0.84rem;
+  }
+
+  .track-card {
+    padding: 12px;
+    min-width: 0;
+  }
+
+  .track-info {
+    min-width: 0;
+    align-items: flex-start;
+  }
+
+  .track-details {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .track-details h4 {
+    font-size: 0.92rem;
+    line-height: 1.7;
+  }
+
+  .audio-player {
+    min-width: 0;
+  }
+}

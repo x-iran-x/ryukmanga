@@ -134,3 +134,53 @@
   color: #6d7285;
   font-size: 0.95rem;
 }
+
+
+/* Mobile refinements */
+@media (max-width: 600px) {
+  .filter-track {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filter-btn {
+    padding: 8px 14px;
+  }
+
+  .manga-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .manga-card {
+    gap: 12px;
+    padding: 10px;
+    min-width: 0;
+  }
+
+  .manga-poster {
+    width: 88px;
+    height: 124px;
+  }
+
+  .manga-info {
+    min-width: 0;
+  }
+
+  .manga-info h3 {
+    font-size: 0.98rem;
+    overflow-wrap: anywhere;
+  }
+
+  .manga-info h4 {
+    font-size: 0.84rem;
+    overflow-wrap: anywhere;
+  }
+
+  .manga-info p {
+    font-size: 0.78rem;
+    line-height: 1.6;
+  }
+}

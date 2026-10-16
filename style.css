@@ -544,3 +544,227 @@ body {
   cursor: not-allowed;
   transform: none;
 }
+
+
+/* ==========================================
+   Responsive layout: tablet and mobile
+   Keeps the existing dark/red visual identity.
+========================================== */
+.nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 4px;
+  min-width: 0;
+}
+
+.nav-links a {
+  display: inline-block;
+  margin: 0;
+  padding: 6px 8px;
+  white-space: nowrap;
+}
+
+.content-container {
+  width: min(100%, 940px);
+}
+
+.manga-grid,
+.anime-grid,
+.mv-grid,
+.music-grid,
+.choice-grid,
+.card-grid {
+  min-width: 0;
+}
+
+img,
+video,
+audio {
+  max-width: 100%;
+}
+
+@media (max-width: 900px) {
+  .navbar {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 18px;
+    padding: 14px 4%;
+  }
+
+  .navbar .logo {
+    font-size: 1.4rem;
+  }
+
+  .nav-links {
+    order: 3;
+    flex: 1 1 100%;
+    width: 100%;
+    gap: 4px;
+  }
+
+  .nav-links a {
+    font-size: 0.88rem;
+    padding: 7px 9px;
+  }
+
+  .nav-actions {
+    gap: 8px;
+  }
+
+  .content-container {
+    margin-top: 26px;
+    padding-inline: 18px;
+  }
+
+  .banner {
+    padding: 28px 20px;
+  }
+
+  .banner h2 {
+    font-size: clamp(1.25rem, 4vw, 1.8rem);
+  }
+
+  .card-grid {
+    padding: 16px 0;
+  }
+}
+
+@media (max-width: 600px) {
+  body {
+    overflow-x: clip;
+  }
+
+  #intro-screen {
+    width: 100%;
+    height: 100dvh;
+  }
+
+  .intro-overlay {
+    padding: 24px;
+  }
+
+  .intro-overlay h1 {
+    font-size: clamp(1.8rem, 9vw, 3rem);
+    letter-spacing: 3px;
+    overflow-wrap: anywhere;
+  }
+
+  .intro-overlay p {
+    max-width: 30ch;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    letter-spacing: 0;
+  }
+
+  .navbar {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .navbar .logo {
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+  }
+
+  .nav-links {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 0 8px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-links a {
+    flex: 0 0 auto;
+    font-size: 0.82rem;
+    padding: 8px 10px;
+  }
+
+  .nav-actions {
+    max-width: 100%;
+  }
+
+  .btn-primary,
+  .btn-login {
+    padding: 9px 12px;
+    font-size: 0.85rem;
+  }
+
+  .search-input {
+    width: 100%;
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  .content-container {
+    margin: 22px auto;
+    padding-inline: 14px;
+  }
+
+  .banner {
+    margin-bottom: 24px;
+    padding: 24px 16px;
+    border-radius: 13px;
+  }
+
+  .banner h2 {
+    font-size: 1.35rem;
+    line-height: 1.5;
+  }
+
+  .banner p {
+    font-size: 0.88rem;
+    line-height: 1.8;
+  }
+
+  .section-title {
+    margin-bottom: 12px;
+    font-size: 1.2rem;
+  }
+
+  .card-news {
+    padding: 16px;
+  }
+
+  .card-news-header {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .card-news-header h3 {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .auth-modal {
+    width: calc(100% - 28px);
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    padding: 28px 18px 20px;
+  }
+
+  .auth-tabs {
+    margin-bottom: 18px;
+  }
+
+  .input-group input {
+    width: 100%;
+    min-width: 0;
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

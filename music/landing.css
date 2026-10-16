@@ -58,3 +58,25 @@
   font-size: 0.85rem;
   line-height: 1.6;
 }
+
+
+/* Mobile refinements */
+@media (max-width: 600px) {
+  .choice-grid {
+    gap: 14px;
+    margin-top: 24px;
+  }
+
+  .choice-card {
+    padding: 28px 18px;
+    min-width: 0;
+  }
+
+  .choice-card h3 {
+    font-size: 1.05rem;
+  }
+
+  .choice-card p {
+    line-height: 1.8;
+  }
+}
