@@ -2,20 +2,30 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>صفحه پیدا نشد</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f1015">
+  <title>۴۰۴ | صفحه پیدا نشد — RyukManga</title>
+  <link rel="icon" type="image/svg+xml" href="/ryuk-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
-    body { margin: 0; background: #0f1015; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; }
-    img { max-width: 80%; height: auto; max-height: 400px; }
-    a { color: #8f94a6; text-decoration: none; font-family: 'Vazirmatn', sans-serif; opacity: 0.7; transition: 0.3s; }
-    a:hover { opacity: 1; color: #ff334b; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; padding: 32px 20px; background: #0f1015; color: #f5f5f7; font-family: 'Vazirmatn', sans-serif; display: grid; place-items: center; }
+    .wrapper { width: min(100%, 760px); display: flex; flex-direction: column; align-items: center; gap: 22px; text-align: center; }
+    img { display: block; width: 100%; max-width: 620px; max-height: 65vh; object-fit: contain; }
+    h1 { margin: 0; font-size: clamp(1.5rem, 4vw, 2.25rem); }
+    p { margin: 0; color: #a7a7b3; }
+    a { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 10px 22px; border-radius: 12px; background: #e11d2e; color: white; text-decoration: none; font-weight: 700; transition: background .2s, transform .2s; }
+    a:hover { background: #ff334b; transform: translateY(-2px); }
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <img src="eror.jpg" alt="404">
+  <main class="wrapper">
+    <img src="/ryuk-404-page-not-found.png" alt="خطای ۴۰۴؛ صفحه پیدا نشد">
+    <h1>این صفحه در قلمرو ریوک پیدا نشد!</h1>
+    <p>آدرس را بررسی کن یا به صفحهٔ اصلی برگرد.</p>
     <a href="/">بازگشت به خانه</a>
-  </div>
-  <script defer src="/_vercel/insights/script.js"></script>
+  </main>
 </body>
 </html>
