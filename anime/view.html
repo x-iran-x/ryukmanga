@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>انیمه | RyukManga</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="view.css">
+</head>
+<body>
+
+  <div id="main-content">
+    <header class="navbar">
+      <div class="logo"><a href="../" style="text-decoration: none; color: inherit;">RYUK<span>MANGA</span></a></div>
+
+      <nav class="nav-links">
+        <a href="../">خانه</a>
+        <a href="../manga/">مانگاها</a>
+        <a href="./" class="active">انیمه‌ها</a>
+        <a href="../top/">برترین‌ها</a>
+        <a href="../forums/">تالارها</a>
+        <a href="../music/">موسیقی</a>
+      </nav>
+    </header>
+
+    <main class="content-container" id="pageContent">
+      <p class="loading-state">در حال بارگذاری...</p>
+    </main>
+  </div>
+
+  <script src="../media-config.js"></script>
+  <script>
+    const pageContent = document.getElementById('pageContent');
+
+    // خواندن شناسه انیمه از آدرس صفحه (مثلاً view.html?id=death-note)
+    const animeId = new URLSearchParams(window.location.search).get('id');
+
+    async function init() {
+      if (!animeId) {
+        pageContent.innerHTML = `<p class="loading-state">شناسه انیمه مشخص نیست.</p>`;
+        return;
+      }
+
+      let list;
+      try {
+        list = await loadAnime();
+      } catch (err) {
+        pageContent.innerHTML = `<p class="loading-state">خطا در بارگذاری (${escapeHtml(err.message)})</p>`;
+        return;
+      }
+
+      const anime = list.find(a => a.slug === animeId);
+      if (!anime) {
+        pageContent.innerHTML = `<p class="loading-state">این انیمه پیدا نشد.</p>`;
+        return;
+      }
+
+      document.title = anime.title + ' | RyukManga';
+      renderPage(anime);
+    }
+
+    function actionsHtml(ep) {
+      return `
+        ${ep.watch ? `<a href="${escapeHtml(mediaUrl(ep.watch))}" target="_blank" rel="noopener" class="chapter-btn read">تماشای آنلاین</a>` : ''}
+        ${ep.download ? `<a href="${escapeHtml(mediaUrl(ep.download))}" target="_blank" rel="noopener" class="chapter-btn download">دانلود</a>` : ''}
+      `;
+    }
+
+    function renderPage(anime) {
+      const genresHtml = (anime.genres || []).map(g => `<span class="genre-tag">${escapeHtml(g)}</span>`).join('');
+
+      const total = anime.episodes_count || anime.episodes.length || 0;
+      const available = new Set(anime.episodes.map(e => e.number)).size;
+      const countText = `${total} قسمت` + (available && available !== total ? ` · ${available} قسمت در دسترس` : '');
+
+      const metaParts = [];
+      if (anime.studio) metaParts.push(`استودیو: ${escapeHtml(anime.studio)}`);
+      if (anime.year) metaParts.push(`سال انتشار: ${escapeHtml(anime.year)}`);
+      if (anime.status) metaParts.push(`وضعیت: ${escapeHtml(anime.status)}`);
+
+      const episodesHtml = anime.episodes.length
+        ? anime.episodes.map(ep => `
+            <div class="chapter-row">
+              <div class="chapter-info">
+                <h4>قسمت ${escapeHtml(ep.number)}
+                  ${ep.quality ? `<span class="episode-tag">${escapeHtml(ep.quality)}</span>` : ''}
+                  ${ep.audio ? `<span class="episode-tag">${escapeHtml(ep.audio)}</span>` : ''}
+                </h4>
+              </div>
+              <div class="chapter-actions">${actionsHtml(ep)}</div>
+            </div>
+          `).join('')
+        : `<p class="empty-state">هنوز قسمتی برای این انیمه اضافه نشده.</p>`;
+
+      pageContent.innerHTML = `
+        <section class="manga-header">
+          <div class="manga-header-cover">
+            ${anime.poster ? `<img src="${escapeHtml(mediaUrl(anime.poster))}" alt="${escapeHtml(anime.title)}">` : '📺'}
+          </div>
+          <div class="manga-header-info">
+            <h1>${escapeHtml(anime.title)}</h1>
+            ${anime.title_fa ? `<h2>${escapeHtml(anime.title_fa)}</h2>` : ''}
+            <div class="genre-tags">${genresHtml}</div>
+            <p class="chapter-count">${countText}</p>
+            ${metaParts.length ? `<p class="manga-meta">${metaParts.join(' · ')}</p>` : ''}
+            ${anime.description ? `<p class="manga-description">${escapeHtml(anime.description)}</p>` : ''}
+          </div>
+        </section>
+
+        <section class="chapters-section">
+          <h3>قسمت‌ها</h3>
+          <div class="chapters-list">${episodesHtml}</div>
+        </section>
+      `;
+    }
+
+    init();
+  </script>
+
+  <script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
