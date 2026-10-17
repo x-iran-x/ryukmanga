@@ -336,3 +336,56 @@
     gap: 12px;
   }
 }
+
+
+/* پخش‌کنندهٔ داخلی انیمه */
+.anime-player {
+  margin-top: 24px;
+  padding: 16px;
+  background: #101116;
+  border: 1px solid #30323d;
+  border-radius: 14px;
+  scroll-margin-top: 18px;
+}
+.anime-player[hidden] { display: none; }
+.anime-player-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.anime-player-heading h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 1rem;
+}
+.anime-player video {
+  display: block;
+  width: 100%;
+  max-height: min(72vh, 720px);
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 10px;
+}
+.player-close {
+  padding: 7px 10px;
+  border: 1px solid #3a3d49;
+  border-radius: 8px;
+  background: transparent;
+  color: #c9ccd8;
+  font: inherit;
+  font-size: .78rem;
+  cursor: pointer;
+}
+.player-note {
+  margin: 10px 0 0;
+  color: #858b9d;
+  font-size: .8rem;
+  line-height: 1.8;
+}
+.chapter-btn.read {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
