@@ -143,8 +143,9 @@
       <form class="auth-form" id="registerForm">
         <p class="auth-description">برای ساخت حساب جدید، اطلاعات زیر رو وارد کن.</p>
         <div class="input-group">
-          <label for="registerName">نام نمایشی</label>
-          <input id="registerName" name="name" type="text" autocomplete="name" maxlength="100" required>
+          <label for="registerName">نام کاربری</label>
+          <input id="registerName" name="username" type="text" autocomplete="username" minlength="3" maxlength="36" pattern="[A-Za-z0-9._-]{3,36}" title="۳ تا ۳۶ نویسه؛ فقط حروف انگلیسی، عدد، نقطه، خط تیره و زیرخط" autocapitalize="none" spellcheck="false" required>
+          <small class="profile-help">۳ تا ۳۶ نویسه؛ فقط حروف انگلیسی، عدد، نقطه (.)، خط تیره (-) و زیرخط (_). نام کاربری تکراری پذیرفته نمی‌شود.</small>
         </div>
         <div class="input-group">
           <label for="registerEmail">ایمیل</label>
@@ -351,7 +352,7 @@
 
     function friendlyError(error) {
       const code = error?.type || error?.code || '';
-      if (code.includes('user_already_exists')) return 'این ایمیل قبلاً ثبت‌نام کرده است؛ وارد حساب شو.';
+      if (code.includes('user_id_already_exists') || code.includes('user_already_exists')) return 'این نام کاربری یا ایمیل قبلاً ثبت شده است؛ نام دیگری انتخاب کن یا وارد حساب شو.';
       if (code.includes('invalid_credentials') || code.includes('user_invalid_credentials')) return 'ایمیل یا رمز عبور درست نیست.';
       if (code.includes('password')) return 'رمز عبور باید حداقل ۸ نویسه داشته باشد.';
       if (code.includes('rate_limit')) return 'درخواست‌ها زیاد شده؛ کمی بعد دوباره تلاش کن.';
@@ -630,13 +631,19 @@
       event.preventDefault();
       setMessage('');
       setBusy(registerForm, true, 'در حال ساخت حساب...');
-      const name = document.getElementById('registerName')?.value.trim();
+      const username = document.getElementById('registerName')?.value.trim();
       const email = document.getElementById('registerEmail')?.value.trim();
       const password = document.getElementById('registerPassword')?.value;
       let accountCreated = false;
       let sessionStarted = false;
       try {
-        await account.create({ userId: ID.unique(), email, password, name });
+        if (!/^[A-Za-z0-9._-]{3,36}$/.test(username || '')) {
+          setMessage('نام کاربری باید ۳ تا ۳۶ نویسه باشد و فقط حروف انگلیسی، عدد، نقطه، خط تیره یا زیرخط داشته باشد.');
+          document.getElementById('registerName')?.focus();
+          return;
+        }
+        // Appwrite enforces userId uniqueness server-side, so duplicate usernames cannot be registered.
+        await account.create({ userId: username, email, password, name: username });
         accountCreated = true;
         await account.createEmailPasswordSession({ email, password });
         sessionStarted = true;
