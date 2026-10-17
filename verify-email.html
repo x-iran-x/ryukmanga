@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f1015">
+  <title>تأیید ایمیل | RyukManga</title>
+  <link rel="icon" type="image/svg+xml" href="/ryuk-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #0f1015; color: #f5f5f7; font-family: Vazirmatn, sans-serif; }
+    main { width: min(100%, 520px); padding: 32px; border: 1px solid #34343f; border-radius: 22px; background: #181820; text-align: center; box-shadow: 0 24px 80px #0005; }
+    .logo { margin: 0 0 20px; font-weight: 900; letter-spacing: .04em; font-size: 1.35rem; direction: ltr; }
+    .logo span { color: #f04455; }
+    h1 { margin: 0 0 12px; font-size: clamp(1.35rem, 5vw, 1.8rem); }
+    p { color: #b9b9c5; line-height: 1.9; }
+    #status { margin: 20px 0; padding: 14px; border-radius: 12px; background: #24242e; }
+    #status[data-state="success"] { color: #86efac; }
+    #status[data-state="error"] { color: #fda4af; }
+    a { display: inline-flex; justify-content: center; align-items: center; min-height: 46px; padding: 10px 22px; border-radius: 12px; background: #e11d2e; color: white; font-weight: 700; text-decoration: none; }
+    a:hover { background: #ff334b; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="logo">RYUK<span>MANGA</span></p>
+    <h1>تأیید ایمیل</h1>
+    <p>برای تکمیل ساخت حساب کاربری RyukManga، وضعیت تأیید ایمیلت را بررسی می‌کنیم.</p>
+    <p id="status" role="status" aria-live="polite">در حال تأیید ایمیل…</p>
+    <a href="/" id="homeLink">بازگشت به سایت</a>
+  </main>
+  <script type="module">
+    import { Account, Client } from 'https://cdn.jsdelivr.net/npm/appwrite@28.3.0/+esm';
+
+    const client = new Client()
+      .setEndpoint('https://fra.cloud.appwrite.io/v1')
+      .setProject('6ad28bbc0023dee367ab');
+    const account = new Account(client);
+    const status = document.getElementById('status');
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get('userId');
+    const secret = params.get('secret');
+
+    function show(message, state) {
+      status.textContent = message;
+      status.dataset.state = state;
+    }
+
+    if (!userId || !secret) {
+      show('لینک تأیید ناقص است یا پارامترهای آن وجود ندارند. از سایت درخواست ارسال دوبارهٔ ایمیل تأیید کن.', 'error');
+    } else {
+      try {
+        await account.updateVerification({ userId, secret });
+        show('ایمیلت با موفقیت تأیید شد! حالا می‌توانی به سایت برگردی و وارد حسابت شوی. ✨', 'success');
+        const cleanUrl = new URL(window.location.href);
+        cleanUrl.search = '';
+        cleanUrl.hash = '';
+        window.history.replaceState({}, '', cleanUrl.pathname);
+      } catch (error) {
+        console.error('RyukManga email verification failed:', error);
+        show('تأیید ایمیل انجام نشد. ممکن است لینک منقضی یا قبلاً استفاده شده باشد؛ از سایت درخواست لینک تازه کن.', 'error');
+      }
+    }
+  </script>
+</body>
+</html>
