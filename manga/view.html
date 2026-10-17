@@ -66,11 +66,169 @@
     }
 
     function actionsHtml(v) {
+      const readUrl = v.read ? mediaUrl(v.read) : '';
+      const key = progressKey(v);
+      const saved = readUrl ? Number(localStorage.getItem(key) || 0) : 0;
       return `
-        ${v.read ? `<a href="${escapeHtml(mediaUrl(v.read))}" target="_blank" rel="noopener" class="chapter-btn read">مطالعه آنلاین</a>` : ''}
+        ${readUrl ? `<button type="button" data-read-url="${escapeHtml(readUrl)}" data-volume="${escapeHtml(v.number)}" data-progress-key="${escapeHtml(key)}" class="chapter-btn read">${saved > 1 ? `ادامه از صفحه ${saved}` : 'مطالعه آنلاین'}</button>` : ''}
         ${v.download ? `<a href="${escapeHtml(mediaUrl(v.download))}" target="_blank" rel="noopener" class="chapter-btn download">دانلود</a>` : ''}
       `;
     }
+
+    function progressKey(v) {
+      return `ryukmanga:manga:${mangaId}:volume:${v.number}:page`;
+    }
+
+    let pdfJsPromise;
+    function loadPdfJs() {
+      if (!pdfJsPromise) {
+        pdfJsPromise = new Promise((resolve, reject) => {
+          if (window.pdfjsLib) return resolve(window.pdfjsLib);
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+          script.onload = () => {
+            if (!window.pdfjsLib) return reject(new Error('کتابخانه PDF بارگذاری نشد.'));
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            resolve(window.pdfjsLib);
+          };
+          script.onerror = () => reject(new Error('بارگذاری PDF.js ناموفق بود.'));
+          document.head.appendChild(script);
+        });
+      }
+      return pdfJsPromise;
+    }
+
+    function ensureReader() {
+      let reader = document.getElementById('mangaReader');
+      if (reader) return reader;
+      reader = document.createElement('section');
+      reader.id = 'mangaReader';
+      reader.className = 'manga-reader';
+      reader.hidden = true;
+      reader.innerHTML = `
+        <div class="reader-topbar">
+          <div><strong id="readerTitle">مطالعه آنلاین</strong><p id="readerStatus">در حال آماده‌سازی…</p></div>
+          <button type="button" class="reader-close" id="readerClose" aria-label="بستن مطالعه">✕ بستن</button>
+        </div>
+        <div class="reader-toolbar" id="readerToolbar" hidden>
+          <button type="button" id="readerPrev">صفحه قبل</button>
+          <label>صفحه <input id="readerPageInput" type="number" min="1" value="1"> از <span id="readerPageCount">—</span></label>
+          <button type="button" id="readerNext">صفحه بعد</button>
+          <button type="button" id="readerZoomOut" aria-label="کوچک‌نمایی">−</button>
+          <button type="button" id="readerZoomIn" aria-label="بزرگ‌نمایی">+</button>
+        </div>
+        <div class="reader-stage" id="readerStage">
+          <canvas id="readerCanvas" hidden></canvas>
+          <iframe id="readerFrame" title="نمایش فایل مانگا" hidden></iframe>
+        </div>
+        <p class="reader-help" id="readerHelp"></p>
+      `;
+      pageContent.prepend(reader);
+
+      const close = () => {
+        reader.hidden = true;
+        document.body.classList.remove('reader-open');
+        document.getElementById('readerFrame').src = 'about:blank';
+      };
+      document.getElementById('readerClose').addEventListener('click', close);
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && !reader.hidden) close();
+        if (!reader.hidden && event.key === 'ArrowLeft') document.getElementById('readerNext').click();
+        if (!reader.hidden && event.key === 'ArrowRight') document.getElementById('readerPrev').click();
+      });
+      return reader;
+    }
+
+    async function openReader(button) {
+      const reader = ensureReader();
+      const url = button.dataset.readUrl;
+      const key = button.dataset.progressKey;
+      const savedPage = Math.max(1, Number(localStorage.getItem(key) || 1));
+      const status = document.getElementById('readerStatus');
+      const canvas = document.getElementById('readerCanvas');
+      const frame = document.getElementById('readerFrame');
+      const toolbar = document.getElementById('readerToolbar');
+      const help = document.getElementById('readerHelp');
+      const pageInput = document.getElementById('readerPageInput');
+      const pageCount = document.getElementById('readerPageCount');
+      const prev = document.getElementById('readerPrev');
+      const next = document.getElementById('readerNext');
+      const zoomOut = document.getElementById('readerZoomOut');
+      const zoomIn = document.getElementById('readerZoomIn');
+
+      reader.hidden = false;
+      document.body.classList.add('reader-open');
+      reader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('readerTitle').textContent = `جلد ${button.dataset.volume} · ${document.title.replace(' | RyukManga', '')}`;
+      status.textContent = 'در حال باز کردن فایل…';
+      help.textContent = '';
+      canvas.hidden = true;
+      frame.hidden = true;
+      frame.src = 'about:blank';
+      toolbar.hidden = true;
+
+      const looksLikePdf = /\.pdf(?:$|[?#])/i.test(url) || /[?&]format=pdf(?:&|$)/i.test(url);
+      if (!looksLikePdf) {
+        frame.src = url;
+        frame.hidden = false;
+        status.textContent = 'این لینک در نمایشگر داخلی باز شده است.';
+        help.textContent = 'اگر سرویس مقصد اجازه نمایش داخل سایت را ندهد، از لینک دانلود جلد استفاده کن.';
+        return;
+      }
+
+      try {
+        const pdfjs = await loadPdfJs();
+        const pdf = await pdfjs.getDocument({ url }).promise;
+        let pageNumber = Math.min(savedPage, pdf.numPages);
+        let scale = 1.25;
+        pageCount.textContent = pdf.numPages;
+        pageInput.max = pdf.numPages;
+        toolbar.hidden = false;
+        canvas.hidden = false;
+
+        async function renderPage() {
+          status.textContent = `صفحه ${pageNumber} از ${pdf.numPages}`;
+          pageInput.value = pageNumber;
+          prev.disabled = pageNumber <= 1;
+          next.disabled = pageNumber >= pdf.numPages;
+          localStorage.setItem(key, String(pageNumber));
+          button.textContent = `ادامه از صفحه ${pageNumber}`;
+          const page = await pdf.getPage(pageNumber);
+          const viewport = page.getViewport({ scale });
+          const context = canvas.getContext('2d');
+          const ratio = window.devicePixelRatio || 1;
+          canvas.width = Math.floor(viewport.width * ratio);
+          canvas.height = Math.floor(viewport.height * ratio);
+          canvas.style.width = Math.floor(viewport.width) + 'px';
+          canvas.style.height = Math.floor(viewport.height) + 'px';
+          await page.render({ canvasContext: context, viewport: page.getViewport({ scale: scale * ratio }) }).promise;
+        }
+
+        prev.onclick = () => { if (pageNumber > 1) { pageNumber--; renderPage(); } };
+        next.onclick = () => { if (pageNumber < pdf.numPages) { pageNumber++; renderPage(); } };
+        pageInput.onchange = () => {
+          const value = Math.max(1, Math.min(pdf.numPages, Number(pageInput.value) || 1));
+          pageNumber = value;
+          renderPage();
+        };
+        zoomOut.onclick = () => { scale = Math.max(0.5, scale - 0.15); renderPage(); };
+        zoomIn.onclick = () => { scale = Math.min(3, scale + 0.15); renderPage(); };
+        await renderPage();
+      } catch (error) {
+        console.warn('Internal PDF reader fallback:', error);
+        toolbar.hidden = true;
+        canvas.hidden = true;
+        frame.src = url;
+        frame.hidden = false;
+        status.textContent = 'نمایشگر PDF داخلی نتوانست فایل را بخواند؛ تلاش برای نمایش مستقیم…';
+        help.textContent = 'اگر فایل نمایش داده نشد، احتمالاً میزبان فایل اجازه دسترسی مستقیم (CORS) یا نمایش در iframe را نمی‌دهد. لینک دانلود جلد را امتحان کن.';
+      }
+    }
+
+    pageContent.addEventListener('click', event => {
+      const button = event.target.closest('[data-read-url]');
+      if (button) openReader(button);
+    });
 
     function renderPage(manga) {
       const genresHtml = (manga.genres || []).map(g => `<span class="genre-tag">${escapeHtml(g)}</span>`).join('');
