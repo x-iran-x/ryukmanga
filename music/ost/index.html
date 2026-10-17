@@ -14,7 +14,6 @@
   <link rel="stylesheet" href="../../style.css">
   <!-- استایل اختصاصی صفحه موسیقی -->
   <link rel="stylesheet" href="music.css">
-  <link rel="icon" type="image/svg+xml" href="/ryuk-favicon.svg">
 </head>
 <body>
 
@@ -53,32 +52,45 @@
     </main>
   </div>
 
-  <!-- داده‌های موسیقی -->
-  <script src="music-data.js"></script>
+  <script src="../../media-config.js"></script>
 
   <!-- منطق رندر و فیلتر -->
   <script>
     const musicGrid = document.getElementById('musicGrid');
     const filterBar = document.getElementById('filterBar');
+    const searchInput = document.querySelector('.search-input');
 
+    let LIST = [];
     let activeType = 'همه';
+    let searchText = '';
+
+    async function init() {
+      try {
+        LIST = await loadMusic();
+      } catch (err) {
+        musicGrid.innerHTML = `<div class="empty-state">خطا در بارگذاری موسیقی‌ها (${escapeHtml(err.message)})</div>`;
+        return;
+      }
+      renderFilters();
+      renderCards();
+    }
 
     function getAllTypes(list) {
-      const types = new Set(list.map(item => item.type));
+      const types = new Set(list.map(item => item.type).filter(Boolean));
       return ['همه', ...types];
     }
 
     function renderFilters() {
-      const types = getAllTypes(musicList);
+      const types = getAllTypes(LIST);
 
       filterBar.innerHTML = `<div class="filter-indicator" id="filterIndicator"></div>` +
         types.map(type => `
           <button
             type="button"
             class="filter-btn ${type === activeType ? 'active' : ''}"
-            data-type="${type}"
+            data-type="${escapeHtml(type)}"
           >
-            ${type}
+            ${escapeHtml(type)}
           </button>
         `).join('');
 
@@ -104,35 +116,57 @@
 
     window.addEventListener('resize', updateIndicator);
 
-    function renderCards() {
-      const filtered = activeType === 'همه'
-        ? musicList
-        : musicList.filter(item => item.type === activeType);
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        searchText = searchInput.value.trim().toLowerCase();
+        renderCards();
+      });
+    }
 
+    function getFiltered() {
+      return LIST.filter(item => {
+        const typeOk = activeType === 'همه' || item.type === activeType;
+        const textOk = !searchText ||
+          String(item.title || '').toLowerCase().includes(searchText) ||
+          String(item.source || '').toLowerCase().includes(searchText) ||
+          String(item.artist || '').toLowerCase().includes(searchText);
+        return typeOk && textOk;
+      });
+    }
+
+    function renderCards() {
+      if (LIST.length === 0) {
+        musicGrid.innerHTML = `<div class="empty-state">هنوز موسیقی‌ای اضافه نشده.</div>`;
+        return;
+      }
+
+      const filtered = getFiltered();
       if (filtered.length === 0) {
-        musicGrid.innerHTML = `<div class="empty-state">موردی از این نوع پیدا نشد.</div>`;
+        musicGrid.innerHTML = `<div class="empty-state">موردی پیدا نشد.</div>`;
         return;
       }
 
       musicGrid.innerHTML = filtered.map(item => `
         <div class="track-card">
           <div class="track-info">
-            <div class="track-badge">${item.icon}</div>
+            <div class="track-badge">${item.art
+              ? `<img src="${escapeHtml(item.art)}" alt="" loading="lazy">`
+              : escapeHtml(item.icon || '🎧')}</div>
             <div class="track-details">
-              <h4>${item.title}</h4>
-              <span>${item.source}</span>
+              <h4>${escapeHtml(item.title)}</h4>
+              <span>${escapeHtml(item.source || '')}${item.artist ? ' · ' + escapeHtml(item.artist) : ''}</span>
             </div>
           </div>
-          <audio class="audio-player" controls>
-            <source src="${item.audioUrl}" type="audio/mpeg">
-            مرورگر شما از پخش‌کننده صوتی پشتیبانی نمی‌کند.
-          </audio>
+          ${item.audio
+            ? `<audio class="audio-player" controls preload="none" src="${escapeHtml(item.audio)}">
+                 مرورگر شما از پخش‌کننده صوتی پشتیبانی نمی‌کند.
+               </audio>`
+            : `<p class="track-missing">فایل صوتی هنوز اضافه نشده.</p>`}
         </div>
       `).join('');
     }
 
-    renderFilters();
-    renderCards();
+    init();
   </script>
 
   <script defer src="/_vercel/insights/script.js"></script>
