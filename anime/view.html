@@ -65,11 +65,52 @@
       renderPage(anime);
     }
 
+    function isDirectVideo(url) {
+      return /\.(mp4|webm|m3u8)(?:$|[?#])/i.test(String(url || ''));
+    }
+
     function actionsHtml(ep) {
+      const watch = ep.watch ? mediaUrl(ep.watch) : '';
+      const watchAction = watch
+        ? (isDirectVideo(watch)
+          ? `<button type="button" class="chapter-btn read" onclick="playEpisode(this)" data-src="${escapeHtml(watch)}" data-subtitle="${escapeHtml(mediaUrl(ep.subtitle || ''))}" data-label="قسمت ${escapeHtml(ep.number)} · ${escapeHtml(ep.quality || '')}">تماشای آنلاین</button>`
+          : `<a href="${escapeHtml(watch)}" target="_blank" rel="noopener" class="chapter-btn read">تماشا در میزبان</a>`)
+        : '';
       return `
-        ${ep.watch ? `<a href="${escapeHtml(mediaUrl(ep.watch))}" target="_blank" rel="noopener" class="chapter-btn read">تماشای آنلاین</a>` : ''}
+        ${watchAction}
         ${ep.download ? `<a href="${escapeHtml(mediaUrl(ep.download))}" target="_blank" rel="noopener" class="chapter-btn download">دانلود</a>` : ''}
       `;
+    }
+
+    function playEpisode(button) {
+      const player = document.getElementById('animePlayer');
+      const video = document.getElementById('animeVideo');
+      const source = button.dataset.src;
+      const subtitle = button.dataset.subtitle;
+      const label = button.dataset.label || 'پخش انیمه';
+
+      if (!player || !video || !source) return;
+
+      video.pause();
+      video.removeAttribute('src');
+      video.querySelectorAll('source, track').forEach(node => node.remove());
+      video.src = source;
+
+      if (subtitle && /\.vtt(?:$|[?#])/i.test(subtitle)) {
+        const track = document.createElement('track');
+        track.kind = 'subtitles';
+        track.label = 'زیرنویس فارسی';
+        track.srclang = 'fa';
+        track.src = subtitle;
+        track.default = true;
+        video.appendChild(track);
+      }
+
+      document.getElementById('animePlayerTitle').textContent = label;
+      player.hidden = false;
+      player.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      video.load();
+      video.play().catch(() => {});
     }
 
     function renderPage(anime) {
@@ -111,6 +152,17 @@
             ${metaParts.length ? `<p class="manga-meta">${metaParts.join(' · ')}</p>` : ''}
             ${anime.description ? `<p class="manga-description">${escapeHtml(anime.description)}</p>` : ''}
           </div>
+        </section>
+
+        <section id="animePlayer" class="anime-player" hidden aria-label="پخش‌کننده انیمه">
+          <div class="anime-player-heading">
+            <h3 id="animePlayerTitle">پخش انیمه</h3>
+            <button type="button" class="player-close" onclick="document.getElementById('animePlayer').hidden = true; document.getElementById('animeVideo').pause();">بستن پخش‌کننده ✕</button>
+          </div>
+          <video id="animeVideo" controls playsinline preload="metadata">
+            مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
+          </video>
+          <p class="player-note">برای پخش مستقیم، لینک فایل MP4 یا WebM قرار بده. زیرنویس جداگانه باید با فرمت WebVTT (فایل VTT) باشد.</p>
         </section>
 
         <section class="chapters-section">
