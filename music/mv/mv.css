@@ -168,43 +168,32 @@
   font-size: 0.95rem;
 }
 
+/* پخش از یوتیوب/آپارات، تصویر پیش‌نمایش و پیام نبودن ویدیو */
 
-/* Mobile refinements */
-@media (max-width: 600px) {
-  .back-link {
-    padding-inline: 2px;
-    line-height: 1.8;
-  }
+.mv-video-wrap iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
 
-  .filter-track {
-    width: 100%;
-    justify-content: flex-start;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
+.mv-badge {
+  overflow: hidden;
+}
 
-  .filter-btn {
-    padding: 8px 14px;
-    font-size: 0.84rem;
-  }
+.mv-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 
-  .mv-grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
-  }
-
-  .mv-card {
-    min-width: 0;
-    padding: 10px;
-  }
-
-  .mv-info {
-    min-width: 0;
-    flex-wrap: wrap;
-  }
-
-  .mv-info h3,
-  .mv-info p {
-    overflow-wrap: anywhere;
-  }
+.mv-missing {
+  margin: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6d7285;
+  font-size: 0.85rem;
 }
