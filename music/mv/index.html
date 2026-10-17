@@ -14,7 +14,6 @@
   <link rel="stylesheet" href="../../style.css">
   <!-- استایل اختصاصی صفحه موزیک ویدیو -->
   <link rel="stylesheet" href="mv.css">
-  <link rel="icon" type="image/svg+xml" href="/ryuk-favicon.svg">
 </head>
 <body>
 
@@ -49,32 +48,45 @@
     </main>
   </div>
 
-  <!-- داده‌های موزیک ویدیو -->
-  <script src="mv-data.js"></script>
+  <script src="../../media-config.js"></script>
 
   <!-- منطق رندر و فیلتر -->
   <script>
     const mvGrid = document.getElementById('mvGrid');
     const filterBar = document.getElementById('filterBar');
+    const searchInput = document.querySelector('.search-input');
 
+    let LIST = [];
     let activeType = 'همه';
+    let searchText = '';
+
+    async function init() {
+      try {
+        LIST = await loadMv();
+      } catch (err) {
+        mvGrid.innerHTML = `<div class="empty-state">خطا در بارگذاری موزیک ویدیوها (${escapeHtml(err.message)})</div>`;
+        return;
+      }
+      renderFilters();
+      renderCards();
+    }
 
     function getAllTypes(list) {
-      const types = new Set(list.map(item => item.type));
+      const types = new Set(list.map(item => item.type).filter(Boolean));
       return ['همه', ...types];
     }
 
     function renderFilters() {
-      const types = getAllTypes(mvList);
+      const types = getAllTypes(LIST);
 
       filterBar.innerHTML = `<div class="filter-indicator" id="filterIndicator"></div>` +
         types.map(type => `
           <button
             type="button"
             class="filter-btn ${type === activeType ? 'active' : ''}"
-            data-type="${type}"
+            data-type="${escapeHtml(type)}"
           >
-            ${type}
+            ${escapeHtml(type)}
           </button>
         `).join('');
 
@@ -100,37 +112,66 @@
 
     window.addEventListener('resize', updateIndicator);
 
-    function renderCards() {
-      const filtered = activeType === 'همه'
-        ? mvList
-        : mvList.filter(item => item.type === activeType);
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        searchText = searchInput.value.trim().toLowerCase();
+        renderCards();
+      });
+    }
 
+    function getFiltered() {
+      return LIST.filter(item => {
+        const typeOk = activeType === 'همه' || item.type === activeType;
+        const textOk = !searchText ||
+          String(item.title || '').toLowerCase().includes(searchText) ||
+          String(item.source || '').toLowerCase().includes(searchText) ||
+          String(item.artist || '').toLowerCase().includes(searchText);
+        return typeOk && textOk;
+      });
+    }
+
+    function playerHtml(item) {
+      if (item.embed) {
+        return `<iframe src="${escapeHtml(item.embed)}" title="${escapeHtml(item.title)}" loading="lazy" allowfullscreen
+                  allow="accelerometer; encrypted-media; picture-in-picture; fullscreen"></iframe>`;
+      }
+      if (item.video) {
+        return `<video controls preload="metadata" ${item.thumb ? `poster="${escapeHtml(item.thumb)}"` : ''} src="${escapeHtml(item.video)}">
+                  مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
+                </video>`;
+      }
+      return `<p class="mv-missing">ویدیو هنوز اضافه نشده.</p>`;
+    }
+
+    function renderCards() {
+      if (LIST.length === 0) {
+        mvGrid.innerHTML = `<div class="empty-state">هنوز موزیک ویدیویی اضافه نشده.</div>`;
+        return;
+      }
+
+      const filtered = getFiltered();
       if (filtered.length === 0) {
-        mvGrid.innerHTML = `<div class="empty-state">موردی از این نوع پیدا نشد.</div>`;
+        mvGrid.innerHTML = `<div class="empty-state">موردی پیدا نشد.</div>`;
         return;
       }
 
       mvGrid.innerHTML = filtered.map(item => `
         <div class="mv-card">
-          <div class="mv-video-wrap">
-            <video controls preload="metadata">
-              <source src="${item.videoUrl}" type="video/mp4">
-              مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
-            </video>
-          </div>
+          <div class="mv-video-wrap">${playerHtml(item)}</div>
           <div class="mv-info">
-            <div class="mv-badge">${item.icon}</div>
+            <div class="mv-badge">${item.thumb
+              ? `<img src="${escapeHtml(item.thumb)}" alt="" loading="lazy">`
+              : escapeHtml(item.icon || '🎬')}</div>
             <div class="mv-details">
-              <h4>${item.title}</h4>
-              <span>${item.source}</span>
+              <h4>${escapeHtml(item.title)}</h4>
+              <span>${escapeHtml(item.source || '')}${item.artist ? ' · ' + escapeHtml(item.artist) : ''}</span>
             </div>
           </div>
         </div>
       `).join('');
     }
 
-    renderFilters();
-    renderCards();
+    init();
   </script>
 
   <script defer src="/_vercel/insights/script.js"></script>
