@@ -68,7 +68,7 @@
     function actionsHtml(v) {
       const readUrl = v.read ? mediaUrl(v.read) : '';
       const key = progressKey(v);
-      const saved = readUrl ? Number(localStorage.getItem(key) || 0) : 0;
+      const saved = readUrl ? readProgress(key) : 0;
       return `
         ${readUrl ? `<button type="button" data-read-url="${escapeHtml(readUrl)}" data-volume="${escapeHtml(v.number)}" data-progress-key="${escapeHtml(key)}" class="chapter-btn read">${saved > 1 ? `ادامه از صفحه ${saved}` : 'مطالعه آنلاین'}</button>` : ''}
         ${v.download ? `<a href="${escapeHtml(mediaUrl(v.download))}" target="_blank" rel="noopener" class="chapter-btn download">دانلود</a>` : ''}
@@ -77,6 +77,16 @@
 
     function progressKey(v) {
       return `ryukmanga:manga:${mangaId}:volume:${v.number}:page`;
+    }
+
+    function readProgress(key) {
+      try { return Number(localStorage.getItem(key) || 0); }
+      catch (_) { return 0; }
+    }
+
+    function saveProgress(key, page) {
+      try { localStorage.setItem(key, String(page)); }
+      catch (_) { /* Private browsing or storage restrictions: reader still works. */ }
     }
 
     let pdfJsPromise;
@@ -143,7 +153,7 @@
       const reader = ensureReader();
       const url = button.dataset.readUrl;
       const key = button.dataset.progressKey;
-      const savedPage = Math.max(1, Number(localStorage.getItem(key) || 1));
+      const savedPage = Math.max(1, readProgress(key) || 1);
       const status = document.getElementById('readerStatus');
       const canvas = document.getElementById('readerCanvas');
       const frame = document.getElementById('readerFrame');
@@ -191,7 +201,7 @@
           pageInput.value = pageNumber;
           prev.disabled = pageNumber <= 1;
           next.disabled = pageNumber >= pdf.numPages;
-          localStorage.setItem(key, String(pageNumber));
+          saveProgress(key, pageNumber);
           button.textContent = `ادامه از صفحه ${pageNumber}`;
           const page = await pdf.getPage(pageNumber);
           const viewport = page.getViewport({ scale });
