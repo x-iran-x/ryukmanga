@@ -631,7 +631,7 @@
       event.preventDefault();
       setMessage('');
       setBusy(registerForm, true, 'در حال ساخت حساب...');
-      const username = document.getElementById('registerName')?.value.trim();
+      const username = document.getElementById('registerName')?.value.trim().toLowerCase();
       const email = document.getElementById('registerEmail')?.value.trim();
       const password = document.getElementById('registerPassword')?.value;
       let accountCreated = false;
