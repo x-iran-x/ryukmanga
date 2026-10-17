@@ -89,7 +89,8 @@ async function loadAnime() {
       quality: d.quality || '',
       audio: d.audio || '',
       download: d.download_link || '',
-      watch: d.watch_link || ''
+      watch: d.watch_link || '',
+      subtitle: d.subtitle_link || ''
     });
   });
 
