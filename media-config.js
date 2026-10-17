@@ -103,3 +103,46 @@ async function loadAnime() {
     }))
     .sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
 }
+
+// ==========================================
+// موسیقی و موزیک ویدیو
+// ==========================================
+async function loadMusic() {
+  const raw = await fetchCatalogRaw();
+  return (raw.music || [])
+    .filter(entry => entry.data && !entry.data.draft)
+    .map(entry => ({
+      id: entry.id,
+      ...entry.data,
+      art: entry.data.artwork ? mediaUrl(entry.data.artwork) : '',
+      audio: entry.data.audio_link || (entry.data.audio_file ? mediaUrl(entry.data.audio_file) : '')
+    }))
+    .sort((a, b) => String(b.id).localeCompare(String(a.id)));
+}
+
+// لینک یوتیوب یا آپارات رو به آدرس قابل‌نمایش (embed) تبدیل می‌کنه؛ برای بقیه رشته خالی برمی‌گردونه
+function videoEmbedUrl(url) {
+  const u = String(url || '');
+  let m = u.match(/(?:youtube\.com\/watch\?(?:[^#]*&)?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/);
+  if (m) return 'https://www.youtube-nocookie.com/embed/' + m[1];
+  m = u.match(/aparat\.com\/v\/(\w+)/);
+  if (m) return 'https://www.aparat.com/video/video/embed/videohash/' + m[1] + '/vt/frame';
+  return '';
+}
+
+async function loadMv() {
+  const raw = await fetchCatalogRaw();
+  return (raw.mv || [])
+    .filter(entry => entry.data && !entry.data.draft)
+    .map(entry => {
+      const d = entry.data;
+      return {
+        id: entry.id,
+        ...d,
+        thumb: d.thumbnail ? mediaUrl(d.thumbnail) : '',
+        embed: videoEmbedUrl(d.video_link),
+        video: d.video_link || (d.video_file ? mediaUrl(d.video_file) : '')
+      };
+    })
+    .sort((a, b) => String(b.id).localeCompare(String(a.id)));
+}
