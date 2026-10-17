@@ -590,15 +590,41 @@
       const name = document.getElementById('registerName')?.value.trim();
       const email = document.getElementById('registerEmail')?.value.trim();
       const password = document.getElementById('registerPassword')?.value;
+      let accountCreated = false;
+      let sessionStarted = false;
       try {
         await account.create({ userId: ID.unique(), email, password, name });
+        accountCreated = true;
         await account.createEmailPasswordSession({ email, password });
+        sessionStarted = true;
+        await account.createVerification({
+          url: `${window.location.origin}/verify-email.html`
+        });
+        try {
+          await account.deleteSession({ sessionId: 'current' });
+          sessionStarted = false;
+        } catch (logoutError) {
+          console.warn('Could not close the temporary registration session:', logoutError);
+        }
         await refreshAuthState();
-        authModal?.classList.remove('active');
         registerForm.reset();
-        setMessage('');
+        showAuthTab('login');
+        setMessage('حسابت ساخته شد! لینک تأیید به ایمیلت فرستاده شد. ایمیلت را بررسی کن و روی لینک تأیید بزن.', true);
       } catch (error) {
-        setMessage(friendlyError(error));
+        console.error('RyukManga registration/verification error:', error);
+        if (accountCreated) {
+          if (sessionStarted) {
+            try {
+              await account.deleteSession({ sessionId: 'current' });
+            } catch (logoutError) {
+              console.warn('Could not close the registration session:', logoutError);
+            }
+          }
+          await refreshAuthState();
+          setMessage('حساب ساخته شد، اما ارسال ایمیل تأیید کامل نشد. تنظیمات ایمیل و آدرس‌های مجاز در Appwrite را بررسی کن؛ برای ساخت دوبارهٔ حساب از همین ایمیل استفاده نکن.');
+        } else {
+          setMessage(friendlyError(error));
+        }
       } finally {
         setBusy(registerForm, false);
       }
