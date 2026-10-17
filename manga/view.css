@@ -318,3 +318,143 @@
     gap: 12px;
   }
 }
+
+/* ==========================================
+   نمایشگر داخلی مانگا
+========================================== */
+.manga-reader {
+  margin: 22px 0 28px;
+  overflow: hidden;
+  border: 1px solid #30323d;
+  border-radius: 14px;
+  background: #0c0d12;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, .22);
+}
+.manga-reader[hidden],
+.reader-toolbar[hidden],
+.reader-stage [hidden] {
+  display: none !important;
+}
+.reader-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #171820;
+  border-bottom: 1px solid #30323d;
+}
+.reader-topbar strong {
+  display: block;
+  color: #fff;
+}
+.reader-topbar p {
+  margin: 4px 0 0;
+  color: #a4a8b8;
+  font-size: .82rem;
+}
+.reader-close,
+.reader-toolbar button {
+  border: 1px solid #3a3d49;
+  border-radius: 8px;
+  background: #22242e;
+  color: #f5f5f8;
+  padding: 8px 12px;
+  font: inherit;
+  font-size: .84rem;
+  cursor: pointer;
+}
+.reader-close:hover,
+.reader-toolbar button:hover:not(:disabled) {
+  border-color: #ff334b;
+}
+.reader-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  padding: 12px;
+  background: #121319;
+  border-bottom: 1px solid #30323d;
+}
+.reader-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #d6d8e1;
+  font-size: .85rem;
+}
+.reader-toolbar input {
+  width: 66px;
+  border: 1px solid #3a3d49;
+  border-radius: 7px;
+  background: #0c0d12;
+  color: #fff;
+  padding: 7px;
+  font: inherit;
+}
+.reader-toolbar button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+.reader-stage {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 220px;
+  max-height: 78vh;
+  overflow: auto;
+  padding: 18px;
+  background: #08090d;
+}
+#readerCanvas {
+  display: block;
+  max-width: 100%;
+  height: auto !important;
+  box-shadow: 0 4px 22px rgba(0, 0, 0, .4);
+}
+#readerFrame {
+  display: block;
+  width: 100%;
+  height: 72vh;
+  min-height: 420px;
+  border: 0;
+  background: #fff;
+}
+.reader-help {
+  margin: 0;
+  padding: 10px 14px;
+  color: #9297a9;
+  font-size: .82rem;
+  line-height: 1.8;
+}
+body.reader-open {
+  scroll-behavior: smooth;
+}
+@media (max-width: 600px) {
+  .reader-topbar {
+    align-items: flex-start;
+    padding: 12px;
+  }
+  .reader-close {
+    flex-shrink: 0;
+    padding: 7px 9px;
+  }
+  .reader-toolbar {
+    gap: 7px;
+    padding: 10px 7px;
+  }
+  .reader-toolbar button {
+    padding: 7px 9px;
+  }
+  .reader-stage {
+    padding: 8px 3px;
+    max-height: 75vh;
+  }
+  #readerFrame {
+    height: 68vh;
+    min-height: 360px;
+  }
+}
+
