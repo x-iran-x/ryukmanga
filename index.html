@@ -127,6 +127,17 @@
           <input id="loginPassword" name="password" type="password" autocomplete="current-password" required>
         </div>
         <button type="submit" class="auth-submit-btn">ورود</button>
+        <button type="button" class="forgot-password-btn" id="forgotPasswordBtn">رمز عبورم را فراموش کرده‌ام</button>
+      </form>
+
+      <form class="auth-form" id="recoveryForm">
+        <p class="auth-description">ایمیل حسابت را وارد کن تا لینک ساخت رمز عبور جدید برایت ارسال شود.</p>
+        <div class="input-group">
+          <label for="recoveryEmail">ایمیل حساب</label>
+          <input id="recoveryEmail" name="email" type="email" autocomplete="email" required>
+        </div>
+        <button type="submit" class="auth-submit-btn">ارسال لینک بازیابی</button>
+        <button type="button" class="forgot-password-btn" id="recoveryBackBtn">بازگشت به ورود</button>
       </form>
 
       <form class="auth-form" id="registerForm">
@@ -278,6 +289,9 @@
     const registerTab = document.getElementById('registerTab');
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
+    const recoveryForm = document.getElementById('recoveryForm');
+    const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+    const recoveryBackBtn = document.getElementById('recoveryBackBtn');
     const authMessage = document.getElementById('authMessage');
     const profileModal = document.getElementById('profileModal');
     const closeProfileBtn = document.getElementById('closeProfileBtn');
@@ -318,10 +332,12 @@
 
     function showAuthTab(tab) {
       const registering = tab === 'register';
-      loginTab?.classList.toggle('active', !registering);
+      const recovering = tab === 'recovery';
+      loginTab?.classList.toggle('active', !registering && !recovering);
       registerTab?.classList.toggle('active', registering);
-      loginForm?.classList.toggle('active', !registering);
+      loginForm?.classList.toggle('active', !registering && !recovering);
       registerForm?.classList.toggle('active', registering);
+      recoveryForm?.classList.toggle('active', recovering);
       setMessage('');
     }
 
@@ -562,6 +578,33 @@
 
     loginTab?.addEventListener('click', () => showAuthTab('login'));
     registerTab?.addEventListener('click', () => showAuthTab('register'));
+    forgotPasswordBtn?.addEventListener('click', () => {
+      const currentEmail = document.getElementById('loginEmail')?.value.trim() || '';
+      const recoveryEmail = document.getElementById('recoveryEmail');
+      if (recoveryEmail) recoveryEmail.value = currentEmail;
+      showAuthTab('recovery');
+    });
+    recoveryBackBtn?.addEventListener('click', () => showAuthTab('login'));
+
+    recoveryForm?.addEventListener('submit', async event => {
+      event.preventDefault();
+      setMessage('');
+      setBusy(recoveryForm, true, 'در حال ارسال لینک...');
+      const email = document.getElementById('recoveryEmail')?.value.trim();
+      try {
+        await account.createRecovery({
+          email,
+          url: `${window.location.origin}/reset-password.html`
+        });
+        recoveryForm.reset();
+        setMessage('اگر این ایمیل به حسابی متصل باشد، لینک بازیابی برایش ارسال می‌شود. صندوق ورودی و پوشهٔ هرزنامه را بررسی کن.', true);
+      } catch (error) {
+        console.error('RyukManga recovery request failed:', error);
+        setMessage(friendlyError(error));
+      } finally {
+        setBusy(recoveryForm, false);
+      }
+    });
 
     loginForm?.addEventListener('submit', async event => {
       event.preventDefault();
