@@ -230,25 +230,7 @@
       video.querySelectorAll('source, track').forEach(node => node.remove());
       video.load();
 
-      const isDashSource = /\.mpd(?:$|[?#])/i.test(source) || /\/dash\//i.test(source);
-      if (isDashSource && window.dashjs && typeof window.dashjs.MediaPlayer === 'function') {
-        dashPlayer = window.dashjs.MediaPlayer().create();
-        dashPlayer.initialize(video, source, true);
-        dashPlayer.on(window.dashjs.MediaPlayer.events.ERROR, () => {
-          // Some Namasha URLs may be standalone media endpoints rather than DASH manifests.
-          // Try the browser's native playback path as a fallback.
-          if (video.error || video.readyState === 0) {
-            destroyDashPlayer();
-            video.src = source;
-            video.load();
-            video.play().catch(() => {});
-          }
-        });
-      } else {
-        video.src = source;
-      }
-
-      if (subtitle && /\.vtt(?:$|[?#])/i.test(subtitle)) {
+      if (subtitle && /\\.vtt(?:$|[?#])/i.test(subtitle)) {
         const track = document.createElement('track');
         track.kind = 'subtitles';
         track.label = 'زیرنویس فارسی';
@@ -261,8 +243,31 @@
       document.getElementById('animePlayerTitle').textContent = label;
       player.hidden = false;
       player.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      video.load();
-      video.play().catch(() => {});
+
+      const isDashSource = /\\.mpd(?:$|[?#])/i.test(source) || /\\/dash\\//i.test(source);
+      if (isDashSource && window.dashjs && typeof window.dashjs.MediaPlayer === 'function') {
+        dashPlayer = window.dashjs.MediaPlayer().create();
+        dashPlayer.on(window.dashjs.MediaPlayer.events.ERROR, () => {
+          // Some Namasha URLs may be standalone media endpoints rather than DASH manifests.
+          // Try native playback only if dash.js could not attach usable media.
+          if (video.error || video.readyState === 0) {
+            destroyDashPlayer();
+            video.removeAttribute('src');
+            video.src = source;
+            video.load();
+            video.play().catch(() => {});
+          }
+        });
+        // dash.js owns the MediaSource lifecycle; do not call video.load() afterward,
+        // because it can reset the MediaSource that dash.js just attached.
+        dashPlayer.initialize(video, source, true);
+      } else {
+        video.src = source;
+        video.load();
+        video.play().catch(() => {});
+      }
+
+      syncPlayerControls();
     }
 
     function renderPage(anime) {
