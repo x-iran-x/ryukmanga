@@ -389,3 +389,261 @@
   cursor: pointer;
   font: inherit;
 }
+
+
+/* ==========================================
+   RyukManga — cinematic anime page refresh
+========================================== */
+.content-container {
+  width: min(100%, 1120px);
+  margin: 34px auto 64px;
+}
+
+.manga-header {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  gap: clamp(20px, 3vw, 36px);
+  align-items: center;
+  margin: 0 0 28px;
+  padding: clamp(20px, 3.2vw, 36px);
+  background:
+    radial-gradient(ellipse at 8% 10%, rgba(229, 9, 20, .15), transparent 44%),
+    linear-gradient(125deg, #19191f 0%, #111115 62%, #171116 100%);
+  border: 1px solid #2b2b35;
+  border-radius: 22px;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, .22);
+}
+
+.manga-header::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #e50914 28%, #ff5964 50%, transparent);
+  opacity: .9;
+}
+
+.manga-header-cover {
+  width: 190px;
+  height: 270px;
+  border-radius: 14px;
+  background: #20191c;
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 16px 38px rgba(0,0,0,.45), 0 0 0 5px rgba(255,255,255,.025);
+}
+
+.manga-header-cover img {
+  transition: transform .45s ease;
+}
+.manga-header-cover:hover img { transform: scale(1.045); }
+
+.manga-header-info { flex: 1; min-width: 0; }
+.manga-header-info h1 {
+  font-size: clamp(1.65rem, 3.2vw, 2.5rem);
+  line-height: 1.45;
+  letter-spacing: -.4px;
+  text-wrap: balance;
+}
+.manga-header-info h2 {
+  color: #ff5964;
+  margin-top: 2px;
+  margin-bottom: 16px;
+}
+.genre-tags { gap: 8px; margin: 16px 0; }
+.genre-tag {
+  padding: 5px 12px;
+  background: rgba(255,255,255,.035);
+  border-color: #38323a;
+  color: #c7c3ce;
+  transition: border-color .2s, background .2s, color .2s;
+}
+.genre-tag:hover {
+  background: rgba(229,9,20,.1);
+  border-color: rgba(229,9,20,.55);
+  color: #fff;
+}
+.chapter-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 2px 0 0;
+  padding: 7px 12px;
+  background: rgba(229,9,20,.09);
+  border: 1px solid rgba(229,9,20,.2);
+  border-radius: 9px;
+  color: #ffb2b8;
+}
+.manga-meta { margin-top: 14px; line-height: 1.9; }
+.manga-description {
+  max-width: 760px;
+  margin-top: 14px;
+  color: #b9bac7;
+  line-height: 2;
+}
+
+.anime-player {
+  position: relative;
+  margin: 0 0 32px;
+  padding: clamp(12px, 2vw, 22px);
+  background: linear-gradient(145deg, #17171d, #0c0c10 75%);
+  border: 1px solid #34313a;
+  border-radius: 18px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.28);
+}
+.anime-player-heading {
+  margin-bottom: 16px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid #292832;
+}
+.anime-player-heading h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.05rem;
+}
+.anime-player-heading h3::before {
+  content: "";
+  width: 4px;
+  height: 23px;
+  border-radius: 4px;
+  background: #e50914;
+  box-shadow: 0 0 16px rgba(229,9,20,.45);
+}
+.anime-player video {
+  max-height: min(75vh, 780px);
+  border: 1px solid #25252c;
+  border-radius: 12px;
+}
+.player-close {
+  transition: color .2s, border-color .2s, background .2s;
+}
+.player-close:hover {
+  color: #fff;
+  border-color: #e50914;
+  background: rgba(229,9,20,.09);
+}
+
+.chapters-section { margin-top: 32px; }
+.chapters-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  font-size: 1.35rem;
+}
+.chapters-section h3::before {
+  content: "";
+  width: 5px;
+  height: 27px;
+  border-radius: 5px;
+  background: #e50914;
+  box-shadow: 0 0 18px rgba(229,9,20,.32);
+}
+.chapters-list { gap: 12px; }
+.chapter-row {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(105deg, #17171d, #111115);
+  border-color: #2b2b35;
+  border-radius: 13px;
+  padding: 16px 18px;
+  transition: border-color .2s, transform .2s, background .2s, box-shadow .2s;
+}
+.chapter-row::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 3px;
+  background: #e50914;
+  transform: scaleY(0);
+  transition: transform .2s;
+}
+.chapter-row:hover {
+  border-color: rgba(229,9,20,.55);
+  background: linear-gradient(105deg, #1b171c, #131216);
+  transform: translateY(-2px);
+  box-shadow: 0 9px 24px rgba(0,0,0,.17);
+}
+.chapter-row:hover::before { transform: scaleY(1); }
+.chapter-info h4 {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  line-height: 1.9;
+  font-size: .98rem;
+}
+.episode-tag {
+  margin: 0;
+  padding: 3px 9px;
+  background: #222129;
+  border-color: #383540;
+  color: #b9b5c2;
+}
+.chapter-actions { gap: 9px; }
+.chapter-btn {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  border-radius: 9px;
+}
+.chapter-btn.read {
+  background: linear-gradient(135deg, #f01422, #ad0610);
+  box-shadow: 0 5px 14px rgba(229,9,20,.15);
+  transition: transform .2s, box-shadow .2s, filter .2s;
+}
+.chapter-btn.read:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 20px rgba(229,9,20,.28);
+  filter: brightness(1.08);
+}
+.chapter-btn.download {
+  border-color: #45404a;
+  color: #ded9e2;
+  transition: border-color .2s, background .2s, color .2s;
+}
+.chapter-btn.download:hover {
+  border-color: #e50914;
+  background: rgba(229,9,20,.08);
+  color: #fff;
+}
+.empty-state {
+  padding: 42px 20px;
+  background: #121217;
+  border: 1px dashed #34313a;
+  border-radius: 14px;
+}
+
+@media (max-width: 600px) {
+  .content-container { margin: 20px auto 42px; padding-inline: 14px; }
+  .manga-header {
+    gap: 18px;
+    padding: 20px 16px;
+    border-radius: 17px;
+  }
+  .manga-header-cover {
+    width: min(48vw, 170px);
+    border-radius: 12px;
+  }
+  .manga-header-info h1 { font-size: 1.5rem; }
+  .chapter-row { padding: 14px 13px; }
+  .chapter-actions { gap: 8px; }
+  .chapter-btn { min-height: 40px; }
+  .chapters-section h3 { font-size: 1.2rem; }
+  .anime-player { border-radius: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .manga-header-cover img,
+  .genre-tag,
+  .chapter-row,
+  .chapter-row::before,
+  .chapter-btn,
+  .player-close {
+    transition: none !important;
+  }
+}
