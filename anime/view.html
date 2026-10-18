@@ -79,6 +79,129 @@
       }
     }
 
+    function formatPlayerTime(seconds) {
+      if (!Number.isFinite(seconds) || seconds < 0) return '00:00';
+      const value = Math.floor(seconds);
+      const hours = Math.floor(value / 3600);
+      const minutes = Math.floor((value % 3600) / 60);
+      const secs = value % 60;
+      return hours
+        ? `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+        : `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function syncPlayerControls() {
+      const video = document.getElementById('animeVideo');
+      const playButton = document.getElementById('playerPlay');
+      const playIcon = document.getElementById('playerPlayIcon');
+      const playLabel = document.getElementById('playerPlayLabel');
+      const seek = document.getElementById('playerSeek');
+      const current = document.getElementById('playerCurrent');
+      const duration = document.getElementById('playerDuration');
+      const muteButton = document.getElementById('playerMute');
+      const volume = document.getElementById('playerVolume');
+      if (!video || !playButton || !seek) return;
+
+      const playing = !video.paused && !video.ended;
+      playButton.setAttribute('aria-label', playing ? 'توقف موقت' : 'پخش');
+      playButton.title = playing ? 'توقف موقت' : 'پخش';
+      if (playIcon) playIcon.textContent = playing ? 'Ⅱ' : '▶';
+      if (playLabel) playLabel.textContent = playing ? 'توقف' : 'پخش';
+
+      const total = Number.isFinite(video.duration) ? video.duration : 0;
+      const now = Number.isFinite(video.currentTime) ? video.currentTime : 0;
+      seek.max = String(total || 0);
+      seek.value = String(Math.min(now, total || now));
+      seek.style.setProperty('--seek-progress', total ? `${(now / total) * 100}%` : '0%');
+      seek.disabled = !total;
+      if (current) current.textContent = formatPlayerTime(now);
+      if (duration) duration.textContent = formatPlayerTime(total);
+
+      const muted = video.muted || video.volume === 0;
+      if (muteButton) {
+        muteButton.textContent = muted ? '🔇' : '🔊';
+        muteButton.setAttribute('aria-label', muted ? 'فعال کردن صدا' : 'بی‌صدا کردن');
+        muteButton.title = muted ? 'فعال کردن صدا' : 'بی‌صدا کردن';
+      }
+      if (volume && document.activeElement !== volume) volume.value = String(video.muted ? 0 : video.volume);
+    }
+
+    function setupPlayerControls() {
+      const video = document.getElementById('animeVideo');
+      if (!video || video.dataset.controlsReady === 'true') return;
+      video.dataset.controlsReady = 'true';
+
+      ['loadedmetadata', 'durationchange', 'timeupdate', 'play', 'pause', 'ended', 'volumechange', 'seeking', 'seeked', 'progress'].forEach(eventName => {
+        video.addEventListener(eventName, syncPlayerControls);
+      });
+      video.addEventListener('click', togglePlayerPlayback);
+      const seek = document.getElementById('playerSeek');
+      if (seek) {
+        seek.addEventListener('input', () => {
+          if (Number.isFinite(video.duration)) {
+            video.currentTime = Number(seek.value);
+            syncPlayerControls();
+          }
+        });
+      }
+      const volume = document.getElementById('playerVolume');
+      if (volume) {
+        volume.addEventListener('input', () => {
+          video.volume = Number(volume.value);
+          video.muted = video.volume === 0;
+          syncPlayerControls();
+        });
+      }
+      syncPlayerControls();
+    }
+
+    function togglePlayerPlayback() {
+      const video = document.getElementById('animeVideo');
+      if (!video) return;
+      if (video.paused || video.ended) video.play().catch(() => {});
+      else video.pause();
+      syncPlayerControls();
+    }
+
+    function skipPlayer(seconds) {
+      const video = document.getElementById('animeVideo');
+      if (!video || !Number.isFinite(video.duration)) return;
+      video.currentTime = Math.max(0, Math.min(video.duration, video.currentTime + seconds));
+      syncPlayerControls();
+    }
+
+    function togglePlayerMute() {
+      const video = document.getElementById('animeVideo');
+      if (!video) return;
+      video.muted = !video.muted;
+      if (!video.muted && video.volume === 0) video.volume = 0.7;
+      syncPlayerControls();
+    }
+
+    function togglePlayerFullscreen() {
+      const player = document.getElementById('animePlayer');
+      const video = document.getElementById('animeVideo');
+      const target = player && player.querySelector('.player-screen');
+      if (!target) return;
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      } else if (target.requestFullscreen) {
+        target.requestFullscreen().catch(() => {
+          if (video && video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+        });
+      } else if (video && video.webkitEnterFullscreen) {
+        video.webkitEnterFullscreen();
+      }
+    }
+
+    function closeAnimePlayer() {
+      const player = document.getElementById('animePlayer');
+      const video = document.getElementById('animeVideo');
+      if (video) video.pause();
+      destroyDashPlayer();
+      if (player) player.hidden = true;
+    }
+
     function actionsHtml(ep) {
       const watch = ep.watch ? mediaUrl(ep.watch) : '';
       const watchAction = watch
@@ -186,11 +309,32 @@
         <section id="animePlayer" class="anime-player" hidden aria-label="پخش‌کننده انیمه">
           <div class="anime-player-heading">
             <h3 id="animePlayerTitle">پخش انیمه</h3>
-            <button type="button" class="player-close" onclick="document.getElementById('animePlayer').hidden = true; document.getElementById('animeVideo').pause(); if (dashPlayer) { dashPlayer.reset(); dashPlayer = null; }">بستن پخش‌کننده ✕</button>
+            <button type="button" class="player-close" onclick="closeAnimePlayer()">بستن پخش‌کننده ✕</button>
           </div>
-          <video id="animeVideo" controls playsinline preload="metadata">
-            مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
-          </video>
+          <div class="player-screen">
+            <video id="animeVideo" playsinline preload="metadata">
+              مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
+            </video>
+            <div class="player-controls" aria-label="کنترل‌های پخش ویدیو">
+              <div class="player-seek-row">
+                <span id="playerCurrent" class="player-time">00:00</span>
+                <input id="playerSeek" class="player-seek" type="range" min="0" max="0" value="0" step="0.1" aria-label="موقعیت ویدیو" disabled>
+                <span id="playerDuration" class="player-time">00:00</span>
+              </div>
+              <div class="player-toolbar">
+                <div class="player-control-group">
+                  <button id="playerPlay" class="player-control play-control" type="button" onclick="togglePlayerPlayback()" aria-label="پخش" title="پخش"><span id="playerPlayIcon">▶</span><span id="playerPlayLabel">پخش</span></button>
+                  <button class="player-control skip-control" type="button" onclick="skipPlayer(-10)" aria-label="۱۰ ثانیه عقب" title="۱۰ ثانیه عقب">↶<small>۱۰</small></button>
+                  <button class="player-control skip-control" type="button" onclick="skipPlayer(10)" aria-label="۱۰ ثانیه جلو" title="۱۰ ثانیه جلو">↷<small>۱۰</small></button>
+                </div>
+                <div class="player-control-group player-audio-group">
+                  <button id="playerMute" class="player-control icon-control" type="button" onclick="togglePlayerMute()" aria-label="بی‌صدا کردن" title="بی‌صدا کردن">🔊</button>
+                  <input id="playerVolume" class="player-volume" type="range" min="0" max="1" value="1" step="0.05" aria-label="میزان صدا">
+                  <button class="player-control icon-control fullscreen-control" type="button" onclick="togglePlayerFullscreen()" aria-label="تمام‌صفحه" title="تمام‌صفحه">⛶</button>
+                </div>
+              </div>
+            </div>
+          </div>
           <p class="player-note">پخش فایل‌های MP4 و WebM و لینک‌های HLS/DASH پشتیبانی می‌شود؛ زیرنویس جداگانه باید با فرمت WebVTT (فایل VTT) باشد.</p>
         </section>
 
@@ -199,6 +343,7 @@
           <div class="chapters-list">${episodesHtml}</div>
         </section>
       `;
+      setupPlayerControls();
     }
 
     init();
