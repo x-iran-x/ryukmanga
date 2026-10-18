@@ -35,8 +35,10 @@
   </div>
 
   <script src="../media-config.js"></script>
+  <script src="https://cdn.dashjs.org/latest/modern/umd/dash.all.min.js"></script>
   <script>
     const pageContent = document.getElementById('pageContent');
+    let dashPlayer = null;
 
     // خواندن شناسه انیمه از آدرس صفحه (مثلاً view.html?id=death-note)
     const animeId = new URLSearchParams(window.location.search).get('id');
@@ -66,7 +68,15 @@
     }
 
     function isDirectVideo(url) {
-      return /\.(mp4|webm|m3u8)(?:$|[?#])/i.test(String(url || ''));
+      const value = String(url || '');
+      return /\.(mp4|webm|m3u8|mpd)(?:$|[?#])/i.test(value) || /\/dash\/[^?#]+(?:dashinit|\.mpd)(?:$|[?#])/i.test(value);
+    }
+
+    function destroyDashPlayer() {
+      if (dashPlayer) {
+        try { dashPlayer.reset(); } catch (_) {}
+        dashPlayer = null;
+      }
     }
 
     function actionsHtml(ep) {
@@ -91,10 +101,29 @@
 
       if (!player || !video || !source) return;
 
+      destroyDashPlayer();
       video.pause();
       video.removeAttribute('src');
       video.querySelectorAll('source, track').forEach(node => node.remove());
-      video.src = source;
+      video.load();
+
+      const isDashSource = /\.mpd(?:$|[?#])/i.test(source) || /\/dash\//i.test(source);
+      if (isDashSource && window.dashjs && typeof window.dashjs.MediaPlayer === 'function') {
+        dashPlayer = window.dashjs.MediaPlayer().create();
+        dashPlayer.initialize(video, source, true);
+        dashPlayer.on(window.dashjs.MediaPlayer.events.ERROR, () => {
+          // Some Namasha URLs may be standalone media endpoints rather than DASH manifests.
+          // Try the browser's native playback path as a fallback.
+          if (video.error || video.readyState === 0) {
+            destroyDashPlayer();
+            video.src = source;
+            video.load();
+            video.play().catch(() => {});
+          }
+        });
+      } else {
+        video.src = source;
+      }
 
       if (subtitle && /\.vtt(?:$|[?#])/i.test(subtitle)) {
         const track = document.createElement('track');
@@ -157,12 +186,12 @@
         <section id="animePlayer" class="anime-player" hidden aria-label="پخش‌کننده انیمه">
           <div class="anime-player-heading">
             <h3 id="animePlayerTitle">پخش انیمه</h3>
-            <button type="button" class="player-close" onclick="document.getElementById('animePlayer').hidden = true; document.getElementById('animeVideo').pause();">بستن پخش‌کننده ✕</button>
+            <button type="button" class="player-close" onclick="document.getElementById('animePlayer').hidden = true; document.getElementById('animeVideo').pause(); if (dashPlayer) { dashPlayer.reset(); dashPlayer = null; }">بستن پخش‌کننده ✕</button>
           </div>
           <video id="animeVideo" controls playsinline preload="metadata">
             مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
           </video>
-          <p class="player-note">برای پخش مستقیم، لینک فایل MP4 یا WebM قرار بده. زیرنویس جداگانه باید با فرمت WebVTT (فایل VTT) باشد.</p>
+          <p class="player-note">پخش فایل‌های MP4 و WebM و لینک‌های HLS/DASH پشتیبانی می‌شود؛ زیرنویس جداگانه باید با فرمت WebVTT (فایل VTT) باشد.</p>
         </section>
 
         <section class="chapters-section">
