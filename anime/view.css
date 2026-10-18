@@ -647,3 +647,187 @@
     transition: none !important;
   }
 }
+
+
+/* RyukManga custom video controls */
+.player-screen {
+  position: relative;
+  overflow: hidden;
+  background: #050507;
+  border: 1px solid #29252e;
+  border-radius: 13px;
+}
+.player-screen:fullscreen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 0;
+  border-radius: 0;
+  background: #050507;
+  padding: 0;
+}
+.player-screen:fullscreen video {
+  max-height: calc(100vh - 104px);
+  border: 0;
+  border-radius: 0;
+}
+.player-screen video {
+  display: block;
+  width: 100%;
+  max-height: min(75vh, 780px);
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  background: #000;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+}
+.player-controls {
+  position: relative;
+  z-index: 1;
+  padding: 12px 16px 14px;
+  background:
+    linear-gradient(180deg, rgba(24, 22, 29, .98), rgba(13, 13, 17, .99));
+  border-top: 1px solid #292630;
+}
+.player-seek-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  direction: ltr;
+  margin-bottom: 8px;
+}
+.player-time {
+  min-width: 44px;
+  color: #c4c0cb;
+  font: 500 .76rem/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.player-seek,
+.player-volume {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 5px;
+  border-radius: 99px;
+  outline: none;
+  cursor: pointer;
+  background: #393640;
+}
+.player-seek {
+  flex: 1;
+  min-width: 0;
+  background: linear-gradient(to right, #f01422 0 var(--seek-progress, 0%), #393640 var(--seek-progress, 0%) 100%);
+}
+.player-seek:disabled { cursor: default; opacity: .55; }
+.player-seek::-webkit-slider-thumb,
+.player-volume::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #f01422;
+  box-shadow: 0 0 0 3px rgba(240, 20, 34, .16);
+}
+.player-seek::-moz-range-thumb,
+.player-volume::-moz-range-thumb {
+  width: 9px;
+  height: 9px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #f01422;
+  box-shadow: 0 0 0 3px rgba(240, 20, 34, .16);
+}
+.player-toolbar,
+.player-control-group {
+  display: flex;
+  align-items: center;
+}
+.player-toolbar {
+  justify-content: space-between;
+  gap: 12px;
+  direction: ltr;
+}
+.player-control-group { gap: 8px; }
+.player-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 38px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #34313c;
+  border-radius: 9px;
+  background: #201e26;
+  color: #eeeaf2;
+  font: inherit;
+  font-size: .82rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+.player-control:hover {
+  background: #30232a;
+  border-color: #a92b38;
+}
+.player-control:active { transform: scale(.96); }
+.player-control:focus-visible,
+.player-seek:focus-visible,
+.player-volume:focus-visible {
+  outline: 2px solid #ff5964;
+  outline-offset: 3px;
+}
+.play-control {
+  min-width: 88px;
+  border-color: rgba(229, 9, 20, .55);
+  background: linear-gradient(135deg, #e50914, #a40710);
+  color: #fff;
+  font-weight: 700;
+}
+.play-control:hover {
+  background: linear-gradient(135deg, #ff2633, #bf0712);
+  border-color: #ff5964;
+}
+#playerPlayIcon { font-size: .9rem; }
+.skip-control {
+  position: relative;
+  font-size: 1.25rem;
+}
+.skip-control small {
+  margin-inline-start: -4px;
+  font-size: .62rem;
+  font-weight: 700;
+}
+.icon-control {
+  font-size: 1.05rem;
+  padding-inline: 8px;
+}
+.player-audio-group { gap: 9px; }
+.player-volume { width: 88px; }
+.player-volume::-webkit-slider-thumb { width: 10px; height: 10px; }
+.player-volume::-moz-range-thumb { width: 7px; height: 7px; }
+.player-note { margin-top: 12px; }
+.player-seek:disabled { pointer-events: none; }
+
+@media (max-width: 520px) {
+  .player-controls { padding: 10px 10px 12px; }
+  .player-seek-row { gap: 7px; }
+  .player-time { min-width: 38px; font-size: .68rem; }
+  .player-toolbar { gap: 7px; }
+  .player-control-group { gap: 5px; }
+  .player-control { min-width: 34px; height: 34px; padding-inline: 7px; }
+  .play-control { min-width: 68px; gap: 5px; }
+  .player-volume { width: 58px; }
+  .skip-control { font-size: 1.1rem; }
+}
+@media (max-width: 360px) {
+  .player-volume { width: 44px; }
+  .player-control { min-width: 30px; padding-inline: 5px; }
+  .play-control { min-width: 62px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .player-control { transition: none; }
+}
