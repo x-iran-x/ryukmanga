@@ -90,7 +90,11 @@ async function loadAnime() {
       audio: d.audio || '',
       download: d.download_link || '',
       watch: d.watch_link || '',
-      subtitle: d.subtitle_link || ''
+      subtitle: d.subtitle_link || '',
+      intro_start: d.intro_start ?? d.introStart ?? '',
+      intro_end: d.intro_end ?? d.introEnd ?? '',
+      outro_start: d.outro_start ?? d.outroStart ?? '',
+      outro_end: d.outro_end ?? d.outroEnd ?? ''
     });
   });
 
