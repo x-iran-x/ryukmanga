@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="مطالعه مقاله در RyukManga">
+  <title>مطالعه مقاله | RyukManga</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" type="image/svg+xml" href="/ryuk-favicon.svg">
+  <style>
+    .article-page{max-width:900px;margin:38px auto;padding:0 20px 60px}.article-back{display:inline-block;color:#ff6670;text-decoration:none;margin-bottom:22px;font-weight:700}
+    .article-panel{background:#15151c;border:1px solid #292934;border-radius:18px;overflow:hidden}.article-hero{width:100%;max-height:480px;object-fit:cover;display:block;background:#20202a}
+    .article-inner{padding:clamp(20px,5vw,48px)}.article-category{color:#ff6670;font-weight:700}.article-inner h1{font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.7;margin:8px 0 12px}.article-meta{color:#999;font-size:.9rem;margin-bottom:24px}.article-summary{font-size:1.08rem;color:#ccc;border-right:3px solid #e50914;padding-right:16px;line-height:2;margin-bottom:28px}
+    .article-body{font-size:1.04rem;line-height:2.25;color:#e4e4e8;overflow-wrap:anywhere}.article-body p{margin:0 0 1.2em}.article-body h2,.article-body h3{line-height:1.8;margin:1.5em 0 .5em}.article-body ul,.article-body ol{padding-right:1.5em;margin:0 0 1.2em}.article-body a{color:#ff6670;text-decoration:underline}.article-body img{max-width:100%;height:auto;border-radius:10px}.article-body blockquote{border-right:3px solid #555;padding-right:16px;color:#bbb;margin:1.2em 0}
+    .article-state{padding:26px;text-align:center;color:#bbb}.article-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}.article-tag{background:#24242e;color:#ccc;border-radius:99px;padding:5px 11px;font-size:.85rem}
+  </style>
+</head>
+<body>
+  <div id="main-content">
+    <header class="navbar">
+      <div class="logo"><a href="../" style="text-decoration:none;color:inherit">RYUK<span>MANGA</span></a></div>
+      <nav class="nav-links"><a href="../">خانه</a><a href="../manga/">مانگاها</a><a href="../anime/">انیمه‌ها</a><a href="../music/">موسیقی</a><a href="./">مقاله‌ها</a></nav>
+    </header>
+    <main class="article-page">
+      <a class="article-back" href="./">← بازگشت به مقاله‌ها</a>
+      <article id="articleContent" class="article-panel"><p class="article-state">در حال بارگذاری مقاله...</p></article>
+    </main>
+  </div>
+  <script>
+    const CATALOG_URL = 'https://x-iran-x.github.io/ryukmanga-media/catalog.json';
+    const MEDIA_BASE = 'https://x-iran-x.github.io/ryukmanga-media/';
+    const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    function mediaURL(path) {
+      if (!path) return '';
+      if (/^https?:\/\//i.test(path)) return path;
+      return MEDIA_BASE + String(path).replace(/^\/+/, '');
+    }
+    function renderBody(value) {
+      const raw = String(value || '').trim();
+      if (!raw) return '<p>متن این مقاله هنوز وارد نشده است.</p>';
+      // Rich-text values may contain HTML. Keep a small allow-list and remove active content/unsafe attributes.
+      const template = document.createElement('template');
+      template.innerHTML = raw;
+      template.content.querySelectorAll('script,style,iframe,object,embed,form,svg,math').forEach(node => node.remove());
+      template.content.querySelectorAll('*').forEach(node => {
+        [...node.attributes].forEach(attr => {
+          const name = attr.name.toLowerCase();
+          const value = attr.value.trim();
+          if (name.startsWith('on') || name === 'style' || name === 'srcdoc') node.removeAttribute(attr.name);
+          if ((name === 'href' || name === 'src') && /^\s*javascript:/i.test(value)) node.removeAttribute(attr.name);
+          if (name === 'src' && value && !/^https?:\/\//i.test(value) && !value.startsWith('/')) node.setAttribute('src', mediaURL(value));
+        });
+      });
+      if (!template.content.children.length && !/<\w[\s\S]*>/.test(raw)) {
+        return raw.split(/\n{2,}/).map(line => '<p>' + escapeHTML(line).replace(/\n/g,'<br>') + '</p>').join('');
+      }
+      return template.innerHTML;
+    }
+    (async () => {
+      const target = document.getElementById('articleContent');
+      const slug = new URLSearchParams(location.search).get('slug');
+      if (!slug) {
+        target.innerHTML = '<p class="article-state">آدرس مقاله مشخص نیست. از فهرست مقاله‌ها یکی را انتخاب کن.</p>';
+        return;
+      }
+      try {
+        const response = await fetch(CATALOG_URL, {cache:'no-cache'});
+        if (!response.ok) throw new Error('catalog request failed');
+        const catalog = await response.json();
+        const articleEntry = (catalog.articles || []).find(item => item.slug === slug);
+        const article = articleEntry && articleEntry.data;
+        if (!article || article.draft) {
+          target.innerHTML = '<p class="article-state">این مقاله پیدا نشد یا هنوز منتشر نشده است.</p>';
+          return;
+        }
+        document.title = (article.title || 'مقاله') + ' | RyukManga';
+        const cover = article.cover ? '<img class="article-hero" src="' + escapeHTML(mediaURL(article.cover)) + '" alt="" onerror="this.hidden=true">' : '';
+        const category = article.category ? '<span class="article-category">' + escapeHTML(article.category) + '</span>' : '';
+        const author = article.author ? escapeHTML(article.author) : '';
+        const date = article.published_at ? escapeHTML(article.published_at) : '';
+        const meta = [author,date].filter(Boolean).join(' • ');
+        const tags = String(article.tags || '').split(/[,،]/).map(tag => tag.trim()).filter(Boolean).map(tag => '<span class="article-tag">' + escapeHTML(tag) + '</span>').join('');
+        target.innerHTML = cover + '<div class="article-inner">' + category + '<h1>' + escapeHTML(article.title || 'بدون عنوان') + '</h1>' + (meta ? '<p class="article-meta">' + meta + '</p>' : '') + (article.summary ? '<p class="article-summary">' + escapeHTML(article.summary) + '</p>' : '') + '<div class="article-body">' + renderBody(article.body) + '</div>' + (tags ? '<div class="article-tags">' + tags + '</div>' : '') + '</div>';
+      } catch (error) {
+        target.innerHTML = '<p class="article-state">بارگذاری مقاله با خطا مواجه شد. لطفاً کمی بعد دوباره تلاش کن.</p>';
+      }
+    })();
+  </script>
+</body>
+</html>
