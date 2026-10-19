@@ -6,7 +6,7 @@ const MEDIA = {
   owner: 'x-iran-x',
   repo: 'ryukmanga-media',
   branch: 'main',
-  baseUrl: 'https://x-iran-x.github.io/ryukmanga-media/'
+  baseUrl: '/_media/'
 };
 
 // مسیر نسبی (مثل /media/covers/naruto.jpg) رو به آدرس کامل تبدیل می‌کنه.
