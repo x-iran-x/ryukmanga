@@ -292,7 +292,7 @@
       video.querySelectorAll('source, track').forEach(node => node.remove());
       video.load();
 
-      if (subtitle && /\\.vtt(?:$|[?#])/i.test(subtitle)) {
+      if (subtitle && /\.vtt(?:$|[?#])/i.test(subtitle)) {
         const track = document.createElement('track');
         track.kind = 'subtitles';
         track.label = 'زیرنویس فارسی';
@@ -306,7 +306,7 @@
       player.hidden = false;
       player.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-      const isDashSource = /\\.mpd(?:$|[?#])/i.test(source) || /\\/dash\\//i.test(source);
+      const isDashSource = /\.mpd(?:$|[?#])/i.test(source) || /\/dash\//i.test(source);
       if (isDashSource && window.dashjs && typeof window.dashjs.MediaPlayer === 'function') {
         dashPlayer = window.dashjs.MediaPlayer().create();
         dashPlayer.on(window.dashjs.MediaPlayer.events.ERROR, () => {
