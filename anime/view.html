@@ -208,8 +208,8 @@
       if (event.target && event.target.matches('input, textarea, select, button, [contenteditable="true"]')) return;
       switch (event.code) {
         case 'Space': event.preventDefault(); togglePlayerPlayback(); break;
-        case 'ArrowLeft': event.preventDefault(); skipPlayer(5); break;
-        case 'ArrowRight': event.preventDefault(); skipPlayer(-5); break;
+        case 'ArrowLeft': event.preventDefault(); skipPlayer(-5); break;
+        case 'ArrowRight': event.preventDefault(); skipPlayer(5); break;
         case 'KeyM': togglePlayerMute(); break;
         case 'KeyF': togglePlayerFullscreen(); break;
       }
