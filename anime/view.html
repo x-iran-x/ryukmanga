@@ -139,6 +139,8 @@
       video.addEventListener('click', togglePlayerPlayback);
       video.addEventListener('loadedmetadata', restorePlaybackPosition);
       video.addEventListener('timeupdate', savePlaybackPosition);
+      video.addEventListener('timeupdate', syncSkipButtons);
+      video.addEventListener('loadedmetadata', syncSkipButtons);
       video.addEventListener('ratechange', syncPlaybackRate);
       const seek = document.getElementById('playerSeek');
       if (seek) {
@@ -266,13 +268,41 @@
       const watch = ep.watch ? mediaUrl(ep.watch) : '';
       const watchAction = watch
         ? (isDirectVideo(watch)
-          ? `<button type="button" class="chapter-btn read" onclick="playEpisode(this)" data-src="${escapeHtml(watch)}" data-subtitle="${escapeHtml(mediaUrl(ep.subtitle || ''))}" data-label="قسمت ${escapeHtml(ep.number)} · ${escapeHtml(ep.quality || '')}">تماشای آنلاین</button>`
+          ? `<button type="button" class="chapter-btn read" onclick="playEpisode(this)" data-src="${escapeHtml(watch)}" data-subtitle="${escapeHtml(mediaUrl(ep.subtitle || ''))}" data-label="قسمت ${escapeHtml(ep.number)} · ${escapeHtml(ep.quality || '')}" data-intro-start="${escapeHtml(ep.intro_start ?? '')}" data-intro-end="${escapeHtml(ep.intro_end ?? '')}" data-outro-start="${escapeHtml(ep.outro_start ?? '')}" data-outro-end="${escapeHtml(ep.outro_end ?? '')}">تماشای آنلاین</button>`
           : `<a href="${escapeHtml(watch)}" target="_blank" rel="noopener" class="chapter-btn read">تماشا در میزبان</a>`)
         : '';
       return `
         ${watchAction}
         ${ep.download ? `<a href="${escapeHtml(mediaUrl(ep.download))}" target="_blank" rel="noopener" class="chapter-btn download">دانلود</a>` : ''}
       `;
+    }
+
+    let activeSkipSegments = { intro: null, outro: null };
+
+    function parseSkipSegment(start, end) {
+      const from = Number(start), to = Number(end);
+      return start !== '' && end !== '' && Number.isFinite(from) && Number.isFinite(to) && from >= 0 && to > from
+        ? { start: from, end: to } : null;
+    }
+
+    function syncSkipButtons() {
+      const video = document.getElementById('animeVideo');
+      if (!video) return;
+      const now = video.currentTime || 0;
+      [['intro', 'skipIntroButton'], ['outro', 'skipOutroButton']].forEach(([key, id]) => {
+        const button = document.getElementById(id);
+        const segment = activeSkipSegments[key];
+        if (button) button.hidden = !segment || now < segment.start || now >= segment.end;
+      });
+    }
+
+    function skipSegment(key) {
+      const video = document.getElementById('animeVideo');
+      const segment = activeSkipSegments[key];
+      if (!video || !segment) return;
+      video.currentTime = Math.min(Number.isFinite(video.duration) ? video.duration : segment.end, segment.end);
+      syncSkipButtons();
+      syncPlayerControls();
     }
 
     function playEpisode(button) {
@@ -283,6 +313,11 @@
       resumePromptShown = false;
       const subtitle = button.dataset.subtitle;
       const label = button.dataset.label || 'پخش انیمه';
+      activeSkipSegments = {
+        intro: parseSkipSegment(button.dataset.introStart || '', button.dataset.introEnd || ''),
+        outro: parseSkipSegment(button.dataset.outroStart || '', button.dataset.outroEnd || '')
+      };
+      syncSkipButtons();
 
       if (!player || !video || !source) return;
 
@@ -382,6 +417,8 @@
             <video id="animeVideo" playsinline preload="metadata">
               مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
             </video>
+            <button id="skipIntroButton" class="skip-segment-button" type="button" onclick="skipSegment('intro')" hidden>رد کردن اینترو ⏭</button>
+            <button id="skipOutroButton" class="skip-segment-button" type="button" onclick="skipSegment('outro')" hidden>رد کردن اوترو ⏭</button>
             <div class="player-controls" aria-label="کنترل‌های پخش ویدیو">
               <div class="player-seek-row">
                 <span id="playerCurrent" class="player-time">00:00</span>
