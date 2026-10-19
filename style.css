@@ -1320,3 +1320,23 @@ audio {
 @media (prefers-reduced-motion: reduce) {
   .avatar-option, .avatar-option-check { transition: none; }
 }
+
+
+/* مقاله‌های مدیریت‌شده از پنل */
+.article-card-cover {
+  display: block;
+  width: 100%;
+  max-height: 240px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  margin: -20px -24px 16px;
+  width: calc(100% + 48px);
+  background: #20202a;
+}
+.articles-loading,
+.articles-empty {
+  color: #aaa;
+  line-height: 1.9;
+  padding: 20px;
+  text-align: center;
+}
