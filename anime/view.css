@@ -831,3 +831,7 @@
 @media (prefers-reduced-motion: reduce) {
   .player-control { transition: none; }
 }
+
+
+/* Playback enhancements */
+.player-speed-wrap{display:inline-flex;align-items:center;gap:5px;color:#c4c0cb;font-size:.72rem;white-space:nowrap}.player-speed{max-width:82px;height:34px;padding:0 6px;border:1px solid #34313c;border-radius:8px;background:#201e26;color:#eeeaf2;font:inherit;cursor:pointer}.player-speed:focus-visible{outline:2px solid #ff5964;outline-offset:3px}.subtitle-control{min-width:38px;font-weight:800;font-size:.78rem}.subtitle-control.is-active{color:#fff;background:#a40710;border-color:#ff5964}@media(max-width:520px){.player-speed-wrap{gap:3px}.player-speed{max-width:70px;padding-inline:3px}}
