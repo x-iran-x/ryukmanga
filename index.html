@@ -694,7 +694,7 @@
           const summary = String(article.summary || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
           const category = String(article.category || 'مقاله').replace(/[&<>"']/g, '');
           const cover = String(article.cover || '');
-          const image = cover ? '<img class="article-card-cover" loading="lazy" src="' + ( /^https?:\\/\\//i.test(cover) ? cover : 'https://x-iran-x.github.io/ryukmanga-media/' + cover.replace(/^\\/+/, '') ) + '" alt="" onerror="this.hidden=true">' : '';
+          const image = cover ? '<img class="article-card-cover" loading="lazy" src="' + ( (cover.startsWith('http://') || cover.startsWith('https://')) ? cover : 'https://x-iran-x.github.io/ryukmanga-media/' + cover.replace(/^\\/+/, '') ) + '" alt="" onerror="this.hidden=true">' : '';
           return '<article class="card-news">' + image + '<div class="card-news-content"><small>' + category + '</small><h3>' + title + '</h3><p>' + summary + '</p><a class="read-more" href="articles/view.html?slug=' + encodeURIComponent(article.slug || '') + '">بیشتر بخوانید</a></div></article>';
         }).join('');
       } catch (error) {
