@@ -42,6 +42,7 @@
         <a href="top/">برترین‌ها</a>
         <a href="forums/">تالارها</a>
         <a href="music/">موسیقی</a>
+        <a href="articles/">مقاله‌ها</a>
       </nav>
 
       <!-- دکمه‌ای که جاوااسکریپت برای بازکردن مدال به آن نیاز دارد -->
@@ -64,17 +65,9 @@
       <!-- بخش عناوین و گرید -->
       <h2 class="section-title">مقالات و اخبار داغ</h2>
 
-      <div class="card-grid">
-
-        <!-- پست اول -->
-        <article class="card-news">
-          <div class="card-news-content">
-            <h3>نقد و بررسی مانگای جدید Chainsaw Man</h3>
-            <p>در این مقاله به بررسی اتفاقات چپتر ۱۵۰ می‌پردازیم...</p>
-            <a href="posts/chainsaw-man-review.html" class="read-more">
-              بیشتر بخوانید
-            </a>
-          </div>
+      <div class="card-grid" id="featuredArticles" aria-live="polite">
+        <p class="articles-loading">در حال دریافت مقاله‌ها...</p>
+      </div>
         </article>
 
         <!-- پست دوم -->
@@ -692,6 +685,37 @@
   </script>
 
   <script defer src="/_vercel/insights/script.js"></script>
+
+
+  <script>
+    (async function loadFeaturedArticles() {
+      const target = document.getElementById('featuredArticles');
+      if (!target) return;
+      try {
+        const response = await fetch('https://x-iran-x.github.io/ryukmanga-media/catalog.json', { cache: 'no-cache' });
+        if (!response.ok) throw new Error('catalog unavailable');
+        const catalog = await response.json();
+        const articles = (catalog.articles || []).map(item => ({ slug: item.slug, ...(item.data || {}) }))
+          .filter(article => article.title && !article.draft)
+          .sort((a, b) => String(b.published_at || '').localeCompare(String(a.published_at || '')))
+          .slice(0, 4);
+        if (!articles.length) {
+          target.innerHTML = '<p class="articles-empty">هنوز مقاله‌ای منتشر نشده. به‌زودی مطالب تازه اینجا قرار می‌گیرند.</p>';
+          return;
+        }
+        target.innerHTML = articles.map(article => {
+          const title = String(article.title || 'بدون عنوان').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+          const summary = String(article.summary || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+          const category = String(article.category || 'مقاله').replace(/[&<>"']/g, '');
+          const cover = String(article.cover || '');
+          const image = cover ? '<img class="article-card-cover" loading="lazy" src="' + ( /^https?:\\/\\//i.test(cover) ? cover : 'https://x-iran-x.github.io/ryukmanga-media/' + cover.replace(/^\\/+/, '') ) + '" alt="" onerror="this.hidden=true">' : '';
+          return '<article class="card-news">' + image + '<div class="card-news-content"><small>' + category + '</small><h3>' + title + '</h3><p>' + summary + '</p><a class="read-more" href="articles/view.html?slug=' + encodeURIComponent(article.slug || '') + '">بیشتر بخوانید</a></div></article>';
+        }).join('');
+      } catch (error) {
+        target.innerHTML = '<p class="articles-empty">دریافت مقاله‌ها موقتاً ممکن نیست. لطفاً بعداً دوباره تلاش کنید.</p>';
+      }
+    })();
+  </script>
 
 </body>
 </html>
