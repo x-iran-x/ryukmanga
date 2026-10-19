@@ -39,6 +39,8 @@
   <script>
     const pageContent = document.getElementById('pageContent');
     let dashPlayer = null;
+    let activeEpisodeKey = '';
+    let resumePromptShown = false;
 
     // خواندن شناسه انیمه از آدرس صفحه (مثلاً view.html?id=death-note)
     const animeId = new URLSearchParams(window.location.search).get('id');
@@ -135,6 +137,9 @@
         video.addEventListener(eventName, syncPlayerControls);
       });
       video.addEventListener('click', togglePlayerPlayback);
+      video.addEventListener('loadedmetadata', restorePlaybackPosition);
+      video.addEventListener('timeupdate', savePlaybackPosition);
+      video.addEventListener('ratechange', syncPlaybackRate);
       const seek = document.getElementById('playerSeek');
       if (seek) {
         seek.addEventListener('input', () => {
@@ -154,6 +159,61 @@
       }
       syncPlayerControls();
     }
+
+    function savePlaybackPosition() {
+      const video = document.getElementById('animeVideo');
+      if (!video || !activeEpisodeKey || !Number.isFinite(video.currentTime) || video.currentTime < 3) return;
+      try { localStorage.setItem(activeEpisodeKey, JSON.stringify({ time: video.currentTime })); } catch (_) {}
+    }
+
+    function restorePlaybackPosition() {
+      const video = document.getElementById('animeVideo');
+      if (!video || !activeEpisodeKey || resumePromptShown || !Number.isFinite(video.duration) || video.duration <= 0) return;
+      let saved;
+      try { saved = JSON.parse(localStorage.getItem(activeEpisodeKey) || 'null'); } catch (_) { saved = null; }
+      if (!saved || !Number.isFinite(saved.time) || saved.time < 10 || saved.time > video.duration - 15) return;
+      resumePromptShown = true;
+      if (window.confirm('ادامهٔ پخش از ' + formatPlayerTime(saved.time) + '؟')) video.currentTime = Math.min(saved.time, video.duration - 1);
+    }
+
+    function changePlaybackRate(rate) {
+      const video = document.getElementById('animeVideo');
+      if (video) video.playbackRate = Number(rate) || 1;
+      syncPlaybackRate();
+    }
+
+    function syncPlaybackRate() {
+      const video = document.getElementById('animeVideo');
+      const select = document.getElementById('playerSpeed');
+      if (video && select) select.value = String(video.playbackRate || 1);
+    }
+
+    function toggleSubtitles() {
+      const video = document.getElementById('animeVideo');
+      const button = document.getElementById('playerSubtitles');
+      if (!video || !button) return;
+      const tracks = Array.from(video.textTracks || []);
+      if (!tracks.length) { button.title = 'برای این قسمت زیرنویس موجود نیست'; return; }
+      const enabled = tracks.some(track => track.mode === 'showing');
+      tracks.forEach(track => { track.mode = enabled ? 'disabled' : 'showing'; });
+      button.setAttribute('aria-pressed', String(!enabled));
+      button.classList.toggle('is-active', !enabled);
+      button.title = enabled ? 'فعال کردن زیرنویس' : 'خاموش کردن زیرنویس';
+    }
+
+    document.addEventListener('keydown', event => {
+      const player = document.getElementById('animePlayer');
+      const video = document.getElementById('animeVideo');
+      if (!player || player.hidden || !video || event.ctrlKey || event.altKey || event.metaKey) return;
+      if (event.target && event.target.matches('input, textarea, select, button, [contenteditable="true"]')) return;
+      switch (event.code) {
+        case 'Space': event.preventDefault(); togglePlayerPlayback(); break;
+        case 'ArrowLeft': event.preventDefault(); skipPlayer(5); break;
+        case 'ArrowRight': event.preventDefault(); skipPlayer(-5); break;
+        case 'KeyM': togglePlayerMute(); break;
+        case 'KeyF': togglePlayerFullscreen(); break;
+      }
+    });
 
     function togglePlayerPlayback() {
       const video = document.getElementById('animeVideo');
@@ -219,6 +279,8 @@
       const player = document.getElementById('animePlayer');
       const video = document.getElementById('animeVideo');
       const source = button.dataset.src;
+      activeEpisodeKey = 'ryukmanga-progress:' + source;
+      resumePromptShown = false;
       const subtitle = button.dataset.subtitle;
       const label = button.dataset.label || 'پخش انیمه';
 
@@ -334,6 +396,8 @@
                 </div>
                 <div class="player-control-group player-audio-group">
                   <button id="playerMute" class="player-control icon-control" type="button" onclick="togglePlayerMute()" aria-label="بی‌صدا کردن" title="بی‌صدا کردن">🔊</button>
+                  <label class="player-speed-wrap" title="سرعت پخش"><span>سرعت</span><select id="playerSpeed" class="player-speed" aria-label="سرعت پخش" onchange="changePlaybackRate(this.value)"><option value="0.75">۰٫۷۵×</option><option value="1" selected>۱×</option><option value="1.25">۱٫۲۵×</option><option value="1.5">۱٫۵×</option><option value="1.75">۱٫۷۵×</option><option value="2">۲×</option></select></label>
+                  <button id="playerSubtitles" class="player-control icon-control subtitle-control" type="button" onclick="toggleSubtitles()" aria-label="روشن یا خاموش کردن زیرنویس" title="روشن یا خاموش کردن زیرنویس" aria-pressed="false">CC</button>
                   <input id="playerVolume" class="player-volume" type="range" min="0" max="1" value="1" step="0.05" aria-label="میزان صدا">
                   <button class="player-control icon-control fullscreen-control" type="button" onclick="togglePlayerFullscreen()" aria-label="تمام‌صفحه" title="تمام‌صفحه">⛶</button>
                 </div>
