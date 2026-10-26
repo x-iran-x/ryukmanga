@@ -18,8 +18,8 @@ collections:
     extension: json
     format: json
     create: true
-    slug: "{{primary}}"
-    identifier_field: title
+    slug: "{{slug}}"
+    identifier_field: slug
     summary: "{{title}} — {{title_fa}}"
     fields:
       - { name: cover, label: "تصویر جلد", widget: image, required: true, media_folder: /media/covers, public_folder: /media/covers }
