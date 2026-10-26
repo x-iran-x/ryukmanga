@@ -22,7 +22,7 @@ collections:
     identifier_field: slug
     summary: "{{title}} — {{title_fa}}"
     fields:
-      - { name: cover, label: "تصویر جلد", widget: image, required: true, media_folder: /media/covers, public_folder: /media/covers }
+      - { name: slug, label: "شناسه انگلیسی فایل", widget: string, required: true, pattern: ['^[a-z0-9]+(?:-[a-z0-9]+)*
       - { name: title, label: "نام انگلیسی", widget: string, required: true }
       - { name: title_fa, label: "نام فارسی", widget: string, required: true }
       - { name: volumes_count, label: "تعداد جلدها", widget: number, required: false }
@@ -41,7 +41,7 @@ collections:
     fields:
       - { name: manga, label: "شناسه فایل مانگا", widget: string, required: true }
       - { name: number, label: "شماره جلد", widget: number, required: true }
-      - { name: download_file, label: "فایل PDF/ZIP", widget: file, required: false, media_folder: /media/files, public_folder: /media/files }
+      - { name: download_file, label: "فایل PDF/ZIP", widget: file, required: false, media_folder: media/files, public_folder: /media/files }
       - { name: download_link, label: "لینک دانلود خارجی", widget: string, required: false }
       - { name: read_link, label: "لینک مطالعه آنلاین", widget: string, required: false }
   - name: anime
@@ -54,7 +54,7 @@ collections:
     identifier_field: title
     summary: "{{title}} — {{title_fa}}"
     fields:
-      - { name: poster, label: "پوستر", widget: image, required: true, media_folder: /media/posters, public_folder: /media/posters }
+      - { name: slug, label: "شناسه انگلیسی فایل", widget: string, required: true, pattern: ['^[a-z0-9]+(?:-[a-z0-9]+)*
       - { name: title, label: "نام انگلیسی", widget: string, required: true }
       - { name: title_fa, label: "نام فارسی", widget: string, required: true }
       - { name: episodes_count, label: "تعداد قسمت‌ها", widget: number, required: false }
@@ -95,9 +95,9 @@ collections:
       - { name: source, label: "منبع", widget: string, required: true }
       - { name: artist, label: "خواننده / آهنگساز", widget: string, required: false }
       - { name: type, label: "نوع", widget: select, options: ["OST", "اوپنینگ", "اندینگ", "اینسرت سانگ"], required: true }
-      - { name: artwork, label: "تصویر کاور", widget: image, required: false, media_folder: /media/artwork, public_folder: /media/artwork }
+      - { name: artwork, label: "تصویر کاور", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
       - { name: icon, label: "ایموجی جایگزین", widget: string, required: false }
-      - { name: audio_file, label: "فایل صوتی", widget: file, required: false, media_folder: /media/audio, public_folder: /media/audio }
+      - { name: audio_file, label: "فایل صوتی", widget: file, required: false, media_folder: media/audio, public_folder: /media/audio }
       - { name: audio_link, label: "لینک مستقیم صوت", widget: string, required: false }
       - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
   - name: mv
@@ -112,10 +112,10 @@ collections:
       - { name: source, label: "منبع", widget: string, required: true }
       - { name: artist, label: "خواننده", widget: string, required: false }
       - { name: type, label: "نوع", widget: select, options: ["اوپنینگ", "اندینگ", "موزیک ویدیو"], required: true }
-      - { name: thumbnail, label: "تصویر پیش‌نمایش", widget: image, required: false, media_folder: /media/artwork, public_folder: /media/artwork }
+      - { name: thumbnail, label: "تصویر پیش‌نمایش", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
       - { name: icon, label: "ایموجی جایگزین", widget: string, required: false }
       - { name: video_link, label: "لینک ویدیو", widget: string, required: false }
-      - { name: video_file, label: "فایل ویدیو", widget: file, required: false, media_folder: /media/videos, public_folder: /media/videos }
+      - { name: video_file, label: "فایل ویدیو", widget: file, required: false, media_folder: media/videos, public_folder: /media/videos }
       - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
   - name: articles
     label: "مقاله‌ها و اخبار | Articles"
@@ -131,7 +131,326 @@ collections:
       - { name: title, label: "عنوان مقاله", widget: string, required: true }
       - { name: slug, label: "شناسه انگلیسی آدرس", widget: string, required: true, pattern: ['^[a-z0-9]+(?:-[a-z0-9]+)*$', 'فقط حروف کوچک انگلیسی، عدد و خط تیره'] }
       - { name: summary, label: "خلاصه مقاله", widget: text, required: true }
-      - { name: cover, label: "تصویر کاور", widget: image, required: false, media_folder: /media/artwork, public_folder: /media/artwork }
+      - { name: cover, label: "تصویر کاور", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
+      - { name: category, label: "دسته‌بندی", widget: select, options: ["اخبار", "نقد و بررسی", "معرفی", "راهنما", "تحلیل"], required: false }
+      - { name: tags, label: "برچسب‌ها", widget: list, required: false }
+      - { name: author, label: "نویسنده", widget: string, required: false }
+      - { name: published_at, label: "تاریخ انتشار", widget: datetime, date_format: "YYYY-MM-DD", time_format: false, required: false }
+      - { name: body, label: "متن کامل مقاله", widget: markdown, required: true }
+      - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
+, 'فقط حروف کوچک انگلیسی، عدد و خط تیره'] }
+      - { name: cover, label: "تصویر جلد", widget: image, required: true, media_folder: media/covers, public_folder: /media/covers }
+      - { name: title, label: "نام انگلیسی", widget: string, required: true }
+      - { name: title_fa, label: "نام فارسی", widget: string, required: true }
+      - { name: volumes_count, label: "تعداد جلدها", widget: number, required: false }
+      - { name: genres, label: "ژانر", widget: select, multiple: true, options: ["اکشن", "ماجراجویی", "کمدی", "درام", "فانتزی", "ترسناک", "عاشقانه", "علمی‌تخیلی", "ورزشی", "رازآلود", "روانشناختی", "ماورایی", "تاریخی", "مدرسه‌ای", "شونن", "سینن", "شوجو", "جوسی"] }
+      - { name: author, label: "نویسنده", widget: string, required: false }
+      - { name: status, label: "وضعیت انتشار", widget: select, options: ["در حال انتشار", "تکمیل‌شده", "متوقف‌شده"], required: false }
+      - { name: description, label: "خلاصه داستان", widget: text, required: false }
+      - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
+  - name: volumes
+    label: "جلدها | Volumes"
+    folder: _data/volumes
+    extension: json
+    format: json
+    create: true
+    slug: "{{year}}{{month}}{{day}}-{{hour}}{{minute}}{{second}}"
+    fields:
+      - { name: manga, label: "شناسه فایل مانگا", widget: string, required: true }
+      - { name: number, label: "شماره جلد", widget: number, required: true }
+      - { name: download_file, label: "فایل PDF/ZIP", widget: file, required: false, media_folder: media/files, public_folder: /media/files }
+      - { name: download_link, label: "لینک دانلود خارجی", widget: string, required: false }
+      - { name: read_link, label: "لینک مطالعه آنلاین", widget: string, required: false }
+  - name: anime
+    label: "انیمه‌ها | Anime"
+    folder: _data/anime
+    extension: json
+    format: json
+    create: true
+    slug: "{{primary}}"
+    identifier_field: title
+    summary: "{{title}} — {{title_fa}}"
+    fields:
+      - { name: poster, label: "پوستر", widget: image, required: true, media_folder: media/posters, public_folder: /media/posters }
+      - { name: title, label: "نام انگلیسی", widget: string, required: true }
+      - { name: title_fa, label: "نام فارسی", widget: string, required: true }
+      - { name: episodes_count, label: "تعداد قسمت‌ها", widget: number, required: false }
+      - { name: genres, label: "ژانر", widget: select, multiple: true, options: ["اکشن", "ماجراجویی", "کمدی", "درام", "فانتزی", "ترسناک", "عاشقانه", "علمی‌تخیلی", "ورزشی", "رازآلود", "روانشناختی", "ماورایی", "تاریخی", "مدرسه‌ای", "شونن", "سینن", "شوجو", "جوسی"] }
+      - { name: studio, label: "استودیو", widget: string, required: false }
+      - { name: year, label: "سال انتشار", widget: number, required: false }
+      - { name: status, label: "وضعیت پخش", widget: select, options: ["در حال پخش", "تکمیل‌شده", "متوقف‌شده"], required: false }
+      - { name: description, label: "خلاصه داستان", widget: text, required: false }
+      - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
+  - name: episodes
+    label: "قسمت‌ها | Episodes"
+    folder: _data/episodes
+    extension: json
+    format: json
+    create: true
+    slug: "{{year}}{{month}}{{day}}-{{hour}}{{minute}}{{second}}"
+    summary: "{{anime}} — قسمت {{number}} — {{quality}}"
+    fields:
+      - { name: anime, label: "شناسه فایل انیمه", widget: string, required: true }
+      - { name: number, label: "شماره قسمت", widget: number, required: true }
+      - { name: quality, label: "کیفیت", widget: select, options: ["480p", "720p", "1080p"], required: false }
+      - { name: audio, label: "زیرنویس یا دوبله", widget: select, options: ["زیرنویس فارسی", "دوبله فارسی", "زیرنویس انگلیسی"], required: false }
+      - { name: download_link, label: "لینک دانلود", widget: string, required: false }
+      - { name: watch_link, label: "لینک تماشا", widget: string, required: false }
+      - { name: intro_start, label: "شروع اینترو (ثانیه)", widget: number, required: false }
+      - { name: intro_end, label: "پایان اینترو (ثانیه)", widget: number, required: false }
+      - { name: outro_start, label: "شروع اوترو (ثانیه)", widget: number, required: false }
+      - { name: outro_end, label: "پایان اوترو (ثانیه)", widget: number, required: false }
+  - name: music
+    label: "موسیقی‌ها | Music"
+    folder: _data/music
+    extension: json
+    format: json
+    create: true
+    slug: "{{year}}{{month}}{{day}}-{{hour}}{{minute}}{{second}}"
+    fields:
+      - { name: title, label: "نام موزیک", widget: string, required: true }
+      - { name: source, label: "منبع", widget: string, required: true }
+      - { name: artist, label: "خواننده / آهنگساز", widget: string, required: false }
+      - { name: type, label: "نوع", widget: select, options: ["OST", "اوپنینگ", "اندینگ", "اینسرت سانگ"], required: true }
+      - { name: artwork, label: "تصویر کاور", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
+      - { name: icon, label: "ایموجی جایگزین", widget: string, required: false }
+      - { name: audio_file, label: "فایل صوتی", widget: file, required: false, media_folder: media/audio, public_folder: /media/audio }
+      - { name: audio_link, label: "لینک مستقیم صوت", widget: string, required: false }
+      - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
+  - name: mv
+    label: "موزیک‌ویدیوها | Music Videos"
+    folder: _data/mv
+    extension: json
+    format: json
+    create: true
+    slug: "{{year}}{{month}}{{day}}-{{hour}}{{minute}}{{second}}"
+    fields:
+      - { name: title, label: "نام موزیک‌ویدیو", widget: string, required: true }
+      - { name: source, label: "منبع", widget: string, required: true }
+      - { name: artist, label: "خواننده", widget: string, required: false }
+      - { name: type, label: "نوع", widget: select, options: ["اوپنینگ", "اندینگ", "موزیک ویدیو"], required: true }
+      - { name: thumbnail, label: "تصویر پیش‌نمایش", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
+      - { name: icon, label: "ایموجی جایگزین", widget: string, required: false }
+      - { name: video_link, label: "لینک ویدیو", widget: string, required: false }
+      - { name: video_file, label: "فایل ویدیو", widget: file, required: false, media_folder: media/videos, public_folder: /media/videos }
+      - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
+  - name: articles
+    label: "مقاله‌ها و اخبار | Articles"
+    folder: _data/articles
+    extension: json
+    format: json
+    create: true
+    slug: "{{slug}}"
+    identifier_field: slug
+    summary: "{{title}} — {{category}}"
+    sortable_fields: [published_at, title]
+    fields:
+      - { name: title, label: "عنوان مقاله", widget: string, required: true }
+      - { name: slug, label: "شناسه انگلیسی آدرس", widget: string, required: true, pattern: ['^[a-z0-9]+(?:-[a-z0-9]+)*$', 'فقط حروف کوچک انگلیسی، عدد و خط تیره'] }
+      - { name: summary, label: "خلاصه مقاله", widget: text, required: true }
+      - { name: cover, label: "تصویر کاور", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
+      - { name: category, label: "دسته‌بندی", widget: select, options: ["اخبار", "نقد و بررسی", "معرفی", "راهنما", "تحلیل"], required: false }
+      - { name: tags, label: "برچسب‌ها", widget: string, required: false }
+      - { name: author, label: "نویسنده", widget: string, required: false }
+      - { name: published_at, label: "تاریخ انتشار", widget: datetime, date_format: "YYYY-MM-DD", time_format: false, required: false }
+      - { name: body, label: "متن کامل مقاله", widget: markdown, required: true }
+      - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
+, 'فقط حروف کوچک انگلیسی، عدد و خط تیره'] }
+      - { name: poster, label: "پوستر", widget: image, required: true, media_folder: media/posters, public_folder: /media/posters }
+      - { name: title, label: "نام انگلیسی", widget: string, required: true }
+      - { name: title_fa, label: "نام فارسی", widget: string, required: true }
+      - { name: episodes_count, label: "تعداد قسمت‌ها", widget: number, required: false }
+      - { name: genres, label: "ژانر", widget: select, multiple: true, options: ["اکشن", "ماجراجویی", "کمدی", "درام", "فانتزی", "ترسناک", "عاشقانه", "علمی‌تخیلی", "ورزشی", "رازآلود", "روانشناختی", "ماورایی", "تاریخی", "مدرسه‌ای", "شونن", "سینن", "شوجو", "جوسی"] }
+      - { name: studio, label: "استودیو", widget: string, required: false }
+      - { name: year, label: "سال انتشار", widget: number, required: false }
+      - { name: status, label: "وضعیت پخش", widget: select, options: ["در حال پخش", "تکمیل‌شده", "متوقف‌شده"], required: false }
+      - { name: description, label: "خلاصه داستان", widget: text, required: false }
+      - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
+  - name: episodes
+    label: "قسمت‌ها | Episodes"
+    folder: _data/episodes
+    extension: json
+    format: json
+    create: true
+    slug: "{{year}}{{month}}{{day}}-{{hour}}{{minute}}{{second}}"
+    summary: "{{anime}} — قسمت {{number}} — {{quality}}"
+    fields:
+      - { name: anime, label: "شناسه فایل انیمه", widget: string, required: true }
+      - { name: number, label: "شماره قسمت", widget: number, required: true }
+      - { name: quality, label: "کیفیت", widget: select, options: ["480p", "720p", "1080p"], required: false }
+      - { name: audio, label: "زیرنویس یا دوبله", widget: select, options: ["زیرنویس فارسی", "دوبله فارسی", "زیرنویس انگلیسی"], required: false }
+      - { name: download_link, label: "لینک دانلود", widget: string, required: false }
+      - { name: watch_link, label: "لینک تماشا", widget: string, required: false }
+      - { name: intro_start, label: "شروع اینترو (ثانیه)", widget: number, required: false }
+      - { name: intro_end, label: "پایان اینترو (ثانیه)", widget: number, required: false }
+      - { name: outro_start, label: "شروع اوترو (ثانیه)", widget: number, required: false }
+      - { name: outro_end, label: "پایان اوترو (ثانیه)", widget: number, required: false }
+  - name: music
+    label: "موسیقی‌ها | Music"
+    folder: _data/music
+    extension: json
+    format: json
+    create: true
+    slug: "{{year}}{{month}}{{day}}-{{hour}}{{minute}}{{second}}"
+    fields:
+      - { name: title, label: "نام موزیک", widget: string, required: true }
+      - { name: source, label: "منبع", widget: string, required: true }
+      - { name: artist, label: "خواننده / آهنگساز", widget: string, required: false }
+      - { name: type, label: "نوع", widget: select, options: ["OST", "اوپنینگ", "اندینگ", "اینسرت سانگ"], required: true }
+      - { name: artwork, label: "تصویر کاور", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
+      - { name: icon, label: "ایموجی جایگزین", widget: string, required: false }
+      - { name: audio_file, label: "فایل صوتی", widget: file, required: false, media_folder: media/audio, public_folder: /media/audio }
+      - { name: audio_link, label: "لینک مستقیم صوت", widget: string, required: false }
+      - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
+  - name: mv
+    label: "موزیک‌ویدیوها | Music Videos"
+    folder: _data/mv
+    extension: json
+    format: json
+    create: true
+    slug: "{{year}}{{month}}{{day}}-{{hour}}{{minute}}{{second}}"
+    fields:
+      - { name: title, label: "نام موزیک‌ویدیو", widget: string, required: true }
+      - { name: source, label: "منبع", widget: string, required: true }
+      - { name: artist, label: "خواننده", widget: string, required: false }
+      - { name: type, label: "نوع", widget: select, options: ["اوپنینگ", "اندینگ", "موزیک ویدیو"], required: true }
+      - { name: thumbnail, label: "تصویر پیش‌نمایش", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
+      - { name: icon, label: "ایموجی جایگزین", widget: string, required: false }
+      - { name: video_link, label: "لینک ویدیو", widget: string, required: false }
+      - { name: video_file, label: "فایل ویدیو", widget: file, required: false, media_folder: media/videos, public_folder: /media/videos }
+      - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
+  - name: articles
+    label: "مقاله‌ها و اخبار | Articles"
+    folder: _data/articles
+    extension: json
+    format: json
+    create: true
+    slug: "{{slug}}"
+    identifier_field: slug
+    summary: "{{title}} — {{category}}"
+    sortable_fields: [published_at, title]
+    fields:
+      - { name: title, label: "عنوان مقاله", widget: string, required: true }
+      - { name: slug, label: "شناسه انگلیسی آدرس", widget: string, required: true, pattern: ['^[a-z0-9]+(?:-[a-z0-9]+)*$', 'فقط حروف کوچک انگلیسی، عدد و خط تیره'] }
+      - { name: summary, label: "خلاصه مقاله", widget: text, required: true }
+      - { name: cover, label: "تصویر کاور", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
+      - { name: category, label: "دسته‌بندی", widget: select, options: ["اخبار", "نقد و بررسی", "معرفی", "راهنما", "تحلیل"], required: false }
+      - { name: tags, label: "برچسب‌ها", widget: string, required: false }
+      - { name: author, label: "نویسنده", widget: string, required: false }
+      - { name: published_at, label: "تاریخ انتشار", widget: datetime, date_format: "YYYY-MM-DD", time_format: false, required: false }
+      - { name: body, label: "متن کامل مقاله", widget: markdown, required: true }
+      - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
+, 'فقط حروف کوچک انگلیسی، عدد و خط تیره'] }
+      - { name: cover, label: "تصویر جلد", widget: image, required: true, media_folder: media/covers, public_folder: /media/covers }
+      - { name: title, label: "نام انگلیسی", widget: string, required: true }
+      - { name: title_fa, label: "نام فارسی", widget: string, required: true }
+      - { name: volumes_count, label: "تعداد جلدها", widget: number, required: false }
+      - { name: genres, label: "ژانر", widget: select, multiple: true, options: ["اکشن", "ماجراجویی", "کمدی", "درام", "فانتزی", "ترسناک", "عاشقانه", "علمی‌تخیلی", "ورزشی", "رازآلود", "روانشناختی", "ماورایی", "تاریخی", "مدرسه‌ای", "شونن", "سینن", "شوجو", "جوسی"] }
+      - { name: author, label: "نویسنده", widget: string, required: false }
+      - { name: status, label: "وضعیت انتشار", widget: select, options: ["در حال انتشار", "تکمیل‌شده", "متوقف‌شده"], required: false }
+      - { name: description, label: "خلاصه داستان", widget: text, required: false }
+      - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
+  - name: volumes
+    label: "جلدها | Volumes"
+    folder: _data/volumes
+    extension: json
+    format: json
+    create: true
+    slug: "{{year}}{{month}}{{day}}-{{hour}}{{minute}}{{second}}"
+    fields:
+      - { name: manga, label: "شناسه فایل مانگا", widget: string, required: true }
+      - { name: number, label: "شماره جلد", widget: number, required: true }
+      - { name: download_file, label: "فایل PDF/ZIP", widget: file, required: false, media_folder: media/files, public_folder: /media/files }
+      - { name: download_link, label: "لینک دانلود خارجی", widget: string, required: false }
+      - { name: read_link, label: "لینک مطالعه آنلاین", widget: string, required: false }
+  - name: anime
+    label: "انیمه‌ها | Anime"
+    folder: _data/anime
+    extension: json
+    format: json
+    create: true
+    slug: "{{primary}}"
+    identifier_field: title
+    summary: "{{title}} — {{title_fa}}"
+    fields:
+      - { name: poster, label: "پوستر", widget: image, required: true, media_folder: media/posters, public_folder: /media/posters }
+      - { name: title, label: "نام انگلیسی", widget: string, required: true }
+      - { name: title_fa, label: "نام فارسی", widget: string, required: true }
+      - { name: episodes_count, label: "تعداد قسمت‌ها", widget: number, required: false }
+      - { name: genres, label: "ژانر", widget: select, multiple: true, options: ["اکشن", "ماجراجویی", "کمدی", "درام", "فانتزی", "ترسناک", "عاشقانه", "علمی‌تخیلی", "ورزشی", "رازآلود", "روانشناختی", "ماورایی", "تاریخی", "مدرسه‌ای", "شونن", "سینن", "شوجو", "جوسی"] }
+      - { name: studio, label: "استودیو", widget: string, required: false }
+      - { name: year, label: "سال انتشار", widget: number, required: false }
+      - { name: status, label: "وضعیت پخش", widget: select, options: ["در حال پخش", "تکمیل‌شده", "متوقف‌شده"], required: false }
+      - { name: description, label: "خلاصه داستان", widget: text, required: false }
+      - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
+  - name: episodes
+    label: "قسمت‌ها | Episodes"
+    folder: _data/episodes
+    extension: json
+    format: json
+    create: true
+    slug: "{{year}}{{month}}{{day}}-{{hour}}{{minute}}{{second}}"
+    summary: "{{anime}} — قسمت {{number}} — {{quality}}"
+    fields:
+      - { name: anime, label: "شناسه فایل انیمه", widget: string, required: true }
+      - { name: number, label: "شماره قسمت", widget: number, required: true }
+      - { name: quality, label: "کیفیت", widget: select, options: ["480p", "720p", "1080p"], required: false }
+      - { name: audio, label: "زیرنویس یا دوبله", widget: select, options: ["زیرنویس فارسی", "دوبله فارسی", "زیرنویس انگلیسی"], required: false }
+      - { name: download_link, label: "لینک دانلود", widget: string, required: false }
+      - { name: watch_link, label: "لینک تماشا", widget: string, required: false }
+      - { name: intro_start, label: "شروع اینترو (ثانیه)", widget: number, required: false }
+      - { name: intro_end, label: "پایان اینترو (ثانیه)", widget: number, required: false }
+      - { name: outro_start, label: "شروع اوترو (ثانیه)", widget: number, required: false }
+      - { name: outro_end, label: "پایان اوترو (ثانیه)", widget: number, required: false }
+  - name: music
+    label: "موسیقی‌ها | Music"
+    folder: _data/music
+    extension: json
+    format: json
+    create: true
+    slug: "{{year}}{{month}}{{day}}-{{hour}}{{minute}}{{second}}"
+    fields:
+      - { name: title, label: "نام موزیک", widget: string, required: true }
+      - { name: source, label: "منبع", widget: string, required: true }
+      - { name: artist, label: "خواننده / آهنگساز", widget: string, required: false }
+      - { name: type, label: "نوع", widget: select, options: ["OST", "اوپنینگ", "اندینگ", "اینسرت سانگ"], required: true }
+      - { name: artwork, label: "تصویر کاور", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
+      - { name: icon, label: "ایموجی جایگزین", widget: string, required: false }
+      - { name: audio_file, label: "فایل صوتی", widget: file, required: false, media_folder: media/audio, public_folder: /media/audio }
+      - { name: audio_link, label: "لینک مستقیم صوت", widget: string, required: false }
+      - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
+  - name: mv
+    label: "موزیک‌ویدیوها | Music Videos"
+    folder: _data/mv
+    extension: json
+    format: json
+    create: true
+    slug: "{{year}}{{month}}{{day}}-{{hour}}{{minute}}{{second}}"
+    fields:
+      - { name: title, label: "نام موزیک‌ویدیو", widget: string, required: true }
+      - { name: source, label: "منبع", widget: string, required: true }
+      - { name: artist, label: "خواننده", widget: string, required: false }
+      - { name: type, label: "نوع", widget: select, options: ["اوپنینگ", "اندینگ", "موزیک ویدیو"], required: true }
+      - { name: thumbnail, label: "تصویر پیش‌نمایش", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
+      - { name: icon, label: "ایموجی جایگزین", widget: string, required: false }
+      - { name: video_link, label: "لینک ویدیو", widget: string, required: false }
+      - { name: video_file, label: "فایل ویدیو", widget: file, required: false, media_folder: media/videos, public_folder: /media/videos }
+      - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
+  - name: articles
+    label: "مقاله‌ها و اخبار | Articles"
+    folder: _data/articles
+    extension: json
+    format: json
+    create: true
+    slug: "{{slug}}"
+    identifier_field: slug
+    summary: "{{title}} — {{category}}"
+    sortable_fields: [published_at, title]
+    fields:
+      - { name: title, label: "عنوان مقاله", widget: string, required: true }
+      - { name: slug, label: "شناسه انگلیسی آدرس", widget: string, required: true, pattern: ['^[a-z0-9]+(?:-[a-z0-9]+)*$', 'فقط حروف کوچک انگلیسی، عدد و خط تیره'] }
+      - { name: summary, label: "خلاصه مقاله", widget: text, required: true }
+      - { name: cover, label: "تصویر کاور", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
       - { name: category, label: "دسته‌بندی", widget: select, options: ["اخبار", "نقد و بررسی", "معرفی", "راهنما", "تحلیل"], required: false }
       - { name: tags, label: "برچسب‌ها", widget: string, required: false }
       - { name: author, label: "نویسنده", widget: string, required: false }
