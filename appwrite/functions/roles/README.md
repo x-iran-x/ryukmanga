@@ -24,8 +24,8 @@ Set `OWNER_USER_ID=sobhan` in the function's environment variables. The function
 
 ## API
 
-- `GET`: returns public role assignments, including the configured owner.
-- `POST { "action": "grant-admin", "userId": "<Appwrite user ID>" }`: owner only.
+- `POST { "action": "list" }`: returns role assignments, including the configured owner, for a signed-in caller.
+- `POST { "action": "grant-admin", "userId": "<Appwrite user ID>" }`: owner only; target account is validated through Appwrite Users API.
 - `POST { "action": "revoke-admin", "userId": "<Appwrite user ID>" }`: owner only.
 
 Important: create a string attribute named `role` and use document IDs equal to Appwrite user IDs. Do not add public write permissions. This function code is a backend component; the badge UI and admin-management interface must be connected to the deployed function before the feature is live.
