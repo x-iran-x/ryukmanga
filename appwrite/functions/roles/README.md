@@ -1,6 +1,6 @@
 # RyukManga secure roles function
 
-This function is the server-side source of truth for owner/admin/moderator badges. It deliberately does **not** use account preferences, because a signed-in user can edit their own preferences.
+This function is the server-side source of truth for owner/admin/moderator badges and owner-defined custom tags. It deliberately does **not** use account preferences, because a signed-in user can edit their own preferences.
 
 ## Fixed owner
 
@@ -9,7 +9,7 @@ Set `OWNER_USER_ID=sobhan` in the function's environment variables. The function
 ## Appwrite setup required
 
 1. In Appwrite Console, create a Database for site roles (or use a dedicated existing database).
-2. Create a collection named `roles` with a required string attribute named `role` (maximum length 16). Set document security on and do not grant client users create/update/delete permissions. Keep collection/document access restricted; the function uses its server API key.
+2. Create a collection named `roles` with a required string attribute named `role` (maximum length 16), plus optional string attributes `customTag` (maximum length 32) and `customTagColor` (maximum length 7). Set document security on and do not grant client users create/update/delete permissions. Keep collection/document access restricted; the function uses its server API key.
 3. Create an API key with only the database/document read/write scopes for the roles collection plus the Users read scope needed to validate target accounts. Store it as the function secret `APPWRITE_API_KEY`; never put it in browser code or commit it to GitHub.
 4. Configure function variables:
    - `OWNER_USER_ID=sobhan`
@@ -29,5 +29,7 @@ Set `OWNER_USER_ID=sobhan` in the function's environment variables. The function
 - `POST { "action": "revoke-admin", "userId": "<Appwrite user ID>" }`: owner only.
 - `POST { "action": "grant-moderator", "userId": "<Appwrite user ID>" }`: owner only; assigns the moderator role.
 - `POST { "action": "revoke-moderator", "userId": "<Appwrite user ID>" }`: owner only; removes the moderator role.
+- `POST { "action": "set-custom-tag", "userId": "<Appwrite user ID>", "tag": "Translator", "color": "#d4c6ff" }`: owner only; sets a plain-text badge with no icon.
+- `POST { "action": "remove-custom-tag", "userId": "<Appwrite user ID>" }`: owner only; removes that user’s custom tag.
 
-Important: create a string attribute named `role` and use document IDs equal to Appwrite user IDs. Do not add public write permissions. This function code is a backend component; the badge UI and admin-management interface must be connected to the deployed function before the feature is live.
+Important: create the `role`, `customTag`, and `customTagColor` string attributes and use document IDs equal to Appwrite user IDs. The `role` attribute must allow the value `member`, used for accounts that only have a custom tag. Do not add public write permissions. This function code is a backend component; the badge UI and admin-management interface must be connected to the deployed function before the feature is live.
