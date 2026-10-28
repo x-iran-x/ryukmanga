@@ -1,4 +1,4 @@
-import { Client, Databases, ID, Query } from "node-appwrite";
+import { Client, Databases, Query, Users } from "node-appwrite";
 
 const OWNER_USER_ID = (process.env.OWNER_USER_ID || "sobhan").trim().toLowerCase();
 const DATABASE_ID = process.env.ROLES_DATABASE_ID;
@@ -28,6 +28,7 @@ export default async ({ req, res, log, error }) => {
       .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID || "6ad28bbc0023dee367ab")
       .setKey(API_KEY);
     const databases = new Databases(client);
+    const users = new Users(client);
 
     const readRoles = async () => {
       const response = await databases.listDocuments({
@@ -44,7 +45,10 @@ export default async ({ req, res, log, error }) => {
     const method = String(req.method || "GET").toUpperCase();
     const body = req.bodyJson && typeof req.bodyJson === "object" ? req.bodyJson : {};
 
-    if (method === "GET") {
+    if (method !== "POST") return jsonError(res, 405, "Method not allowed.");
+
+    const action = body.action;
+    if (action === "list") {
       const roles = await readRoles();
       // The owner is defined by a server-side environment variable, not user-editable profile preferences.
       const publicRoles = roles.filter((item) => item.userId !== OWNER_USER_ID);
@@ -52,12 +56,9 @@ export default async ({ req, res, log, error }) => {
       return res.json({ ok: true, roles: publicRoles });
     }
 
-    if (method !== "POST") return jsonError(res, 405, "Method not allowed.");
-
     // Only the configured owner can grant or revoke administrator roles.
     if (callerId !== OWNER_USER_ID) return jsonError(res, 403, "Only the site owner can manage administrators.");
 
-    const action = body.action;
     const targetUserId = normalizeUserId(body.userId);
     if (!targetUserId || targetUserId.length > 36) {
       return jsonError(res, 400, "A valid user ID is required.");
@@ -70,6 +71,12 @@ export default async ({ req, res, log, error }) => {
     }
 
     if (action === "grant-admin") {
+      // Validate the target against Appwrite Users API before assigning a role.
+      try {
+        await users.get({ userId: targetUserId });
+      } catch {
+        return jsonError(res, 404, "No Appwrite account exists with that user ID.");
+      }
       try {
         await databases.createDocument({
           databaseId: DATABASE_ID,
