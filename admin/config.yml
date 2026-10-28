@@ -55,8 +55,8 @@ collections:
         widget: relation
         collection: manga
         search_fields: [title, title_fa]
-        value_field: slug
-        display_fields: [title_fa, title]
+        value_field: "{{slug}}"
+        display_fields: ["{{title_fa}}", "{{title}}"]
         required: true
       - { name: number, label: "شماره جلد", widget: number, value_type: int, required: true }
       - { name: download_file, label: "فایل PDF/ZIP", widget: file, required: false, media_folder: media/files, public_folder: /media/files }
@@ -106,8 +106,8 @@ collections:
         widget: relation
         collection: anime
         search_fields: [title, title_fa]
-        value_field: slug
-        display_fields: [title_fa, title]
+        value_field: "{{slug}}"
+        display_fields: ["{{title_fa}}", "{{title}}"]
         required: true
       - { name: number, label: "شماره قسمت", widget: number, value_type: int, required: true }
       - { name: quality, label: "کیفیت", widget: select, required: false, options: ["480p", "720p", "1080p"] }
