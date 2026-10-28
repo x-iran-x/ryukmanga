@@ -1,6 +1,6 @@
 # RyukManga secure roles function
 
-This function is the server-side source of truth for owner/admin badges. It deliberately does **not** use account preferences, because a signed-in user can edit their own preferences.
+This function is the server-side source of truth for owner/admin/moderator badges. It deliberately does **not** use account preferences, because a signed-in user can edit their own preferences.
 
 ## Fixed owner
 
@@ -27,5 +27,7 @@ Set `OWNER_USER_ID=sobhan` in the function's environment variables. The function
 - `POST { "action": "list" }`: returns role assignments, including the configured owner, for a signed-in caller.
 - `POST { "action": "grant-admin", "userId": "<Appwrite user ID>" }`: owner only; target account is validated through Appwrite Users API.
 - `POST { "action": "revoke-admin", "userId": "<Appwrite user ID>" }`: owner only.
+- `POST { "action": "grant-moderator", "userId": "<Appwrite user ID>" }`: owner only; assigns the moderator role.
+- `POST { "action": "revoke-moderator", "userId": "<Appwrite user ID>" }`: owner only; removes the moderator role.
 
 Important: create a string attribute named `role` and use document IDs equal to Appwrite user IDs. Do not add public write permissions. This function code is a backend component; the badge UI and admin-management interface must be connected to the deployed function before the feature is live.
