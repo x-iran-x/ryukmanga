@@ -94,7 +94,7 @@ collections:
     slug: "{{year}}{{month}}{{day}}-{{hour}}{{minute}}{{second}}"
     summary: "{{anime}} — قسمت {{number}} — {{quality}}"
     fields:
-      - { name: anime, label: "شناسه انیمه", widget: string, required: true }
+      - { name: anime, label: "شناسه انیمه", widget: string, required: true, hint: "برای سازگاری با داده‌های فعلی، مسیر فایل انیمه را وارد کن؛ مثال: _data/anime/test.json" }
       - { name: number, label: "شماره قسمت", widget: number, value_type: int, required: true }
       - { name: quality, label: "کیفیت", widget: select, required: false, options: ["480p", "720p", "1080p"] }
       - { name: audio, label: "زبان/زیرنویس", widget: select, required: false, options: ["زیرنویس فارسی", "دوبله فارسی", "زیرنویس انگلیسی"] }
@@ -139,8 +139,14 @@ collections:
       - { name: source, label: "منبع", widget: string, required: true }
       - { name: artist, label: "هنرمند", widget: string, required: false }
       - { name: type, label: "نوع", widget: string, required: false }
-      - { name: artwork, label: "کاور", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
-      - { name: video_file, label: "فایل ویدیو", widget: file, required: false, media_folder: media/videos, public_folder: /media/videos }
+      - { name: thumbnail, label: "تصویر پیش‌نمایش", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
+      - { name: icon, label: "ایموجی جایگزین تصویر", widget: string, required: false }
+      - name: type
+        label: "نوع موزیک‌ویدیو"
+        widget: select
+        required: false
+        options: ["اوپنینگ", "اندینگ", "موزیک ویدیو"]
+      - { name: video_file, label: "فایل ویدیو (محدودیت GitHub)", widget: file, required: false, media_folder: media/videos, public_folder: /media/videos }
       - { name: video_link, label: "لینک ویدیو", widget: string, required: false }
       - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
 
@@ -156,10 +162,13 @@ collections:
     summary: "{{title_fa}}"
     fields:
       - { name: slug, label: "شناسه انگلیسی (slug)", widget: string, required: true }
-      - { name: title, label: "عنوان انگلیسی", widget: string, required: false }
-      - { name: title_fa, label: "عنوان فارسی", widget: string, required: true }
+      - { name: title, label: "عنوان مقاله", widget: string, required: true }
+      - { name: slug, label: "شناسه آدرس انگلیسی (slug)", widget: string, required: true, hint: "بدون فاصله؛ نمونه: berserk-review" }
+      - { name: summary, label: "خلاصه مقاله", widget: text, required: true }
       - { name: cover, label: "تصویر مقاله", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
-      - { name: summary, label: "خلاصه", widget: text, required: false }
-      - { name: body, label: "متن مقاله", widget: markdown, required: true }
+      - { name: category, label: "دسته‌بندی", widget: select, required: false, options: ["اخبار", "نقد و بررسی", "معرفی", "راهنما", "تحلیل"] }
+      - { name: tags, label: "برچسب‌ها", widget: string, required: false }
       - { name: author, label: "نویسنده", widget: string, required: false }
+      - { name: published_at, label: "تاریخ انتشار", widget: datetime, date_format: "YYYY-MM-DD", time_format: false, required: false }
+      - { name: body, label: "متن مقاله", widget: markdown, required: true }
       - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
