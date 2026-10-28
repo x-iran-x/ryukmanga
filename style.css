@@ -1439,3 +1439,9 @@ audio {
 .role-admin-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border: 1px solid #2b2934; border-radius: 9px; background: #111115; }
 .role-admin-row code { overflow-wrap: anywhere; color: #f0edf8; }
 @media (max-width: 480px) { .role-admin-row { align-items: flex-start; flex-direction: column; } .role-management-actions { flex-direction: column; } }
+
+/* Site moderator role */
+.site-role-badge.moderator { border-color: rgba(91, 211, 184, .42); background: rgba(27, 102, 87, .16); color: #a5f3df; }
+.role-secondary-btn { padding: 12px; background: #14231f; border: 1px solid #286858; border-radius: 8px; color: #a5f3df; cursor: pointer; font-weight: 700; }
+.role-secondary-btn:hover { background: #1b342d; }
+.role-admin-list > strong { margin-top: 8px; color: #eee8ff; }
