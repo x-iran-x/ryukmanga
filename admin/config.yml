@@ -114,6 +114,7 @@ collections:
       - { name: audio, label: "زبان/زیرنویس", widget: select, required: false, options: ["زیرنویس فارسی", "دوبله فارسی", "زیرنویس انگلیسی"] }
       - { name: download_link, label: "لینک دانلود", widget: string, required: false }
       - { name: watch_link, label: "لینک تماشا", widget: string, required: false }
+      - { name: subtitle_link, label: "لینک فایل زیرنویس", widget: string, required: false }
       - { name: intro_start, label: "شروع اینترو (ثانیه)", widget: number, required: false }
       - { name: intro_end, label: "پایان اینترو (ثانیه)", widget: number, required: false }
       - { name: outro_start, label: "شروع اوترو (ثانیه)", widget: number, required: false }
@@ -159,8 +160,8 @@ collections:
         widget: select
         required: false
         options: ["اوپنینگ", "اندینگ", "موزیک ویدیو"]
-      - { name: video_file, label: "فایل ویدیو (محدودیت GitHub)", widget: file, required: false, media_folder: media/videos, public_folder: /media/videos }
-      - { name: video_link, label: "لینک ویدیو", widget: string, required: false }
+      - { name: video_file, label: "آپلود ویدیوی کم‌حجم (MP4/WebM)", widget: file, required: false, media_folder: media/videos, public_folder: /media/videos }
+      - { name: video_link, label: "لینک ویدیو (برای فایل‌های بزرگ از لینک مستقیم استفاده کن)", widget: string, required: false }
       - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
 
   - name: articles
