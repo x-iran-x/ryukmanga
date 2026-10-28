@@ -1,35 +1,48 @@
-# RyukManga secure roles function
+# RyukManga secure roles function (TablesDB)
 
-This function is the server-side source of truth for owner/admin/moderator badges and owner-defined custom tags. It deliberately does **not** use account preferences, because a signed-in user can edit their own preferences.
+This Appwrite Function is the server-side source of truth for owner/admin/moderator badges and owner-defined custom tags. The frontend must not be trusted to authorize role changes.
 
-## Fixed owner
+## Owner identity
 
-Set `OWNER_USER_ID=sobhan` in the function's environment variables. The function defaults to this value, but configuring it explicitly in Appwrite is recommended. The frontend must never be allowed to override it.
+Set `OWNER_USER_ID=sobhan` only after confirming that `sobhan` is the exact Appwrite Auth user `$id` for the site owner. User IDs are case-sensitive. The owner is configured on the server and cannot be changed through the request body.
 
-## Appwrite setup required
+## Database setup
 
-1. In Appwrite Console, create a Database for site roles (or use a dedicated existing database).
-2. Create a collection named `roles` with a required string attribute named `role` (maximum length 16), plus optional string attributes `customTag` (maximum length 32) and `customTagColor` (maximum length 7). Set document security on and do not grant client users create/update/delete permissions. Keep collection/document access restricted; the function uses its server API key.
-3. Create an API key with only the database/document read/write scopes for the roles collection plus the Users read scope needed to validate target accounts. Store it as the function secret `APPWRITE_API_KEY`; never put it in browser code or commit it to GitHub.
-4. Configure function variables:
-   - `OWNER_USER_ID=sobhan`
-   - `ROLES_DATABASE_ID=<database ID>`
-   - `ROLES_COLLECTION_ID=<roles collection ID>`
-   - `APPWRITE_API_KEY=<secret API key>`
-   - Optional: `APPWRITE_FUNCTION_API_ENDPOINT=https://fra.cloud.appwrite.io/v1`
-   - Optional: `APPWRITE_FUNCTION_PROJECT_ID=6ad28bbc0023dee367ab`
-5. Deploy this directory as an Appwrite Function using Node.js and set its entrypoint to `src/main.js`. Install dependencies from `package.json`.
-6. Configure the function to accept authenticated executions from signed-in users. The function reads Appwrite's server-provided `x-appwrite-user-id` execution header; it never trusts a caller ID sent in the JSON body.
-7. Set the function's execution permissions so signed-in users can read public role badges and call the endpoint. The function itself restricts all POST role changes to the configured owner.
+The current implementation uses **TablesDB**, not the older DocumentsDB API.
+
+- Database ID: `ryukmanga_roles_db`
+- Table ID: `roles`
+- Required column: `role`, Varchar size 16, Required on
+- Optional column: `customTag`, Varchar size 32, Required off
+- Optional column: `customTagColor`, Varchar size 7, Required off
+
+The function uses each target user's Appwrite user ID as the row ID. The `role` column must allow `member` for accounts that have a custom tag but no staff role. Leave public/client row writes disabled. Do not give browser users direct permission to create, update, or delete role rows.
+
+## Function environment variables
+
+Configure these in Appwrite Function settings:
+
+- `OWNER_USER_ID=sobhan` (only if verified as the exact Auth `$id`)
+- `ROLES_DATABASE_ID=ryukmanga_roles_db`
+- `ROLES_TABLE_ID=roles`
+- `APPWRITE_API_KEY=<secret>` — store as a secret; never commit it or put it in frontend code.
+- `APPWRITE_FUNCTION_API_ENDPOINT=https://fra.cloud.appwrite.io/v1` (optional; this is the default)
+- `APPWRITE_FUNCTION_PROJECT_ID=6ad28bbc0023dee367ab` (optional; this is the default)
+
+Create a server API key with the minimum scopes needed for reading/writing rows in this database and reading Users to validate target accounts. In Appwrite's current scope names, check for the relevant TablesDB rows read/write permissions and Users read permission. Do not share the key in chat.
+
+Deploy this folder as an Appwrite Function using Node.js. Entrypoint: `src/main.js`. Install dependencies from `package.json`. The function must be configured to accept authenticated executions from signed-in users; it uses Appwrite's server-provided `x-appwrite-user-id` execution header and never trusts a caller ID supplied in JSON.
 
 ## API
 
-- `POST { "action": "list" }`: returns role assignments, including the configured owner, for a signed-in caller.
-- `POST { "action": "grant-admin", "userId": "<Appwrite user ID>" }`: owner only; target account is validated through Appwrite Users API.
-- `POST { "action": "revoke-admin", "userId": "<Appwrite user ID>" }`: owner only.
-- `POST { "action": "grant-moderator", "userId": "<Appwrite user ID>" }`: owner only; assigns the moderator role.
-- `POST { "action": "revoke-moderator", "userId": "<Appwrite user ID>" }`: owner only; removes the moderator role.
-- `POST { "action": "set-custom-tag", "userId": "<Appwrite user ID>", "tag": "Translator", "color": "#d4c6ff" }`: owner only; sets a plain-text badge with no icon.
-- `POST { "action": "remove-custom-tag", "userId": "<Appwrite user ID>" }`: owner only; removes that user’s custom tag.
+All actions are POST requests and require an authenticated caller.
 
-Important: create the `role`, `customTag`, and `customTagColor` string attributes and use document IDs equal to Appwrite user IDs. The `role` attribute must allow the value `member`, used for accounts that only have a custom tag. Do not add public write permissions. This function code is a backend component; the badge UI and admin-management interface must be connected to the deployed function before the feature is live.
+- `{ "action": "list" }`: returns stored role/tag assignments and the configured owner badge.
+- `{ "action": "grant-admin", "userId": "<Appwrite user ID>" }`: owner only.
+- `{ "action": "revoke-admin", "userId": "<Appwrite user ID>" }`: owner only.
+- `{ "action": "grant-moderator", "userId": "<Appwrite user ID>" }`: owner only.
+- `{ "action": "revoke-moderator", "userId": "<Appwrite user ID>" }`: owner only.
+- `{ "action": "set-custom-tag", "userId": "<Appwrite user ID>", "tag": "Translator", "color": "#d4c6ff" }`: owner only; plain text, no icon.
+- `{ "action": "remove-custom-tag", "userId": "<Appwrite user ID>" }`: owner only.
+
+The owner can manage staff roles and custom tags. All role-changing actions are checked in the function, not merely hidden in the UI. The role badge UI and management panel are not live until the function is deployed and its ID is configured in the frontend. Test list, grant/revoke, custom-tag set/remove, and rejection from a non-owner account before treating this as production-ready.
