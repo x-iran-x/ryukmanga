@@ -82,6 +82,7 @@ async function loadAnime() {
   const episodesBySlug = {};
   (raw.episodes || []).forEach(entry => {
     const d = entry.data || {};
+    if (d.draft) return;
     const slug = slugFromPath(d.anime);
     if (!slug) return;
     (episodesBySlug[slug] = episodesBySlug[slug] || []).push({
