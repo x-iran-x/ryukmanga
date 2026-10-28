@@ -15,9 +15,10 @@ function menuKeyboard() {
         { text: "🎬 انیمه‌ها", url: "https://ryukmanga.vercel.app/anime/" }
       ],
       [
-        { text: "🌐 وب‌سایت", url: "https://ryukmanga.vercel.app/" },
-        { text: "ℹ️ راهنما", callback_data: "help" }
-      ]
+        { text: "🎵 موسیقی", url: "https://ryukmanga.vercel.app/music/" },
+        { text: "🌐 وب‌سایت", url: "https://ryukmanga.vercel.app/" }
+      ],
+      [{ text: "ℹ️ راهنما", callback_data: "help" }]
     ]
   };
 }
@@ -67,7 +68,8 @@ export default async function handler(req, res) {
       if (callback.data === "help" && callback.message?.chat?.id) {
         await sendMessage(
           callback.message.chat.id,
-          "راهنمای RyukManga ✨\n\nاز دکمهٔ «باز کردن RyukManga» برای ورود به مینی‌اپ استفاده کن. از دکمه‌های مانگاها و انیمه‌ها هم می‌تونی مستقیم وارد بخش مربوطه بشی.\n\nدستورهای موجود: /start ، /help ، /about"
+          "راهنمای RyukManga ✨\\n\\nاز دکمهٔ «باز کردن RyukManga» برای ورود به سایت داخل تلگرام استفاده کن. با دکمه‌های «مانگاها»، «انیمه‌ها» و «موسیقی» هم می‌تونی مستقیم وارد بخش مربوطه بشی.\\n\\nدستورهای موجود: /start ، /help ، /about",
+          { reply_markup: menuKeyboard() }
         );
       }
       return res.status(200).json({ ok: true });
@@ -82,16 +84,16 @@ export default async function handler(req, res) {
     const text = message.text.trim();
     const firstName = escapeHtml(message.from?.first_name || "دوست من");
 
-    if (/^\/start(?:@\w+)?(?:\s|$)/i.test(text)) {
+    if (/^\\/start(?:@\\w+)?(?:\\s|$)/i.test(text)) {
       await sendMessage(
         chatId,
-        `سلام ${firstName}! 👋\n\nبه <b>RyukManga</b> خوش اومدی؛ دنیای انیمه و مانگا.\n\nاز منوی زیر استفاده کن و وارد بخش موردنظرت شو. 🖤`,
+        `سلام ${firstName}! 👋\\n\\nبه <b>RyukManga</b> خوش اومدی؛ دنیای انیمه و مانگا.\\n\\nاز منوی زیر برای ورود مستقیم به بخش‌های سایت استفاده کن. 🖤`,
         { reply_markup: menuKeyboard() }
       );
-    } else if (/^\/(help|about)(?:@\w+)?(?:\s|$)/i.test(text)) {
+    } else if (/^\\/(help|about)(?:@\\w+)?(?:\\s|$)/i.test(text)) {
       await sendMessage(
         chatId,
-        "🖤 <b>راهنمای RyukManga</b>\n\n• باز کردن سایت: ورود به مینی‌اپ داخل تلگرام\n• مانگاها: رفتن به بخش مانگا\n• انیمه‌ها: رفتن به بخش انیمه\n\nبرای نمایش دوبارهٔ منو، /start را بزن.",
+        "🖤 <b>راهنمای RyukManga</b>\\n\\n• باز کردن RyukManga: ورود به سایت داخل تلگرام\\n• مانگاها: آرشیو مانگا\\n• انیمه‌ها: آرشیو انیمه\\n• موسیقی: بخش موسیقی سایت\\n\\nبرای نمایش دوبارهٔ منو، /start را بزن.",
         { reply_markup: menuKeyboard() }
       );
     } else {
