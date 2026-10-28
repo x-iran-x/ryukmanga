@@ -239,15 +239,20 @@
 
 
         <section class="profile-panel role-management-panel" id="roleManagementPanel" hidden aria-labelledby="roleManagementTitle">
-          <div class="profile-panel-heading compact"><div><span class="profile-panel-kicker">SITE CONTROL</span><h3 id="roleManagementTitle">مدیریت مدیران سایت</h3></div><span class="profile-panel-icon" aria-hidden="true">♜</span></div>
-          <p class="role-management-help">فقط مالک سایت می‌تواند نقش مدیر را اضافه یا حذف کند. شناسهٔ کاربری Appwrite را وارد کن؛ نام نمایشی کافی نیست.</p>
+          <div class="profile-panel-heading compact"><div><span class="profile-panel-kicker">SITE CONTROL</span><h3 id="roleManagementTitle">مدیریت نقش‌های سایت</h3></div><span class="profile-panel-icon" aria-hidden="true">♜</span></div>
+          <p class="role-management-help">فقط مالک سایت می‌تواند مدیر یا ناظر اضافه و حذف کند. شناسهٔ کاربری Appwrite را وارد کن؛ نام نمایشی کافی نیست.</p>
           <form id="roleManagementForm" class="role-management-form">
             <label class="visually-hidden" for="roleTargetUserId">شناسهٔ کاربر</label>
             <input id="roleTargetUserId" name="userId" type="text" maxlength="36" required placeholder="شناسهٔ دقیق کاربر (مثلاً username)" autocomplete="off" spellcheck="false">
-            <div class="role-management-actions"><button type="submit" class="auth-submit-btn" data-role-action="grant-admin">＋ افزودن مدیر</button><button type="button" class="role-revoke-btn" id="revokeAdminBtn">حذف نقش مدیر</button></div>
+            <div class="role-management-actions">
+              <button type="submit" class="auth-submit-btn" data-role-action="grant-admin">＋ افزودن مدیر</button>
+              <button type="button" class="role-secondary-btn" id="grantModeratorBtn">＋ افزودن ناظر</button>
+              <button type="button" class="role-revoke-btn" id="revokeAdminBtn">حذف نقش مدیر</button>
+              <button type="button" class="role-revoke-btn" id="revokeModeratorBtn">حذف نقش ناظر</button>
+            </div>
           </form>
           <p id="roleManagementMessage" class="role-management-message" role="status" aria-live="polite"></p>
-          <div id="roleAdminList" class="role-admin-list"><p>برای مشاهدهٔ مدیران، سرویس نقش‌ها باید راه‌اندازی شود.</p></div>
+          <div id="roleAdminList" class="role-admin-list"><p>برای مشاهدهٔ مدیران و ناظران، سرویس نقش‌ها باید راه‌اندازی شود.</p></div>
         </section>
 
         <section class="profile-library profile-panel" aria-labelledby="profileLibraryTitle">
@@ -699,10 +704,13 @@
     const roleManagementMessage = document.getElementById('roleManagementMessage');
     const roleAdminList = document.getElementById('roleAdminList');
     const revokeAdminBtn = document.getElementById('revokeAdminBtn');
+    const grantModeratorBtn = document.getElementById('grantModeratorBtn');
+    const revokeModeratorBtn = document.getElementById('revokeModeratorBtn');
 
     function roleLabel(role) {
       if (role === 'owner') return '♛ مالک سایت';
       if (role === 'admin') return '✦ مدیر سایت';
+      if (role === 'moderator') return '◈ ناظر سایت';
       return '';
     }
 
@@ -760,12 +768,15 @@
     function renderAdminList() {
       if (!roleAdminList) return;
       const admins = [...publicRoleMap.entries()].filter(([, role]) => role === 'admin');
-      roleAdminList.innerHTML = admins.length
-        ? '<strong>مدیران فعلی</strong>' + admins.map(([userId]) => '<div class="role-admin-row"><code>' + escapeHtml(userId) + '</code><span class="site-role-badge admin">✦ مدیر سایت</span></div>').join('')
-        : '<p>هنوز مدیری ثبت نشده یا سرویس نقش‌ها در دسترس نیست.</p>';
+      const moderators = [...publicRoleMap.entries()].filter(([, role]) => role === 'moderator');
+      const rows = (items, role) => items.map(([userId]) => '<div class="role-admin-row"><code>' + escapeHtml(userId) + '</code><span class="site-role-badge ' + role + '">' + escapeHtml(roleLabel(role)) + '</span></div>').join('');
+      roleAdminList.innerHTML = (admins.length || moderators.length)
+        ? (admins.length ? '<strong>مدیران فعلی</strong>' + rows(admins, 'admin') : '')
+          + (moderators.length ? '<strong>ناظران فعلی</strong>' + rows(moderators, 'moderator') : '')
+        : '<p>هنوز مدیر یا ناظری ثبت نشده یا سرویس نقش‌ها در دسترس نیست.</p>';
     }
 
-    async function updateAdminRole(action) {
+    async function updateSiteRole(action) {
       const userId = String(roleTargetUserId?.value || '').trim().toLowerCase();
       if (!userId) {
         setRoleMessage('شناسهٔ کاربر را وارد کن.');
@@ -777,7 +788,8 @@
       buttons?.forEach(button => { button.disabled = true; });
       try {
         await callRolesFunction({ action, userId });
-        setRoleMessage(action === 'grant-admin' ? 'نقش مدیر با موفقیت ثبت شد.' : 'نقش مدیر حذف شد.', true);
+        const roleName = action.includes('moderator') ? 'ناظر' : 'مدیر';
+        setRoleMessage(action.startsWith('grant-') ? 'نقش ' + roleName + ' با موفقیت ثبت شد.' : 'نقش ' + roleName + ' حذف شد.', true);
         roleTargetUserId.value = '';
         await loadPublicRoles();
       } catch (error) {
@@ -789,9 +801,11 @@
 
     roleManagementForm?.addEventListener('submit', event => {
       event.preventDefault();
-      updateAdminRole('grant-admin');
+      updateSiteRole('grant-admin');
     });
-    revokeAdminBtn?.addEventListener('click', () => updateAdminRole('revoke-admin'));
+    revokeAdminBtn?.addEventListener('click', () => updateSiteRole('revoke-admin'));
+    grantModeratorBtn?.addEventListener('click', () => updateSiteRole('grant-moderator'));
+    revokeModeratorBtn?.addEventListener('click', () => updateSiteRole('revoke-moderator'));
 
     function setProfileMessage(message = '', success = false) {
       if (!profileMessage) return;
