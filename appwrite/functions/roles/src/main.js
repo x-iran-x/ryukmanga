@@ -39,7 +39,7 @@ export default async ({ req, res, log, error }) => {
       return response.documents.map((doc) => ({
         userId: doc.$id,
         role: doc.role
-      })).filter((item) => item.role === "owner" || item.role === "admin");
+      })).filter((item) => item.role === "owner" || item.role === "admin" || item.role === "moderator");
     };
 
     const method = String(req.method || "GET").toUpperCase();
@@ -56,8 +56,8 @@ export default async ({ req, res, log, error }) => {
       return res.json({ ok: true, roles: publicRoles });
     }
 
-    // Only the configured owner can grant or revoke administrator roles.
-    if (callerId !== OWNER_USER_ID) return jsonError(res, 403, "Only the site owner can manage administrators.");
+    // Only the configured owner can grant or revoke admin and moderator roles.
+    if (callerId !== OWNER_USER_ID) return jsonError(res, 403, "Only the site owner can manage site roles.");
 
     const targetUserId = normalizeUserId(body.userId);
     if (!targetUserId || targetUserId.length > 36) {
@@ -66,12 +66,16 @@ export default async ({ req, res, log, error }) => {
     if (targetUserId === OWNER_USER_ID) {
       return jsonError(res, 400, "The owner's role cannot be changed here.");
     }
-    if (action !== "grant-admin" && action !== "revoke-admin") {
-      return jsonError(res, 400, "Unknown role action.");
-    }
+    const roleActions = {
+      "grant-admin": { role: "admin", grant: true },
+      "revoke-admin": { role: "admin", grant: false },
+      "grant-moderator": { role: "moderator", grant: true },
+      "revoke-moderator": { role: "moderator", grant: false }
+    };
+    const operation = roleActions[action];
+    if (!operation) return jsonError(res, 400, "Unknown role action.");
 
-    if (action === "grant-admin") {
-      // Validate the target against Appwrite Users API before assigning a role.
+    if (operation.grant) {
       try {
         await users.get({ userId: targetUserId });
       } catch {
@@ -82,11 +86,10 @@ export default async ({ req, res, log, error }) => {
           databaseId: DATABASE_ID,
           collectionId: COLLECTION_ID,
           documentId: targetUserId,
-          data: { role: "admin" },
+          data: { role: operation.role },
           permissions: []
         });
       } catch (createError) {
-        // If a role document already exists, update it to admin. Other errors are rethrown.
         const existing = await databases.getDocument({
           databaseId: DATABASE_ID,
           collectionId: COLLECTION_ID,
@@ -97,23 +100,31 @@ export default async ({ req, res, log, error }) => {
           databaseId: DATABASE_ID,
           collectionId: COLLECTION_ID,
           documentId: targetUserId,
-          data: { role: "admin" },
+          data: { role: operation.role },
           permissions: []
         });
       }
     } else {
-      await databases.deleteDocument({
+      // Avoid removing a different role if the owner picked the wrong revoke action.
+      const existing = await databases.getDocument({
         databaseId: DATABASE_ID,
         collectionId: COLLECTION_ID,
         documentId: targetUserId
-      }).catch((deleteError) => {
-        // Revoking a non-admin is idempotent.
-        if (Number(deleteError?.code) !== 404) throw deleteError;
+      }).catch((readError) => {
+        if (Number(readError?.code) === 404) return null;
+        throw readError;
       });
+      if (existing?.role === operation.role) {
+        await databases.deleteDocument({
+          databaseId: DATABASE_ID,
+          collectionId: COLLECTION_ID,
+          documentId: targetUserId
+        });
+      }
     }
 
     log(`Owner ${callerId} completed ${action} for ${targetUserId}.`);
-    return res.json({ ok: true, action, userId: targetUserId });
+    return res.json({ ok: true, action, userId: targetUserId, role: operation.role });
   } catch (err) {
     error(err?.stack || String(err));
     return jsonError(res, 500, "Role operation failed.");
