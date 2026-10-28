@@ -1415,3 +1415,27 @@ audio {
 @media (prefers-reduced-motion: reduce) {
   .profile-form textarea, .library-add-form input, .library-add-form select, .library-filter { transition: none; }
 }
+
+
+/* Secure site role badges and owner-only role controls */
+.profile-role-badges { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
+.site-role-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border: 1px solid #3b3545; border-radius: 999px; background: #191720; color: #d6c9ff; font-size: .78rem; font-weight: 800; line-height: 1.6; white-space: nowrap; }
+.site-role-badge.owner { border-color: rgba(229, 9, 20, .55); background: linear-gradient(135deg, rgba(229,9,20,.16), rgba(75,25,54,.24)); color: #ffb8c0; box-shadow: 0 0 18px rgba(229,9,20,.08); }
+.site-role-badge.admin { border-color: rgba(155, 125, 255, .4); color: #d4c6ff; }
+.role-management-panel { margin-top: 22px; }
+.role-management-panel[hidden] { display: none !important; }
+.role-management-help { color: #a8a5b2; font-size: .88rem; line-height: 1.9; margin-bottom: 14px; }
+.role-management-form { display: grid; gap: 12px; }
+.role-management-form input { width: 100%; min-width: 0; padding: 12px 14px; background: #111115; border: 1px solid #33333d; border-radius: 8px; color: #fff; outline: none; }
+.role-management-form input:focus { border-color: #9b7dff; }
+.role-management-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.role-management-actions button { flex: 1 1 150px; margin-top: 0; }
+.role-revoke-btn { padding: 12px; background: #211419; border: 1px solid #6b2632; border-radius: 8px; color: #ffb8c0; cursor: pointer; font-weight: 700; }
+.role-revoke-btn:hover { background: #35151d; }
+.role-management-actions button:disabled { opacity: .6; cursor: wait; }
+.role-management-message { margin-top: 10px; color: #ff9aa2; font-size: .88rem; line-height: 1.8; overflow-wrap: anywhere; }
+.role-management-message.success { color: #86efac; }
+.role-admin-list { display: grid; gap: 8px; margin-top: 14px; color: #aaa; font-size: .88rem; }
+.role-admin-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border: 1px solid #2b2934; border-radius: 9px; background: #111115; }
+.role-admin-row code { overflow-wrap: anywhere; color: #f0edf8; }
+@media (max-width: 480px) { .role-admin-row { align-items: flex-start; flex-direction: column; } .role-management-actions { flex-direction: column; } }
