@@ -152,7 +152,6 @@ collections:
       - { name: title, label: "نام ویدیو", widget: string, required: true }
       - { name: source, label: "منبع", widget: string, required: true }
       - { name: artist, label: "هنرمند", widget: string, required: false }
-      - { name: type, label: "نوع", widget: string, required: false }
       - { name: thumbnail, label: "تصویر پیش‌نمایش", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
       - { name: icon, label: "ایموجی جایگزین تصویر", widget: string, required: false }
       - name: type
@@ -173,9 +172,8 @@ collections:
     format: json
     slug: "{{slug}}"
     identifier_field: slug
-    summary: "{{title_fa}}"
+    summary: "{{title}}"
     fields:
-      - { name: slug, label: "شناسه انگلیسی (slug)", widget: string, required: true }
       - { name: title, label: "عنوان مقاله", widget: string, required: true }
       - { name: slug, label: "شناسه آدرس انگلیسی (slug)", widget: string, required: true, hint: "بدون فاصله؛ نمونه: berserk-review" }
       - { name: summary, label: "خلاصه مقاله", widget: text, required: true }
@@ -183,6 +181,6 @@ collections:
       - { name: category, label: "دسته‌بندی", widget: select, required: false, options: ["اخبار", "نقد و بررسی", "معرفی", "راهنما", "تحلیل"] }
       - { name: tags, label: "برچسب‌ها", widget: string, required: false }
       - { name: author, label: "نویسنده", widget: string, required: false }
-      - { name: published_at, label: "تاریخ انتشار", widget: datetime, date_format: "YYYY-MM-DD", time_format: false, required: false }
+      - { name: published_at, label: "تاریخ انتشار", widget: date, date_format: "YYYY-MM-DD", required: false }
       - { name: body, label: "متن مقاله", widget: markdown, required: true }
       - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
