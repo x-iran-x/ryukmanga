@@ -158,6 +158,7 @@
           <div class="profile-identity-copy">
             <p class="profile-eyebrow">حساب کاربری</p>
             <h2 id="profileTitle">پروفایل من</h2>
+            <div id="profileRoleBadges" class="profile-role-badges" aria-live="polite"></div>
             <p class="profile-subtitle">به گوشهٔ شخصی خودت در دنیای RyukManga خوش اومدی.</p>
           </div>
           <span class="profile-member-chip"><span class="profile-status-dot"></span> عضو فعال</span>
@@ -237,6 +238,18 @@
         </div>
 
 
+        <section class="profile-panel role-management-panel" id="roleManagementPanel" hidden aria-labelledby="roleManagementTitle">
+          <div class="profile-panel-heading compact"><div><span class="profile-panel-kicker">SITE CONTROL</span><h3 id="roleManagementTitle">مدیریت مدیران سایت</h3></div><span class="profile-panel-icon" aria-hidden="true">♜</span></div>
+          <p class="role-management-help">فقط مالک سایت می‌تواند نقش مدیر را اضافه یا حذف کند. شناسهٔ کاربری Appwrite را وارد کن؛ نام نمایشی کافی نیست.</p>
+          <form id="roleManagementForm" class="role-management-form">
+            <label class="visually-hidden" for="roleTargetUserId">شناسهٔ کاربر</label>
+            <input id="roleTargetUserId" name="userId" type="text" maxlength="36" required placeholder="شناسهٔ دقیق کاربر (مثلاً username)" autocomplete="off" spellcheck="false">
+            <div class="role-management-actions"><button type="submit" class="auth-submit-btn" data-role-action="grant-admin">＋ افزودن مدیر</button><button type="button" class="role-revoke-btn" id="revokeAdminBtn">حذف نقش مدیر</button></div>
+          </form>
+          <p id="roleManagementMessage" class="role-management-message" role="status" aria-live="polite"></p>
+          <div id="roleAdminList" class="role-admin-list"><p>برای مشاهدهٔ مدیران، سرویس نقش‌ها باید راه‌اندازی شود.</p></div>
+        </section>
+
         <section class="profile-library profile-panel" aria-labelledby="profileLibraryTitle">
           <div class="profile-panel-heading">
             <div>
@@ -299,7 +312,7 @@
 
   <!-- Appwrite Web SDK; only public project configuration is used in the browser. -->
   <script type="module">
-    import { Account, Client, ID } from 'https://cdn.jsdelivr.net/npm/appwrite@28.3.0/+esm';
+    import { Account, Client, Functions, ID } from 'https://cdn.jsdelivr.net/npm/appwrite@28.3.0/+esm';
 
     const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
     const APPWRITE_PROJECT_ID = '6ad28bbc0023dee367ab';
@@ -308,6 +321,11 @@
       .setEndpoint(APPWRITE_ENDPOINT)
       .setProject(APPWRITE_PROJECT_ID);
     const account = new Account(client);
+    const functions = new Functions(client);
+    const OWNER_USER_ID = 'sobhan';
+    // Set this to the deployed Appwrite Function ID after creating it in the Appwrite Console.
+    const ROLE_FUNCTION_ID = 'CONFIGURE_APPWRITE_ROLE_FUNCTION_ID';
+    let publicRoleMap = new Map();
 
     const introScreen = document.getElementById('intro-screen');
     let introEnded = false;
@@ -673,6 +691,110 @@
       }
     }
 
+
+    const profileRoleBadges = document.getElementById('profileRoleBadges');
+    const roleManagementPanel = document.getElementById('roleManagementPanel');
+    const roleManagementForm = document.getElementById('roleManagementForm');
+    const roleTargetUserId = document.getElementById('roleTargetUserId');
+    const roleManagementMessage = document.getElementById('roleManagementMessage');
+    const roleAdminList = document.getElementById('roleAdminList');
+    const revokeAdminBtn = document.getElementById('revokeAdminBtn');
+
+    function roleLabel(role) {
+      if (role === 'owner') return '♛ مالک سایت';
+      if (role === 'admin') return '✦ مدیر سایت';
+      return '';
+    }
+
+    function renderRoleBadges(user) {
+      if (!profileRoleBadges) return;
+      const role = user?.$id?.toLowerCase() === OWNER_USER_ID ? 'owner' : (publicRoleMap.get(user?.$id) || '');
+      profileRoleBadges.innerHTML = role ? '<span class="site-role-badge ' + role + '">' + escapeHtml(roleLabel(role)) + '</span>' : '';
+      if (roleManagementPanel) roleManagementPanel.hidden = role !== 'owner';
+    }
+
+    function setRoleMessage(message = '', success = false) {
+      if (!roleManagementMessage) return;
+      roleManagementMessage.textContent = message;
+      roleManagementMessage.classList.toggle('success', success);
+    }
+
+    async function callRolesFunction(payload) {
+      if (ROLE_FUNCTION_ID === 'CONFIGURE_APPWRITE_ROLE_FUNCTION_ID') {
+        throw new Error('سرویس نقش‌ها هنوز در Appwrite ساخته و به سایت متصل نشده است.');
+      }
+      const jwt = await account.createJWT();
+      client.setJWT(jwt.jwt);
+      const execution = await functions.createExecution({
+        functionId: ROLE_FUNCTION_ID,
+        body: JSON.stringify(payload),
+        async: false,
+        path: '/',
+        method: 'POST',
+        headers: { 'content-type': 'application/json' }
+      });
+      let data;
+      try { data = JSON.parse(execution.responseBody || '{}'); }
+      catch { throw new Error('پاسخ سرویس نقش‌ها قابل‌خواندن نیست.'); }
+      if (!data.ok) throw new Error(data.error || 'درخواست نقش‌ها انجام نشد.');
+      return data;
+    }
+
+    async function loadPublicRoles() {
+      const user = window.ryukAppwriteUser;
+      if (!user) {
+        publicRoleMap = new Map();
+        renderRoleBadges(null);
+        return;
+      }
+      // Owner badge is based on the authenticated Appwrite account ID; admin roles come only from the server function.
+      if (user.$id?.toLowerCase() === OWNER_USER_ID) renderRoleBadges(user);
+      try {
+        const result = await callRolesFunction({ action: 'list' });
+        publicRoleMap = new Map((result.roles || []).map(item => [item.userId, item.role]));
+      } catch (error) {
+        console.warn('Role service is not ready:', error);
+      }
+      renderRoleBadges(user);
+      if (user.$id?.toLowerCase() === OWNER_USER_ID) renderAdminList();
+    }
+
+    function renderAdminList() {
+      if (!roleAdminList) return;
+      const admins = [...publicRoleMap.entries()].filter(([, role]) => role === 'admin');
+      roleAdminList.innerHTML = admins.length
+        ? '<strong>مدیران فعلی</strong>' + admins.map(([userId]) => '<div class="role-admin-row"><code>' + escapeHtml(userId) + '</code><span class="site-role-badge admin">✦ مدیر سایت</span></div>').join('')
+        : '<p>هنوز مدیری ثبت نشده یا سرویس نقش‌ها در دسترس نیست.</p>';
+    }
+
+    async function updateAdminRole(action) {
+      const userId = String(roleTargetUserId?.value || '').trim().toLowerCase();
+      if (!userId) {
+        setRoleMessage('شناسهٔ کاربر را وارد کن.');
+        roleTargetUserId?.focus();
+        return;
+      }
+      setRoleMessage('');
+      const buttons = roleManagementForm?.querySelectorAll('button');
+      buttons?.forEach(button => { button.disabled = true; });
+      try {
+        await callRolesFunction({ action, userId });
+        setRoleMessage(action === 'grant-admin' ? 'نقش مدیر با موفقیت ثبت شد.' : 'نقش مدیر حذف شد.', true);
+        roleTargetUserId.value = '';
+        await loadPublicRoles();
+      } catch (error) {
+        setRoleMessage(error?.message || 'عملیات انجام نشد.');
+      } finally {
+        buttons?.forEach(button => { button.disabled = false; });
+      }
+    }
+
+    roleManagementForm?.addEventListener('submit', event => {
+      event.preventDefault();
+      updateAdminRole('grant-admin');
+    });
+    revokeAdminBtn?.addEventListener('click', () => updateAdminRole('revoke-admin'));
+
     function setProfileMessage(message = '', success = false) {
       if (!profileMessage) return;
       profileMessage.textContent = message;
@@ -738,6 +860,7 @@
       setProfileMessage('');
       await loadAvatarPreference();
       await loadPersonalPreferences();
+      await loadPublicRoles();
       if (profileTitle) profileTitle.textContent = user.name || 'پروفایل من';
       profileModal.classList.add('active');
       profileModal.setAttribute('aria-hidden', 'false');
