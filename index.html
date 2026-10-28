@@ -178,6 +178,11 @@
                 <input id="profileName" name="name" type="text" autocomplete="name" maxlength="100" required placeholder="اسم دلخواهت رو بنویس">
               </div>
               <div class="input-group">
+                <label for="profileBio">دربارهٔ من <span class="profile-optional">(اختیاری)</span></label>
+                <textarea id="profileBio" name="bio" maxlength="180" rows="3" placeholder="چند کلمه درباره سلیقه‌ات در انیمه و مانگا..." aria-describedby="profileBioHelp"></textarea>
+                <small id="profileBioHelp" class="profile-help"><span id="profileBioCount">۰</span>/۱۸۰ نویسه؛ این متن در پروفایل خودت ذخیره می‌شود.</small>
+              </div>
+              <div class="input-group">
                 <label for="profileEmail">ایمیل حساب</label>
                 <input id="profileEmail" name="email" type="email" readonly aria-describedby="profileEmailHelp">
                 <small id="profileEmailHelp" class="profile-help">ایمیل فعلاً از تنظیمات حساب خوانده می‌شه.</small>
@@ -231,6 +236,59 @@
           </aside>
         </div>
 
+
+        <section class="profile-library profile-panel" aria-labelledby="profileLibraryTitle">
+          <div class="profile-panel-heading">
+            <div>
+              <span class="profile-panel-kicker">YOUR PERSONAL SHELF</span>
+              <h3 id="profileLibraryTitle">کتابخانهٔ من</h3>
+              <p class="profile-library-intro">انیمه‌ها و مانگاهایی که دنبال می‌کنی را یک‌جا نگه دار؛ وضعیت و علاقه‌مندی‌هایت در حسابت ذخیره می‌شود.</p>
+            </div>
+            <span class="profile-panel-icon" aria-hidden="true">✦</span>
+          </div>
+          <form id="libraryAddForm" class="library-add-form">
+            <div class="input-group library-title-field">
+              <label for="libraryTitle">عنوان انیمه یا مانگا</label>
+              <input id="libraryTitle" name="title" maxlength="120" required placeholder="مثلاً Berserk">
+            </div>
+            <div class="library-form-row">
+              <div class="input-group">
+                <label for="libraryType">نوع</label>
+                <select id="libraryType" name="type">
+                  <option value="anime">انیمه</option>
+                  <option value="manga">مانگا</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label for="libraryStatus">وضعیت</label>
+                <select id="libraryStatus" name="status">
+                  <option value="planned">می‌خواهم شروع کنم</option>
+                  <option value="in-progress">در حال تماشا / مطالعه</option>
+                  <option value="completed">تمام‌شده</option>
+                  <option value="paused">فعلاً متوقف</option>
+                </select>
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="libraryUrl">لینک صفحه (اختیاری)</label>
+              <input id="libraryUrl" name="url" type="url" inputmode="url" maxlength="500" placeholder="https://ryukmanga.vercel.app/...">
+            </div>
+            <button type="submit" class="auth-submit-btn library-add-btn" id="libraryAddBtn">＋ افزودن به کتابخانه</button>
+            <p class="library-feedback" id="libraryFeedback" role="status" aria-live="polite"></p>
+          </form>
+          <div class="library-toolbar">
+            <div class="library-filter-tabs" role="group" aria-label="فیلتر کتابخانه">
+              <button type="button" class="library-filter active" data-library-filter="all" aria-pressed="true">همه</button>
+              <button type="button" class="library-filter" data-library-filter="anime" aria-pressed="false">انیمه</button>
+              <button type="button" class="library-filter" data-library-filter="manga" aria-pressed="false">مانگا</button>
+              <button type="button" class="library-filter" data-library-filter="favorites" aria-pressed="false">♥ علاقه‌مندی‌ها</button>
+            </div>
+            <span class="library-count" id="libraryCount">۰ عنوان</span>
+          </div>
+          <div class="library-list" id="libraryList" aria-live="polite">
+            <div class="library-empty"><span aria-hidden="true">✧</span><strong>قفسه‌ات هنوز خالیه</strong><p>اولین انیمه یا مانگات را از فرم بالا اضافه کن.</p></div>
+          </div>
+        </section>
         <div class="profile-footer">
           <span class="profile-footer-note"><span class="profile-status-dot"></span> نشست امن و فعال</span>
           <button type="button" class="profile-logout-btn" id="profileLogoutBtn"><span aria-hidden="true">↪</span> خروج از حساب</button>
@@ -276,6 +334,7 @@
     const closeProfileBtn = document.getElementById('closeProfileBtn');
     const profileForm = document.getElementById('profileForm');
     const profileName = document.getElementById('profileName');
+    const profileTitle = document.getElementById('profileTitle');
     const profileEmail = document.getElementById('profileEmail');
     const profileAvatar = document.getElementById('profileAvatar');
     const profileAvatarImage = document.getElementById('profileAvatarImage');
@@ -302,6 +361,263 @@
     const profileUserId = document.getElementById('profileUserId');
     const copyProfileIdBtn = document.getElementById('copyProfileIdBtn');
     const profileCopyFeedback = document.getElementById('profileCopyFeedback');
+    const profileBio = document.getElementById('profileBio');
+    const profileBioCount = document.getElementById('profileBioCount');
+    const libraryAddForm = document.getElementById('libraryAddForm');
+    const libraryTitleInput = document.getElementById('libraryTitle');
+    const libraryTypeInput = document.getElementById('libraryType');
+    const libraryStatusInput = document.getElementById('libraryStatus');
+    const libraryUrlInput = document.getElementById('libraryUrl');
+    const libraryAddBtn = document.getElementById('libraryAddBtn');
+    const libraryFeedback = document.getElementById('libraryFeedback');
+    const libraryList = document.getElementById('libraryList');
+    const libraryCount = document.getElementById('libraryCount');
+    const libraryFilterButtons = [...document.querySelectorAll('[data-library-filter]')];
+    const LIBRARY_STATUSES = {
+      planned: 'می‌خواهم شروع کنم',
+      'in-progress': 'در حال تماشا / مطالعه',
+      completed: 'تمام‌شده',
+      paused: 'فعلاً متوقف'
+    };
+    let accountLibrary = [];
+    let activeLibraryFilter = 'all';
+    let librarySaveQueue = Promise.resolve();
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[char]));
+    }
+
+    function normalizeLibraryUrl(value) {
+      const raw = String(value || '').trim();
+      if (!raw) return '';
+      try {
+        const parsed = new URL(raw, window.location.origin);
+        if (!['http:', 'https:'].includes(parsed.protocol)) return null;
+        return parsed.href;
+      } catch {
+        return null;
+      }
+    }
+
+    function setLibraryFeedback(message = '', success = false) {
+      if (!libraryFeedback) return;
+      libraryFeedback.textContent = message;
+      libraryFeedback.classList.toggle('success', success);
+    }
+
+    function saveAccountPrefs(changes) {
+      // Serialize writes so quick successive actions cannot overwrite one another.
+      librarySaveQueue = librarySaveQueue.then(async () => {
+        const currentPrefs = await account.getPrefs();
+        await account.updatePrefs({ prefs: { ...currentPrefs, ...changes } });
+      });
+      return librarySaveQueue;
+    }
+
+    async function loadPersonalPreferences() {
+      try {
+        const prefs = await account.getPrefs();
+        if (profileBio) profileBio.value = String(prefs?.ryukmangaBio || '').slice(0, 180);
+        accountLibrary = Array.isArray(prefs?.ryukmangaLibrary)
+          ? prefs.ryukmangaLibrary.filter(item =>
+              item && typeof item.id === 'string' &&
+              typeof item.title === 'string' &&
+              ['anime', 'manga'].includes(item.type) &&
+              Object.hasOwn(LIBRARY_STATUSES, item.status)
+            ).slice(0, 60)
+          : [];
+      } catch (error) {
+        console.warn('Could not load personal RyukManga preferences:', error);
+        accountLibrary = [];
+        if (libraryFeedback) setLibraryFeedback('اطلاعات شخصی بارگذاری نشد؛ اتصال را بررسی کن و دوباره پنجره را باز کن.');
+      }
+      updateBioCount();
+      renderLibrary();
+    }
+
+    function updateBioCount() {
+      if (profileBioCount && profileBio) {
+        profileBioCount.textContent = new Intl.NumberFormat('fa-IR').format(profileBio.value.length);
+      }
+    }
+
+    function renderLibrary() {
+      if (!libraryList) return;
+      const filtered = accountLibrary.filter(item => {
+        if (activeLibraryFilter === 'anime' || activeLibraryFilter === 'manga') return item.type === activeLibraryFilter;
+        if (activeLibraryFilter === 'favorites') return item.favorite === true;
+        return true;
+      });
+      if (libraryCount) {
+        libraryCount.textContent = `${new Intl.NumberFormat('fa-IR').format(filtered.length)} عنوان`;
+      }
+      libraryFilterButtons.forEach(button => {
+        const active = button.dataset.libraryFilter === activeLibraryFilter;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', String(active));
+      });
+      if (!filtered.length) {
+        const message = accountLibrary.length
+          ? 'در این بخش هنوز عنوانی وجود ندارد.'
+          : 'اولین انیمه یا مانگات را از فرم بالا اضافه کن.';
+        libraryList.innerHTML = `<div class="library-empty"><span aria-hidden="true">✧</span><strong>${accountLibrary.length ? 'چیزی برای نمایش نیست' : 'قفسه‌ات هنوز خالیه'}</strong><p>${message}</p></div>`;
+        return;
+      }
+      libraryList.innerHTML = filtered.map(item => {
+        const safeUrl = normalizeLibraryUrl(item.url);
+        const link = safeUrl
+          ? `<a class="library-open-link" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">باز کردن صفحه <span aria-hidden="true">↗</span></a>`
+          : '';
+        return `
+          <article class="library-item" data-library-id="${escapeHtml(item.id)}">
+            <div class="library-item-art ${item.type === 'anime' ? 'is-anime' : 'is-manga'}" aria-hidden="true">${item.type === 'anime' ? '▶' : '▤'}</div>
+            <div class="library-item-main">
+              <div class="library-item-title-row">
+                <strong>${escapeHtml(item.title)}</strong>
+                <span class="library-type-label">${item.type === 'anime' ? 'انیمه' : 'مانگا'}</span>
+              </div>
+              <label class="library-status-control"><span class="visually-hidden">وضعیت ${escapeHtml(item.title)}</span>
+                <select data-library-status="${escapeHtml(item.id)}" aria-label="وضعیت ${escapeHtml(item.title)}">
+                  ${Object.entries(LIBRARY_STATUSES).map(([value, label]) => `<option value="${value}" ${item.status === value ? 'selected' : ''}>${label}</option>`).join('')}
+                </select>
+              </label>
+              <div class="library-item-actions">
+                ${link}
+                <button type="button" class="library-favorite ${item.favorite ? 'is-favorite' : ''}" data-library-favorite="${escapeHtml(item.id)}" aria-pressed="${String(!!item.favorite)}" aria-label="${item.favorite ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}">${item.favorite ? '♥ در علاقه‌مندی‌ها' : '♡ افزودن به علاقه‌مندی‌ها'}</button>
+                <button type="button" class="library-remove" data-library-remove="${escapeHtml(item.id)}">حذف</button>
+              </div>
+            </div>
+          </article>`;
+      }).join('');
+    }
+
+    async function persistLibrary(message = 'تغییرات کتابخانه ذخیره شد.') {
+      try {
+        await saveAccountPrefs({ ryukmangaLibrary: accountLibrary });
+        setLibraryFeedback(message, true);
+      } catch (error) {
+        console.error('Could not save RyukManga library:', error);
+        setLibraryFeedback(`ذخیره انجام نشد: ${friendlyError(error)}`);
+        await loadPersonalPreferences();
+      }
+    }
+
+    profileBio?.addEventListener('input', updateBioCount);
+    profileForm?.addEventListener('submit', async event => {
+      // Bio is stored in Appwrite preferences; keep the name in the account profile.
+      const bio = String(profileBio?.value || '').trim().slice(0, 180);
+      event.preventDefault();
+      const name = profileName?.value.trim() || '';
+      if (!name) {
+        setProfileMessage('لطفاً یک نام نمایشی وارد کن.');
+        profileName?.focus();
+        return;
+      }
+      if (saveProfileBtn) {
+        saveProfileBtn.disabled = true;
+        saveProfileBtn.textContent = 'در حال ذخیره...';
+      }
+      setProfileMessage('');
+      try {
+        await account.updateName({ name });
+        await saveAccountPrefs({ ryukmangaBio: bio });
+        const user = await refreshAuthState();
+        if (user) {
+          if (profileTitle) profileTitle.textContent = user.name || 'پروفایل من';
+          if (openAuthBtn) openAuthBtn.textContent = 'پروفایل من';
+          setProfileMessage('نام نمایشی و معرفی کوتاه ذخیره شد.', true);
+        }
+      } catch (error) {
+        setProfileMessage(friendlyError(error));
+      } finally {
+        if (saveProfileBtn) {
+          saveProfileBtn.disabled = false;
+          saveProfileBtn.innerHTML = '<span>ذخیرهٔ تغییرات</span><span aria-hidden="true">←</span>';
+        }
+      }
+    });
+
+    libraryAddForm?.addEventListener('submit', async event => {
+      event.preventDefault();
+      const title = String(libraryTitleInput?.value || '').trim().slice(0, 120);
+      const type = libraryTypeInput?.value === 'manga' ? 'manga' : 'anime';
+      const status = Object.hasOwn(LIBRARY_STATUSES, libraryStatusInput?.value) ? libraryStatusInput.value : 'planned';
+      const url = normalizeLibraryUrl(libraryUrlInput?.value);
+      if (!title) {
+        setLibraryFeedback('اول عنوان انیمه یا مانگا را بنویس.');
+        libraryTitleInput?.focus();
+        return;
+      }
+      if (url === null) {
+        setLibraryFeedback('لینک باید یک آدرس معتبر با https:// یا http:// باشد.');
+        libraryUrlInput?.focus();
+        return;
+      }
+      if (accountLibrary.length >= 60) {
+        setLibraryFeedback('کتابخانه فعلاً حداکثر ۶۰ عنوان نگه می‌دارد.');
+        return;
+      }
+      if (libraryAddBtn) {
+        libraryAddBtn.disabled = true;
+        libraryAddBtn.textContent = 'در حال ذخیره...';
+      }
+      const duplicate = accountLibrary.some(item => item.title.toLocaleLowerCase() === title.toLocaleLowerCase() && item.type === type);
+      if (duplicate) {
+        setLibraryFeedback('این عنوان از قبل در کتابخانه‌ات هست.');
+        if (libraryAddBtn) {
+          libraryAddBtn.disabled = false;
+          libraryAddBtn.textContent = '＋ افزودن به کتابخانه';
+        }
+        return;
+      }
+      const item = { id: `rm-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`, title, type, status, url, favorite: false };
+      accountLibrary = [item, ...accountLibrary];
+      activeLibraryFilter = 'all';
+      renderLibrary();
+      libraryAddForm.reset();
+      await persistLibrary('عنوان به کتابخانه اضافه شد.');
+      if (libraryAddBtn) {
+        libraryAddBtn.disabled = false;
+        libraryAddBtn.textContent = '＋ افزودن به کتابخانه';
+      }
+    });
+
+    libraryFilterButtons.forEach(button => button.addEventListener('click', () => {
+      activeLibraryFilter = button.dataset.libraryFilter || 'all';
+      renderLibrary();
+    }));
+
+    libraryList?.addEventListener('change', async event => {
+      const select = event.target.closest('[data-library-status]');
+      if (!select) return;
+      const item = accountLibrary.find(entry => entry.id === select.dataset.libraryStatus);
+      if (!item || !Object.hasOwn(LIBRARY_STATUSES, select.value)) return;
+      const previous = item.status;
+      item.status = select.value;
+      await persistLibrary('وضعیت عنوان به‌روزرسانی شد.');
+      if (previous === item.status) renderLibrary();
+    });
+
+    libraryList?.addEventListener('click', async event => {
+      const favoriteButton = event.target.closest('[data-library-favorite]');
+      const removeButton = event.target.closest('[data-library-remove]');
+      if (favoriteButton) {
+        const item = accountLibrary.find(entry => entry.id === favoriteButton.dataset.libraryFavorite);
+        if (!item) return;
+        item.favorite = !item.favorite;
+        renderLibrary();
+        await persistLibrary(item.favorite ? 'به علاقه‌مندی‌ها اضافه شد.' : 'از علاقه‌مندی‌ها حذف شد.');
+      } else if (removeButton) {
+        const item = accountLibrary.find(entry => entry.id === removeButton.dataset.libraryRemove);
+        if (!item || !window.confirm(`«${item.title}» از کتابخانه حذف شود؟`)) return;
+        accountLibrary = accountLibrary.filter(entry => entry.id !== item.id);
+        renderLibrary();
+        await persistLibrary('عنوان از کتابخانه حذف شد.');
+      }
+    });
+
 
     function setMessage(message = '', success = false) {
       if (!authMessage) return;
@@ -421,6 +737,8 @@
       if (profileCopyFeedback) profileCopyFeedback.textContent = '';
       setProfileMessage('');
       await loadAvatarPreference();
+      await loadPersonalPreferences();
+      if (profileTitle) profileTitle.textContent = user.name || 'پروفایل من';
       profileModal.classList.add('active');
       profileModal.setAttribute('aria-hidden', 'false');
     }
@@ -497,36 +815,6 @@
     });
     window.addEventListener('keydown', event => {
       if (event.key === 'Escape') closeProfile();
-    });
-
-    profileForm?.addEventListener('submit', async event => {
-      event.preventDefault();
-      const name = profileName?.value.trim() || '';
-      if (!name) {
-        setProfileMessage('لطفاً یک نام نمایشی وارد کن.');
-        profileName?.focus();
-        return;
-      }
-      if (saveProfileBtn) {
-        saveProfileBtn.disabled = true;
-        saveProfileBtn.textContent = 'در حال ذخیره...';
-      }
-      setProfileMessage('');
-      try {
-        await account.updateName({ name });
-        const user = await refreshAuthState();
-        if (user) {
-          openProfile(user);
-          setProfileMessage('نام نمایشی با موفقیت ذخیره شد.', true);
-        }
-      } catch (error) {
-        setProfileMessage(friendlyError(error));
-      } finally {
-        if (saveProfileBtn) {
-          saveProfileBtn.disabled = false;
-          saveProfileBtn.textContent = 'ذخیرهٔ تغییرات';
-        }
-      }
     });
 
     profileLogoutBtn?.addEventListener('click', async () => {
