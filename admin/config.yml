@@ -50,7 +50,14 @@ collections:
     slug: "{{year}}{{month}}{{day}}-{{hour}}{{minute}}{{second}}"
     summary: "{{manga}} — جلد {{number}}"
     fields:
-      - { name: manga, label: "شناسه مانگا", widget: string, required: true }
+      - name: manga
+        label: "انتخاب مانگا"
+        widget: relation
+        collection: manga
+        search_fields: [title, title_fa]
+        value_field: slug
+        display_fields: [title_fa, title]
+        required: true
       - { name: number, label: "شماره جلد", widget: number, value_type: int, required: true }
       - { name: download_file, label: "فایل PDF/ZIP", widget: file, required: false, media_folder: media/files, public_folder: /media/files }
       - { name: download_link, label: "لینک دانلود خارجی", widget: string, required: false }
@@ -94,7 +101,14 @@ collections:
     slug: "{{year}}{{month}}{{day}}-{{hour}}{{minute}}{{second}}"
     summary: "{{anime}} — قسمت {{number}} — {{quality}}"
     fields:
-      - { name: anime, label: "شناسه انیمه", widget: string, required: true, hint: "برای سازگاری با داده‌های فعلی، مسیر فایل انیمه را وارد کن؛ مثال: _data/anime/test.json" }
+      - name: anime
+        label: "انتخاب انیمه"
+        widget: relation
+        collection: anime
+        search_fields: [title, title_fa]
+        value_field: slug
+        display_fields: [title_fa, title]
+        required: true
       - { name: number, label: "شماره قسمت", widget: number, value_type: int, required: true }
       - { name: quality, label: "کیفیت", widget: select, required: false, options: ["480p", "720p", "1080p"] }
       - { name: audio, label: "زبان/زیرنویس", widget: select, required: false, options: ["زیرنویس فارسی", "دوبله فارسی", "زیرنویس انگلیسی"] }
