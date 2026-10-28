@@ -91,6 +91,7 @@ async function loadAnime() {
       audio: d.audio || '',
       download: d.download_link || '',
       watch: d.watch_link || '',
+      youtube_embed: d.youtube_embed || '',
       subtitle: d.subtitle_link || '',
       intro_start: d.intro_start ?? d.introStart ?? '',
       intro_end: d.intro_end ?? d.introEnd ?? '',
