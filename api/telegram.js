@@ -27,14 +27,14 @@ async function telegram(method, payload) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) throw new Error("Missing TELEGRAM_BOT_TOKEN environment variable");
 
-  const response = await fetch(`${TELEGRAM_API}/bot${token}/${method}`, {
+  const response = await fetch(\`${TELEGRAM_API}/bot${token}/${method}\`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(payload)
   });
   const data = await response.json();
   if (!response.ok || !data.ok) {
-    throw new Error(`Telegram API ${method} failed: ${data.description || response.status}`);
+    throw new Error(\`Telegram API ${method} failed: ${data.description || response.status}\`);
   }
   return data.result;
 }
@@ -68,7 +68,7 @@ export default async function handler(req, res) {
       if (callback.data === "help" && callback.message?.chat?.id) {
         await sendMessage(
           callback.message.chat.id,
-          "راهنمای RyukManga ✨\\n\\nاز دکمهٔ «باز کردن RyukManga» برای ورود به سایت داخل تلگرام استفاده کن. با دکمه‌های «مانگاها»، «انیمه‌ها» و «موسیقی» هم می‌تونی مستقیم وارد بخش مربوطه بشی.\\n\\nدستورهای موجود: /start ، /help ، /about",
+          "راهنمای RyukManga ✨\n\nاز دکمهٔ «باز کردن RyukManga» برای ورود به سایت داخل تلگرام استفاده کن. با دکمه‌های «مانگاها»، «انیمه‌ها» و «موسیقی» هم می‌تونی مستقیم وارد بخش مربوطه بشی.\n\nدستورهای موجود: /start ، /help ، /about",
           { reply_markup: menuKeyboard() }
         );
       }
@@ -84,16 +84,16 @@ export default async function handler(req, res) {
     const text = message.text.trim();
     const firstName = escapeHtml(message.from?.first_name || "دوست من");
 
-    if (/^\\/start(?:@\\w+)?(?:\\s|$)/i.test(text)) {
+    if (/^\/start(?:@\w+)?(?:\s|$)/i.test(text)) {
       await sendMessage(
         chatId,
-        `سلام ${firstName}! 👋\\n\\nبه <b>RyukManga</b> خوش اومدی؛ دنیای انیمه و مانگا.\\n\\nاز منوی زیر برای ورود مستقیم به بخش‌های سایت استفاده کن. 🖤`,
+        \`سلام ${firstName}! 👋\n\nبه <b>RyukManga</b> خوش اومدی؛ دنیای انیمه و مانگا.\n\nاز منوی زیر برای ورود مستقیم به بخش‌های سایت استفاده کن. 🖤\`,
         { reply_markup: menuKeyboard() }
       );
-    } else if (/^\\/(help|about)(?:@\\w+)?(?:\\s|$)/i.test(text)) {
+    } else if (/^\/(help|about)(?:@\w+)?(?:\s|$)/i.test(text)) {
       await sendMessage(
         chatId,
-        "🖤 <b>راهنمای RyukManga</b>\\n\\n• باز کردن RyukManga: ورود به سایت داخل تلگرام\\n• مانگاها: آرشیو مانگا\\n• انیمه‌ها: آرشیو انیمه\\n• موسیقی: بخش موسیقی سایت\\n\\nبرای نمایش دوبارهٔ منو، /start را بزن.",
+        "🖤 <b>راهنمای RyukManga</b>\n\n• باز کردن RyukManga: ورود به سایت داخل تلگرام\n• مانگاها: آرشیو مانگا\n• انیمه‌ها: آرشیو انیمه\n• موسیقی: بخش موسیقی سایت\n\nبرای نمایش دوبارهٔ منو، /start را بزن.",
         { reply_markup: menuKeyboard() }
       );
     } else {
