@@ -260,12 +260,78 @@
     function closeAnimePlayer() {
       const player = document.getElementById('animePlayer');
       const video = document.getElementById('animeVideo');
-      if (video) video.pause();
+      const youtubeFrame = document.getElementById('youtubeEmbedFrame');
+      const controls = document.querySelector('#animePlayer .player-controls');
+      if (video) {
+        video.pause();
+        video.style.display = '';
+      }
+      if (youtubeFrame) {
+        youtubeFrame.src = 'about:blank';
+        youtubeFrame.hidden = true;
+      }
+      if (controls) controls.style.display = '';
       destroyDashPlayer();
       if (player) player.hidden = true;
     }
 
+    // Accept either YouTube's iframe embed snippet or its /embed/ URL, but never arbitrary iframe HTML.
+    function parseYouTubeEmbedCode(input) {
+      let value = String(input || '').trim();
+      const srcMatch = value.match(/<iframe\b[^>]*\bsrc\s*=\s*["']([^"']+)["']/i);
+      if (srcMatch) value = srcMatch[1].replace(/&amp;/g, '&');
+      try {
+        const url = new URL(value);
+        const host = url.hostname.toLowerCase();
+        if (!['youtube.com', 'www.youtube.com', 'youtube-nocookie.com', 'www.youtube-nocookie.com'].includes(host)) return '';
+        const match = url.pathname.match(/^\/embed\/([A-Za-z0-9_-]{11})\/?$/);
+        if (!match) return '';
+        const embed = new URL('https://www.youtube-nocookie.com/embed/' + match[1]);
+        ['start', 'end', 'controls', 'rel', 'playsinline', 'cc_load_policy', 'cc_lang_pref'].forEach(key => {
+          const val = url.searchParams.get(key);
+          if (val !== null && /^[A-Za-z0-9_-]{1,20}$/.test(val)) embed.searchParams.set(key, val);
+        });
+        embed.searchParams.set('autoplay', '1');
+        embed.searchParams.set('playsinline', '1');
+        return embed.toString();
+      } catch (_) {
+        return '';
+      }
+    }
+
+    function playYouTubeEpisode(button) {
+      const player = document.getElementById('animePlayer');
+      const video = document.getElementById('animeVideo');
+      const youtubeFrame = document.getElementById('youtubeEmbedFrame');
+      const controls = document.querySelector('#animePlayer .player-controls');
+      const embedUrl = parseYouTubeEmbedCode(button.dataset.youtubeEmbed || '');
+      if (!player || !video || !youtubeFrame || !embedUrl) {
+        alert('کد امبد یوتیوب معتبر نیست. کد iframe یا آدرس youtube.com/embed/VIDEO_ID را بررسی کن.');
+        return;
+      }
+      destroyDashPlayer();
+      video.pause();
+      video.removeAttribute('src');
+      video.querySelectorAll('source, track').forEach(node => node.remove());
+      video.load();
+      video.style.display = 'none';
+      youtubeFrame.hidden = false;
+      youtubeFrame.src = embedUrl;
+      if (controls) controls.style.display = 'none';
+      document.getElementById('skipIntroButton').hidden = true;
+      document.getElementById('skipOutroButton').hidden = true;
+      document.getElementById('animePlayerTitle').textContent = button.dataset.label || 'پخش از یوتیوب';
+      const note = document.querySelector('#animePlayer .player-note');
+      if (note) note.textContent = 'این قسمت با پلیر رسمی یوتیوب پخش می‌شود؛ ممکن است برای تماشا در ایران به فیلترشکن نیاز باشد.';
+      player.hidden = false;
+      player.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     function actionsHtml(ep) {
+      if (ep.youtube_embed) {
+        return `<button type="button" class="chapter-btn read" onclick="playYouTubeEpisode(this)" data-youtube-embed="${escapeHtml(ep.youtube_embed)}" data-label="قسمت ${escapeHtml(ep.number)} · ${escapeHtml(ep.quality || '')}">تماشا با پلیر یوتیوب</button>` +
+          (ep.download ? `<a href="${escapeHtml(mediaUrl(ep.download))}" target="_blank" rel="noopener" class="chapter-btn download">دانلود</a>` : '');
+      }
       const watch = ep.watch ? mediaUrl(ep.watch) : '';
       const watchAction = watch
         ? (isDirectVideo(watch)
@@ -323,6 +389,16 @@
       if (!player || !video || !source) return;
 
       destroyDashPlayer();
+      const youtubeFrame = document.getElementById('youtubeEmbedFrame');
+      const controls = document.querySelector('#animePlayer .player-controls');
+      if (youtubeFrame) {
+        youtubeFrame.src = 'about:blank';
+        youtubeFrame.hidden = true;
+      }
+      if (controls) controls.style.display = '';
+      video.style.display = '';
+      const note = document.querySelector('#animePlayer .player-note');
+      if (note) note.textContent = 'پخش فایل‌های MP4 و WebM و لینک‌های HLS/DASH پشتیبانی می‌شود؛ زیرنویس جداگانه باید با فرمت WebVTT (فایل VTT) باشد.';
       video.pause();
       video.removeAttribute('src');
       video.querySelectorAll('source, track').forEach(node => node.remove());
@@ -415,6 +491,7 @@
             <button type="button" class="player-close" onclick="closeAnimePlayer()">بستن پخش‌کننده ✕</button>
           </div>
           <div class="player-screen">
+            <iframe id="youtubeEmbedFrame" title="پلیر یوتیوب" hidden style="display:block;width:100%;aspect-ratio:16/9;border:0;background:#000" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             <video id="animeVideo" playsinline preload="metadata">
               مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
             </video>
