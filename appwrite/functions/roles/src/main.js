@@ -38,8 +38,10 @@ export default async ({ req, res, log, error }) => {
       });
       return response.documents.map((doc) => ({
         userId: doc.$id,
-        role: doc.role
-      })).filter((item) => item.role === "owner" || item.role === "admin" || item.role === "moderator");
+        role: doc.role,
+        customTag: typeof doc.customTag === "string" ? doc.customTag : "",
+        customTagColor: typeof doc.customTagColor === "string" ? doc.customTagColor : ""
+      })).filter((item) => item.role === "owner" || item.role === "admin" || item.role === "moderator" || item.customTag);
     };
 
     const method = String(req.method || "GET").toUpperCase();
@@ -56,16 +58,32 @@ export default async ({ req, res, log, error }) => {
       return res.json({ ok: true, roles: publicRoles });
     }
 
-    // Only the configured owner can grant or revoke admin and moderator roles.
-    if (callerId !== OWNER_USER_ID) return jsonError(res, 403, "Only the site owner can manage site roles.");
+    // Only the configured owner can manage roles and custom tags.
+    if (callerId !== OWNER_USER_ID) return jsonError(res, 403, "Only the site owner can manage site roles and custom tags.");
 
     const targetUserId = normalizeUserId(body.userId);
-    if (!targetUserId || targetUserId.length > 36) {
-      return jsonError(res, 400, "A valid user ID is required.");
-    }
-    if (targetUserId === OWNER_USER_ID) {
-      return jsonError(res, 400, "The owner's role cannot be changed here.");
-    }
+    if (!targetUserId || targetUserId.length > 36) return jsonError(res, 400, "A valid user ID is required.");
+    if (targetUserId === OWNER_USER_ID) return jsonError(res, 400, "The owner's role and custom tag cannot be changed here.");
+
+    const getExisting = async () => databases.getDocument({
+      databaseId: DATABASE_ID, collectionId: COLLECTION_ID, documentId: targetUserId
+    }).catch((readError) => {
+      if (Number(readError?.code) === 404) return null;
+      throw readError;
+    });
+    const createOrUpdate = async (data) => {
+      const existing = await getExisting();
+      if (existing) {
+        return databases.updateDocument({
+          databaseId: DATABASE_ID, collectionId: COLLECTION_ID, documentId: targetUserId, data, permissions: []
+        });
+      }
+      return databases.createDocument({
+        databaseId: DATABASE_ID, collectionId: COLLECTION_ID, documentId: targetUserId,
+        data: { role: "member", ...data }, permissions: []
+      });
+    };
+
     const roleActions = {
       "grant-admin": { role: "admin", grant: true },
       "revoke-admin": { role: "admin", grant: false },
@@ -73,58 +91,57 @@ export default async ({ req, res, log, error }) => {
       "revoke-moderator": { role: "moderator", grant: false }
     };
     const operation = roleActions[action];
-    if (!operation) return jsonError(res, 400, "Unknown role action.");
-
-    if (operation.grant) {
-      try {
-        await users.get({ userId: targetUserId });
-      } catch {
-        return jsonError(res, 404, "No Appwrite account exists with that user ID.");
+    if (operation) {
+      if (operation.grant) {
+        try { await users.get({ userId: targetUserId }); }
+        catch { return jsonError(res, 404, "No Appwrite account exists with that user ID."); }
+        await createOrUpdate({ role: operation.role });
+      } else {
+        const existing = await getExisting();
+        if (existing?.role === operation.role) {
+          if (existing.customTag) {
+            await databases.updateDocument({
+              databaseId: DATABASE_ID, collectionId: COLLECTION_ID, documentId: targetUserId,
+              data: { role: "member" }, permissions: []
+            });
+          } else {
+            await databases.deleteDocument({ databaseId: DATABASE_ID, collectionId: COLLECTION_ID, documentId: targetUserId });
+          }
+        }
       }
-      try {
-        await databases.createDocument({
-          databaseId: DATABASE_ID,
-          collectionId: COLLECTION_ID,
-          documentId: targetUserId,
-          data: { role: operation.role },
-          permissions: []
-        });
-      } catch (createError) {
-        const existing = await databases.getDocument({
-          databaseId: DATABASE_ID,
-          collectionId: COLLECTION_ID,
-          documentId: targetUserId
-        }).catch(() => null);
-        if (!existing) throw createError;
-        await databases.updateDocument({
-          databaseId: DATABASE_ID,
-          collectionId: COLLECTION_ID,
-          documentId: targetUserId,
-          data: { role: operation.role },
-          permissions: []
-        });
-      }
-    } else {
-      // Avoid removing a different role if the owner picked the wrong revoke action.
-      const existing = await databases.getDocument({
-        databaseId: DATABASE_ID,
-        collectionId: COLLECTION_ID,
-        documentId: targetUserId
-      }).catch((readError) => {
-        if (Number(readError?.code) === 404) return null;
-        throw readError;
-      });
-      if (existing?.role === operation.role) {
-        await databases.deleteDocument({
-          databaseId: DATABASE_ID,
-          collectionId: COLLECTION_ID,
-          documentId: targetUserId
-        });
-      }
+      log("Owner " + callerId + " completed " + action + " for " + targetUserId + ".");
+      return res.json({ ok: true, action, userId: targetUserId, role: operation.role });
     }
 
-    log(`Owner ${callerId} completed ${action} for ${targetUserId}.`);
-    return res.json({ ok: true, action, userId: targetUserId, role: operation.role });
+    if (action === "set-custom-tag") {
+      try { await users.get({ userId: targetUserId }); }
+      catch { return jsonError(res, 404, "No Appwrite account exists with that user ID."); }
+      const tag = typeof body.tag === "string" ? body.tag.trim() : "";
+      const color = typeof body.color === "string" ? body.color.trim() : "";
+      if (!tag || tag.length > 32) return jsonError(res, 400, "Tag text must be between 1 and 32 characters.");
+      if (!/^#[0-9a-fA-F]{6}$/.test(color)) return jsonError(res, 400, "A valid hex color is required.");
+      await createOrUpdate({ customTag: tag, customTagColor: color });
+      log("Owner " + callerId + " set a custom tag for " + targetUserId + ".");
+      return res.json({ ok: true, action, userId: targetUserId, tag, color });
+    }
+
+    if (action === "remove-custom-tag") {
+      const existing = await getExisting();
+      if (existing?.customTag) {
+        if (["admin", "moderator"].includes(existing.role)) {
+          await databases.updateDocument({
+            databaseId: DATABASE_ID, collectionId: COLLECTION_ID, documentId: targetUserId,
+            data: { customTag: "", customTagColor: "" }, permissions: []
+          });
+        } else {
+          await databases.deleteDocument({ databaseId: DATABASE_ID, collectionId: COLLECTION_ID, documentId: targetUserId });
+        }
+      }
+      log("Owner " + callerId + " removed a custom tag from " + targetUserId + ".");
+      return res.json({ ok: true, action, userId: targetUserId });
+    }
+
+    return jsonError(res, 400, "Unknown role action.");
   } catch (err) {
     error(err?.stack || String(err));
     return jsonError(res, 500, "Role operation failed.");

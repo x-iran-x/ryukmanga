@@ -1445,3 +1445,12 @@ audio {
 .role-secondary-btn { padding: 12px; background: #14231f; border: 1px solid #286858; border-radius: 8px; color: #a5f3df; cursor: pointer; font-weight: 700; }
 .role-secondary-btn:hover { background: #1b342d; }
 .role-admin-list > strong { margin-top: 8px; color: #eee8ff; }
+
+/* Owner-defined plain text tags */
+.site-custom-tag { display: inline-flex; align-items: center; max-width: 100%; padding: 4px 10px; border: 1px solid currentColor; border-radius: 999px; background: rgba(18, 16, 24, .82); font-size: .78rem; font-weight: 700; line-height: 1.6; overflow-wrap: anywhere; }
+.custom-tag-manager { margin-top: 24px; padding-top: 20px; border-top: 1px solid #302b38; }
+.custom-tag-color-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.custom-tag-color-row label { color: #c9c1d0; font-size: .82rem; }
+.custom-tag-color-row input[type="color"] { width: 48px; height: 38px; padding: 3px; border: 1px solid #393342; border-radius: 8px; background: #111115; cursor: pointer; }
+#customTagName { width: 100%; min-width: 0; padding: 12px 14px; background: #111115; border: 1px solid #33333d; border-radius: 8px; color: #fff; outline: none; }
+#customTagName:focus { border-color: #9b7dff; }

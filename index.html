@@ -252,7 +252,27 @@
             </div>
           </form>
           <p id="roleManagementMessage" class="role-management-message" role="status" aria-live="polite"></p>
-          <div id="roleAdminList" class="role-admin-list"><p>برای مشاهدهٔ مدیران و ناظران، سرویس نقش‌ها باید راه‌اندازی شود.</p></div>
+          <div id="roleAdminList" class="role-admin-list"><p>برای مشاهدهٔ مدیران، ناظران و برچسب‌ها، سرویس نقش‌ها باید راه‌اندازی شود.</p></div>
+          <div class="custom-tag-manager">
+            <div class="profile-panel-heading compact"><div><span class="profile-panel-kicker">CUSTOM LABELS</span><h3>برچسب دلخواه کاربران</h3></div><span class="profile-panel-icon" aria-hidden="true">Aa</span></div>
+            <p class="role-management-help">برای هر کاربر یک برچسب متنی بدون آیکون تعیین کن؛ نام و رنگش را خودت انتخاب می‌کنی.</p>
+            <form id="customTagForm" class="role-management-form">
+              <label for="customTagTargetUserId">شناسهٔ کاربر</label>
+              <input id="customTagTargetUserId" name="userId" type="text" maxlength="36" required placeholder="شناسهٔ دقیق کاربر" autocomplete="off" spellcheck="false">
+              <label for="customTagName">متن برچسب</label>
+              <input id="customTagName" name="tag" type="text" maxlength="32" required placeholder="مثلاً مترجم، حامی یا عضو ویژه">
+              <div class="custom-tag-color-row">
+                <label for="customTagColor">رنگ برچسب</label>
+                <input id="customTagColor" name="color" type="color" value="#d4c6ff">
+                <span id="customTagPreview" class="site-custom-tag" style="color:#d4c6ff;border-color:#d4c6ff">نمونه برچسب</span>
+              </div>
+              <div class="role-management-actions">
+                <button type="submit" class="auth-submit-btn">ذخیرهٔ برچسب</button>
+                <button type="button" class="role-revoke-btn" id="removeCustomTagBtn">حذف برچسب این کاربر</button>
+              </div>
+            </form>
+            <p id="customTagMessage" class="role-management-message" role="status" aria-live="polite"></p>
+          </div>
         </section>
 
         <section class="profile-library profile-panel" aria-labelledby="profileLibraryTitle">
@@ -706,6 +726,13 @@
     const revokeAdminBtn = document.getElementById('revokeAdminBtn');
     const grantModeratorBtn = document.getElementById('grantModeratorBtn');
     const revokeModeratorBtn = document.getElementById('revokeModeratorBtn');
+    const customTagForm = document.getElementById('customTagForm');
+    const customTagTargetUserId = document.getElementById('customTagTargetUserId');
+    const customTagName = document.getElementById('customTagName');
+    const customTagColor = document.getElementById('customTagColor');
+    const customTagPreview = document.getElementById('customTagPreview');
+    const customTagMessage = document.getElementById('customTagMessage');
+    const removeCustomTagBtn = document.getElementById('removeCustomTagBtn');
 
     function roleLabel(role) {
       if (role === 'owner') return '♛ مالک سایت';
@@ -716,9 +743,14 @@
 
     function renderRoleBadges(user) {
       if (!profileRoleBadges) return;
-      const role = user?.$id?.toLowerCase() === OWNER_USER_ID ? 'owner' : (publicRoleMap.get(user?.$id) || '');
-      profileRoleBadges.innerHTML = role ? '<span class="site-role-badge ' + role + '">' + escapeHtml(roleLabel(role)) + '</span>' : '';
-      if (roleManagementPanel) roleManagementPanel.hidden = role !== 'owner';
+      const assignment = publicRoleMap.get(user?.$id) || {};
+      const role = user?.$id?.toLowerCase() === OWNER_USER_ID ? 'owner' : (['admin', 'moderator'].includes(assignment.role) ? assignment.role : '');
+      const roleBadge = role ? '<span class="site-role-badge ' + role + '">' + escapeHtml(roleLabel(role)) + '</span>' : '';
+      const customTag = assignment.customTag && assignment.customTagColor
+        ? '<span class="site-custom-tag" style="color:' + escapeHtml(assignment.customTagColor) + ';border-color:' + escapeHtml(assignment.customTagColor) + '">' + escapeHtml(assignment.customTag) + '</span>'
+        : '';
+      profileRoleBadges.innerHTML = roleBadge + customTag;
+      if (roleManagementPanel) roleManagementPanel.hidden = user?.$id?.toLowerCase() !== OWNER_USER_ID;
     }
 
     function setRoleMessage(message = '', success = false) {
@@ -757,7 +789,7 @@
       if (user.$id?.toLowerCase() === OWNER_USER_ID) renderRoleBadges(user);
       try {
         const result = await callRolesFunction({ action: 'list' });
-        publicRoleMap = new Map((result.roles || []).map(item => [item.userId, item.role]));
+        publicRoleMap = new Map((result.roles || []).map(item => [item.userId, { role: item.role, customTag: item.customTag || '', customTagColor: item.customTagColor || '' }]));
       } catch (error) {
         console.warn('Role service is not ready:', error);
       }
@@ -767,13 +799,16 @@
 
     function renderAdminList() {
       if (!roleAdminList) return;
-      const admins = [...publicRoleMap.entries()].filter(([, role]) => role === 'admin');
-      const moderators = [...publicRoleMap.entries()].filter(([, role]) => role === 'moderator');
-      const rows = (items, role) => items.map(([userId]) => '<div class="role-admin-row"><code>' + escapeHtml(userId) + '</code><span class="site-role-badge ' + role + '">' + escapeHtml(roleLabel(role)) + '</span></div>').join('');
-      roleAdminList.innerHTML = (admins.length || moderators.length)
-        ? (admins.length ? '<strong>مدیران فعلی</strong>' + rows(admins, 'admin') : '')
-          + (moderators.length ? '<strong>ناظران فعلی</strong>' + rows(moderators, 'moderator') : '')
-        : '<p>هنوز مدیر یا ناظری ثبت نشده یا سرویس نقش‌ها در دسترس نیست.</p>';
+      const admins = [...publicRoleMap.entries()].filter(([, item]) => item.role === 'admin');
+      const moderators = [...publicRoleMap.entries()].filter(([, item]) => item.role === 'moderator');
+      const tagged = [...publicRoleMap.entries()].filter(([, item]) => item.customTag);
+      const roleRows = (items, role) => items.map(([userId]) => '<div class="role-admin-row"><code>' + escapeHtml(userId) + '</code><span class="site-role-badge ' + role + '">' + escapeHtml(roleLabel(role)) + '</span></div>').join('');
+      const tagRows = tagged.map(([userId, item]) => '<div class="role-admin-row"><code>' + escapeHtml(userId) + '</code><span class="site-custom-tag" style="color:' + escapeHtml(item.customTagColor || '#d4c6ff') + ';border-color:' + escapeHtml(item.customTagColor || '#d4c6ff') + '">' + escapeHtml(item.customTag) + '</span></div>').join('');
+      roleAdminList.innerHTML = (admins.length || moderators.length || tagged.length)
+        ? (admins.length ? '<strong>مدیران فعلی</strong>' + roleRows(admins, 'admin') : '')
+          + (moderators.length ? '<strong>ناظران فعلی</strong>' + roleRows(moderators, 'moderator') : '')
+          + (tagged.length ? '<strong>برچسب‌های سفارشی</strong>' + tagRows : '')
+        : '<p>هنوز مدیر، ناظر یا برچسب سفارشی ثبت نشده یا سرویس نقش‌ها در دسترس نیست.</p>';
     }
 
     async function updateSiteRole(action) {
@@ -806,6 +841,59 @@
     revokeAdminBtn?.addEventListener('click', () => updateSiteRole('revoke-admin'));
     grantModeratorBtn?.addEventListener('click', () => updateSiteRole('grant-moderator'));
     revokeModeratorBtn?.addEventListener('click', () => updateSiteRole('revoke-moderator'));
+
+    function setCustomTagMessage(message = '', success = false) {
+      if (!customTagMessage) return;
+      customTagMessage.textContent = message;
+      customTagMessage.classList.toggle('success', success);
+    }
+
+    function updateCustomTagPreview() {
+      if (!customTagPreview || !customTagColor) return;
+      const color = /^#[0-9a-f]{6}$/i.test(customTagColor.value) ? customTagColor.value : '#d4c6ff';
+      customTagPreview.style.color = color;
+      customTagPreview.style.borderColor = color;
+      customTagPreview.textContent = String(customTagName?.value || '').trim() || 'نمونه برچسب';
+    }
+    customTagName?.addEventListener('input', updateCustomTagPreview);
+    customTagColor?.addEventListener('input', updateCustomTagPreview);
+
+    async function updateCustomTag(remove = false) {
+      const userId = String(customTagTargetUserId?.value || '').trim().toLowerCase();
+      const tag = String(customTagName?.value || '').trim();
+      const color = String(customTagColor?.value || '').trim();
+      if (!userId) {
+        setCustomTagMessage('شناسهٔ کاربر را وارد کن.');
+        customTagTargetUserId?.focus();
+        return;
+      }
+      if (!remove && !tag) {
+        setCustomTagMessage('متن برچسب را وارد کن.');
+        customTagName?.focus();
+        return;
+      }
+      setCustomTagMessage('');
+      const buttons = customTagForm?.querySelectorAll('button');
+      buttons?.forEach(button => { button.disabled = true; });
+      try {
+        await callRolesFunction(remove
+          ? { action: 'remove-custom-tag', userId }
+          : { action: 'set-custom-tag', userId, tag, color });
+        setCustomTagMessage(remove ? 'برچسب کاربر حذف شد.' : 'برچسب سفارشی ذخیره شد.', true);
+        if (remove) customTagName.value = '';
+        await loadPublicRoles();
+      } catch (error) {
+        setCustomTagMessage(error?.message || 'ذخیرهٔ برچسب انجام نشد.');
+      } finally {
+        buttons?.forEach(button => { button.disabled = false; });
+      }
+    }
+    customTagForm?.addEventListener('submit', event => {
+      event.preventDefault();
+      updateCustomTag(false);
+    });
+    removeCustomTagBtn?.addEventListener('click', () => updateCustomTag(true));
+    updateCustomTagPreview();
 
     function setProfileMessage(message = '', success = false) {
       if (!profileMessage) return;
