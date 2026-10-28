@@ -27,7 +27,7 @@ collections:
       - { name: slug, label: "شناسه انگلیسی (slug)", widget: string, required: true }
       - { name: title, label: "نام انگلیسی", widget: string, required: true }
       - { name: title_fa, label: "نام فارسی", widget: string, required: true }
-      - { name: cover, label: "جلد", widget: image, required: false, media_folder: /media/covers, public_folder: /media/covers }
+      - { name: cover, label: "جلد", widget: image, required: false, media_folder: media/covers, public_folder: /media/covers }
       - { name: volumes_count, label: "تعداد جلدها", widget: number, value_type: int, required: false }
       - name: genres
         label: "ژانرها"
@@ -52,7 +52,7 @@ collections:
     fields:
       - { name: manga, label: "شناسه مانگا", widget: string, required: true }
       - { name: number, label: "شماره جلد", widget: number, value_type: int, required: true }
-      - { name: download_file, label: "فایل PDF/ZIP", widget: file, required: false, media_folder: /media/files, public_folder: /media/files }
+      - { name: download_file, label: "فایل PDF/ZIP", widget: file, required: false, media_folder: media/files, public_folder: /media/files }
       - { name: download_link, label: "لینک دانلود خارجی", widget: string, required: false }
       - { name: read_link, label: "لینک مطالعه آنلاین", widget: string, required: false }
 
@@ -70,7 +70,7 @@ collections:
       - { name: slug, label: "شناسه انگلیسی (slug)", widget: string, required: true }
       - { name: title, label: "نام انگلیسی", widget: string, required: true }
       - { name: title_fa, label: "نام فارسی", widget: string, required: true }
-      - { name: poster, label: "پوستر", widget: image, required: false, media_folder: /media/posters, public_folder: /media/posters }
+      - { name: poster, label: "پوستر", widget: image, required: false, media_folder: media/posters, public_folder: /media/posters }
       - { name: episodes_count, label: "تعداد قسمت‌ها", widget: number, value_type: int, required: false }
       - name: genres
         label: "ژانرها"
@@ -119,9 +119,9 @@ collections:
       - { name: source, label: "منبع (مثلاً Death Note OST)", widget: string, required: true }
       - { name: artist, label: "خواننده/آهنگساز", widget: string, required: false }
       - { name: type, label: "نوع", widget: select, options: ["OST", "اوپنینگ", "اندینگ", "اینسرت سانگ"], required: true }
-      - { name: artwork, label: "کاور", widget: image, required: false, media_folder: /media/artwork, public_folder: /media/artwork }
+      - { name: artwork, label: "کاور", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
       - { name: icon, label: "ایموجی جایگزین کاور", widget: string, required: false }
-      - { name: audio_file, label: "فایل صوتی", widget: file, required: false, media_folder: /media/audio, public_folder: /media/audio }
+      - { name: audio_file, label: "فایل صوتی", widget: file, required: false, media_folder: media/audio, public_folder: /media/audio }
       - { name: audio_link, label: "لینک مستقیم صوت", widget: string, required: false }
       - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
 
@@ -139,8 +139,8 @@ collections:
       - { name: source, label: "منبع", widget: string, required: true }
       - { name: artist, label: "هنرمند", widget: string, required: false }
       - { name: type, label: "نوع", widget: string, required: false }
-      - { name: artwork, label: "کاور", widget: image, required: false, media_folder: /media/artwork, public_folder: /media/artwork }
-      - { name: video_file, label: "فایل ویدیو", widget: file, required: false, media_folder: /media/videos, public_folder: /media/videos }
+      - { name: artwork, label: "کاور", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
+      - { name: video_file, label: "فایل ویدیو", widget: file, required: false, media_folder: media/videos, public_folder: /media/videos }
       - { name: video_link, label: "لینک ویدیو", widget: string, required: false }
       - { name: draft, label: "پیش‌نویس", widget: boolean, default: false, required: false }
 
@@ -158,7 +158,7 @@ collections:
       - { name: slug, label: "شناسه انگلیسی (slug)", widget: string, required: true }
       - { name: title, label: "عنوان انگلیسی", widget: string, required: false }
       - { name: title_fa, label: "عنوان فارسی", widget: string, required: true }
-      - { name: cover, label: "تصویر مقاله", widget: image, required: false, media_folder: /media/artwork, public_folder: /media/artwork }
+      - { name: cover, label: "تصویر مقاله", widget: image, required: false, media_folder: media/artwork, public_folder: /media/artwork }
       - { name: summary, label: "خلاصه", widget: text, required: false }
       - { name: body, label: "متن مقاله", widget: markdown, required: true }
       - { name: author, label: "نویسنده", widget: string, required: false }
