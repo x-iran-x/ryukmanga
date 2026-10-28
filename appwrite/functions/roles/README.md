@@ -10,7 +10,7 @@ Set `OWNER_USER_ID=sobhan` in the function's environment variables. The function
 
 1. In Appwrite Console, create a Database for site roles (or use a dedicated existing database).
 2. Create a collection named `roles` with a required string attribute named `role` (maximum length 16). Set document security on and do not grant client users create/update/delete permissions. Keep collection/document access restricted; the function uses its server API key.
-3. Create an API key with only the database/document read and write scopes needed for this collection. Store it as the function secret `APPWRITE_API_KEY`; never put it in browser code or commit it to GitHub.
+3. Create an API key with only the database/document read/write scopes for the roles collection plus the Users read scope needed to validate target accounts. Store it as the function secret `APPWRITE_API_KEY`; never put it in browser code or commit it to GitHub.
 4. Configure function variables:
    - `OWNER_USER_ID=sobhan`
    - `ROLES_DATABASE_ID=<database ID>`
