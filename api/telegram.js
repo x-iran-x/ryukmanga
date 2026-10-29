@@ -9,14 +9,12 @@ function escapeHtml(value = "") {
 function menuKeyboard() {
   return {
     inline_keyboard: [
-      [{ text: "🚀 باز کردن RyukManga", web_app: { url: "https://ryukmanga.vercel.app/" } }],
       [
         { text: "📚 مانگاها", url: "https://ryukmanga.vercel.app/manga/" },
         { text: "🎬 انیمه‌ها", url: "https://ryukmanga.vercel.app/anime/" }
       ],
       [
-        { text: "🎵 موسیقی", url: "https://ryukmanga.vercel.app/music/" },
-        { text: "🌐 وب‌سایت", url: "https://ryukmanga.vercel.app/" }
+        { text: "🎵 موسیقی", url: "https://ryukmanga.vercel.app/music/" }
       ],
       [{ text: "ℹ️ راهنما", callback_data: "help" }]
     ]
