@@ -37,6 +37,24 @@ async function telegram(method, payload) {
   return data.result;
 }
 
+async function isChannelMember(userId) {
+  const result = await telegram("getChatMember", {
+    chat_id: "@RyukManga",
+    user_id: userId
+  });
+  return ["creator", "administrator", "member"].includes(result.status) ||
+    (result.status === "restricted" && result.is_member === true);
+}
+
+function joinKeyboard() {
+  return {
+    inline_keyboard: [
+      [{ text: "📢 عضویت در کانال RyukManga", url: "https://t.me/RyukManga" }],
+      [{ text: "✅ عضو شدم", callback_data: "check_join" }]
+    ]
+  };
+}
+
 async function sendMessage(chatId, text, extra = {}) {
   return telegram("sendMessage", {
     chat_id: chatId,
@@ -85,8 +103,8 @@ export default async function handler(req, res) {
     if (/^\/start(?:@\w+)?(?:\s|$)/i.test(text)) {
       await sendMessage(
         chatId,
-        `سلام ${firstName}! 👋\n\nبه <b>RyukManga</b> خوش اومدی؛ دنیای انیمه و مانگا.\n\nاز منوی زیر برای ورود مستقیم به بخش‌های سایت استفاده کن. 🖤`,
-        { reply_markup: menuKeyboard() }
+        `سلام ${firstName}! 👋\n\nبرای استفاده از ربات RyukManga، لطفاً اول در کانال زیر عضو شو و بعد روی «عضو شدم» بزن. 🖤\n\n📢 @RyukManga`,
+        { reply_markup: joinKeyboard() }
       );
     } else if (/^\/(help|about)(?:@\w+)?(?:\s|$)/i.test(text)) {
       await sendMessage(
