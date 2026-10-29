@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/_media/:path*",
+      "destination": "https://x-iran-x.github.io/ryukmanga-media/:path*"
+    }
+  ]
+}
