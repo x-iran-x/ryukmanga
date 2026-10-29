@@ -86,7 +86,7 @@ export default async function handler(req, res) {
         try {
           const joined = await isChannelMember(callback.from.id);
           if (joined) {
-            await sendMessage(chatId, "عضویتت تأیید شد! خوش اومدی به RyukManga 🖤\\nاز منوی زیر استفاده کن.", { reply_markup: menuKeyboard() });
+            await sendMessage(chatId, "عضویتت تأیید شد! خوش اومدی به RyukManga 🖤\nاز منوی زیر استفاده کن.", { reply_markup: menuKeyboard() });
           } else {
             await sendMessage(chatId, "هنوز عضویتت در کانال تأیید نشده. اول عضو کانال شو و بعد دوباره روی «عضو شدم» بزن. 👇", { reply_markup: joinKeyboard() });
           }
@@ -97,7 +97,7 @@ export default async function handler(req, res) {
       } else if (callback.data === "help" && callback.message?.chat?.id) {
         await sendMessage(
           callback.message.chat.id,
-          "راهنمای RyukManga ✨\\n\\nبرای باز کردن خود سایت، از دکمهٔ آبی تلگرام کنار کادر پیام استفاده کن. با دکمه‌های «مانگاها»، «انیمه‌ها» و «موسیقی» هم می‌تونی مستقیم وارد بخش مربوطه بشی.\\n\\nدستورهای موجود: /start ، /help ، /about",
+          "راهنمای RyukManga ✨\n\nبرای باز کردن خود سایت، از دکمهٔ آبی تلگرام کنار کادر پیام استفاده کن. با دکمه‌های «مانگاها»، «انیمه‌ها» و «موسیقی» هم می‌تونی مستقیم وارد بخش مربوطه بشی.\n\nدستورهای موجود: /start ، /help ، /about",
           { reply_markup: menuKeyboard() }
         );
       }
