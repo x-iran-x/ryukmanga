@@ -27,14 +27,14 @@ async function telegram(method, payload) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) throw new Error("Missing TELEGRAM_BOT_TOKEN environment variable");
 
-  const response = await fetch(\`${TELEGRAM_API}/bot${token}/${method}\`, {
+  const response = await fetch(`${TELEGRAM_API}/bot${token}/${method}`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(payload)
   });
   const data = await response.json();
   if (!response.ok || !data.ok) {
-    throw new Error(\`Telegram API ${method} failed: ${data.description || response.status}\`);
+    throw new Error(`Telegram API ${method} failed: ${data.description || response.status}`);
   }
   return data.result;
 }
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
     if (/^\/start(?:@\w+)?(?:\s|$)/i.test(text)) {
       await sendMessage(
         chatId,
-        \`سلام ${firstName}! 👋\n\nبه <b>RyukManga</b> خوش اومدی؛ دنیای انیمه و مانگا.\n\nاز منوی زیر برای ورود مستقیم به بخش‌های سایت استفاده کن. 🖤\`,
+        `سلام ${firstName}! 👋\n\nبه <b>RyukManga</b> خوش اومدی؛ دنیای انیمه و مانگا.\n\nاز منوی زیر برای ورود مستقیم به بخش‌های سایت استفاده کن. 🖤`,
         { reply_markup: menuKeyboard() }
       );
     } else if (/^\/(help|about)(?:@\w+)?(?:\s|$)/i.test(text)) {
